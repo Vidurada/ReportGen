@@ -42,6 +42,7 @@ public class main extends javax.swing.JFrame {
         //rejectPartNumberComboBox();
         setItemNumberColumn(productionTable, productionTable.getColumnModel().getColumn(3));
         setBaseColumn(rejectAnalysisTable, rejectAnalysisTable.getColumnModel().getColumn(0));
+        
 
     }
 
@@ -109,7 +110,76 @@ public class main extends javax.swing.JFrame {
     
     }
     
+    public void insertDatabaseReject(){
+    try {
+            rejectAnalysisTable.getCellEditor().stopCellEditing();
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            Date today = Calendar.getInstance().getTime(); 
+            String reportDate = df.format(today);
+
+            int emptyRows = 0;
+            rowSearch:
+            for (int row = 0; row < productionTable.getRowCount(); row++) { //Iterate through all the rows
+                for (int col = 0; col <productionTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+                    if (productionTable.getValueAt(row, col) != null) { //Check if the box is empty
+                        continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
+                    }
+                }
+                emptyRows++; //Conditional never evaluated to true so none of the columns in the row contained anything
+            }
+            
+            //System.out.println(emptyRows);
+
+            int rows = productionTable.getRowCount();
+            //System.out.println(rows);
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
+            String queryco = "Insert into reject(PartNumber,Total) values (?,?);";
+            pst = connection.prepareStatement(queryco);
+            
+            int fullRows= rows-emptyRows;
+            
+            for (int row = 0; row < fullRows; row++) {
+                
+                String partNumber = (String) productionTable.getValueAt(row, 3);
+                int int_gty =columnSum(row+1);
+                //String pack_qty = (String) productionTable.getValueAt(row, 5);
+                
+                pst.setString(1, partNumber);
+                pst.setInt(2, int_gty);
+
+                pst.addBatch();
+                
+            }
+            //productionTable.getSelectionModel().clearSelection();
+            
+            pst.executeBatch();
+            //productionTable.setEnabled(false);
+            //prodTableInsert.setEnabled(false);
+            //prodTableUpdate.setEnabled(rootPaneCheckingEnabled);
+            JOptionPane.showMessageDialog(null, "Saved Entries in the Database", "Successful!", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
     
+    }
+    
+    
+     public int columnSum(int n) {
+
+        int rowsCount = rejectAnalysisTable.getRowCount();
+
+        int sum = 0;
+        for (int i = 0; i < rowsCount; i++) {
+            //int amount = integer.parseInt(rejectAnalysisTable.getValueAt(i, 2).toString());
+            Object value = rejectAnalysisTable.getValueAt(i, n);
+            if (value != null) {
+                sum = sum + Integer.parseInt(rejectAnalysisTable.getValueAt(i, n).toString());
+            }
+        }
+        return sum;
+
+    }
     
     
     
@@ -196,6 +266,9 @@ public class main extends javax.swing.JFrame {
         sportColumn.setCellRenderer(renderer);
     }
     
+    
+    
+    
     public void setBaseColumn(JTable table,
             TableColumn sportColumn) {
         //Set up the editor for the sport cells.
@@ -221,6 +294,11 @@ public class main extends javax.swing.JFrame {
         renderer.setToolTipText("Click to select base");
         sportColumn.setCellRenderer(renderer);
     }
+    
+    
+    
+    
+    
 
     /*public void partnumberComboBox()
 	{
@@ -301,6 +379,9 @@ public class main extends javax.swing.JFrame {
         jPanel6 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         rejectAnalysisTable = new javax.swing.JTable();
+        jButton1 = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
+        item2 = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTable3 = new javax.swing.JTable();
@@ -482,15 +563,37 @@ public class main extends javax.swing.JFrame {
                 "Base", "Item 1", "Item 2", "Item 3", "Item 4/5", "Item 6", "Item 7", "Total"
             }
         ));
+        rejectAnalysisTable.setColumnSelectionAllowed(true);
         jScrollPane2.setViewportView(rejectAnalysisTable);
+        rejectAnalysisTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+
+        jButton1.setText("Sum");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jLabel4.setText("Item 1");
+
+        item2.setText("Item 2");
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1257, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1257, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGap(228, 228, 228)
+                        .addComponent(jLabel4)
+                        .addGap(117, 117, 117)
+                        .addComponent(item2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton1)))
                 .addContainerGap(51, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
@@ -498,7 +601,12 @@ public class main extends javax.swing.JFrame {
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 501, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(45, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jLabel4)
+                    .addComponent(item2))
+                .addContainerGap())
         );
 
         jTabbedPane1.addTab("Reject Analysis", jPanel6);
@@ -690,6 +798,12 @@ public class main extends javax.swing.JFrame {
         removeThisRow();
     }//GEN-LAST:event_removeThisRowActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        //item2.setText( Integer.toString(columnSum(3)));
+        insertDatabaseReject();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -729,10 +843,13 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JMenuItem addAbove;
     private javax.swing.JMenuItem addBelow;
     private javax.swing.JButton addRow;
+    private javax.swing.JLabel item2;
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
