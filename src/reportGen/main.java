@@ -85,6 +85,11 @@ public class main extends javax.swing.JFrame {
                 String pack_qty = (String) productionTable.getValueAt(row, 5);
                 int int_pack_qty= Integer.parseInt(pack_qty);
                 
+                downTimeTable.setValueAt(row+1, row, 0);
+                downTimeTable.setValueAt(partNumber, row, 1);
+                //String PartNumber = (String) productionTable.getValueAt(row, 3);
+                
+                
                 pst.setString(1, SOnumber);
                 pst.setString(2, customer);
                 pst.setString(3, reportDate);
@@ -110,9 +115,12 @@ public class main extends javax.swing.JFrame {
     
     }
     
-    public void autoUpdateDownTime(){
+    
+     public void prodOEE(){
     try {
-         productionTable.getCellEditor().stopCellEditing();
+            productionTable.getCellEditor().stopCellEditing();
+            
+
             int emptyRows = 0;
             rowSearch:
             for (int row = 0; row < productionTable.getRowCount(); row++) { //Iterate through all the rows
@@ -133,22 +141,100 @@ public class main extends javax.swing.JFrame {
             int fullRows= rows-emptyRows;
 
             for (int row = 0; row < fullRows; row++) {
-                String PartNumber = (String) productionTable.getValueAt(row, 3);
-                
+                String SOnumber = (String) productionTable.getValueAt(row, 1);
                 //System.out.println(SOnumber);
+                String customer = (String) productionTable.getValueAt(row, 2);
+                String shift = shiftCombo.getSelectedItem().toString();
+                String partNumber = (String) productionTable.getValueAt(row, 3);
+                String qty = (String) productionTable.getValueAt(row, 4);
+                int int_gty = Integer.parseInt(qty);
+                String pack_qty = (String) productionTable.getValueAt(row, 5);
+                int int_pack_qty= Integer.parseInt(pack_qty);
+                
                 downTimeTable.setValueAt(row+1, row, 0);
-                downTimeTable.setValueAt(PartNumber, row, 1);
+                downTimeTable.setValueAt(partNumber, row, 1);
+                
+                
+                oeeTable.setValueAt(partNumber, row, 0);
+                oeeTable.setValueAt(SOnumber, row, 1);
+                oeeTable.setValueAt(int_gty , row, 4);
+                //String PartNumber = (String) productionTable.getValueAt(row, 3);
+                
+                
+                
+
+                
                 
             }
             //productionTable.getSelectionModel().clearSelection();
             
+            ;
+            //productionTable.setEnabled(false);
             
+            //prodTableUpdate.setEnabled(rootPaneCheckingEnabled);
+            JOptionPane.showMessageDialog(null, "Saved Entries in the Database", "Successful!", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
         }
     
     }
+    
+    
+    
+    
+    public void updateRows(){
+        
+       try{ 
+           
+       productionTable.getCellEditor().stopCellEditing();
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            Date today = Calendar.getInstance().getTime(); 
+            String reportDate = df.format(today);
+            
+       int row = productionTable.getSelectedRow();
+       
+       Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
+       String queryco = "Update production Set SO_Num=?,Customer=?,Shift=?,prod_qty=?,pack_qty=? where PartNumber=?";
+       pst = connection.prepareStatement(queryco);
+       //Update production set 
+       String SOnumber = (String) productionTable.getValueAt(row, 1);
+                //System.out.println(SOnumber);
+                String customer = (String) productionTable.getValueAt(row, 2);
+                String shift = shiftCombo.getSelectedItem().toString();
+                String partNumber = (String) productionTable.getValueAt(row, 3);
+                String qty = (String) productionTable.getValueAt(row, 4);
+                int int_gty = Integer.parseInt(qty);
+                String pack_qty = (String) productionTable.getValueAt(row, 5);
+                int int_pack_qty= Integer.parseInt(pack_qty);
+                System.out.println(partNumber);
+                //downTimeTable.setValueAt(row+1, row, 0);
+                //downTimeTable.setValueAt(partNumber, row, 1);
+                //String PartNumber = (String) productionTable.getValueAt(row, 3);
+                
+                
+                pst.setString(1, SOnumber);
+                pst.setString(2, customer);
+                //pst.setString(3, reportDate);
+                pst.setString(3, shift);
+                pst.setInt(4, int_gty);
+                pst.setInt(5, int_pack_qty);
+                pst.setString(6, partNumber);
+                //pst.setString(7, reportDate);
+
+                pst.addBatch();
+                JOptionPane.showMessageDialog(null, "Saved Entries in the Database", "Successful!", JOptionPane.INFORMATION_MESSAGE);
+       
+       
+       }
+       catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    
+    
+    }
+    
+  
     
     public void timeCalculate(){
     try {
@@ -195,7 +281,7 @@ public class main extends javax.swing.JFrame {
             
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage());
+            //JOptionPane.showMessageDialog(this, e.getMessage());
         }
     
     }
@@ -227,7 +313,7 @@ public class main extends javax.swing.JFrame {
             int rows = productionTable.getRowCount();
             //System.out.println(rows);
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
-            String queryco = "Insert into reject(PartNumber,Total) values (?,?);";
+            String queryco = "Update production set wastage = ? where PartNumber=? and Date= ? and Shift =?";
             pst = connection.prepareStatement(queryco);
             
             int fullRows= rows-emptyRows;
@@ -238,9 +324,14 @@ public class main extends javax.swing.JFrame {
                 int int_gty =columnSum(row+1);
                 //String pack_qty = (String) productionTable.getValueAt(row, 5);
                 
-                pst.setString(1, partNumber);
-                pst.setInt(2, int_gty);
-
+                //pst.setString(1, partNumber);
+                String shift = shiftCombo.getSelectedItem().toString();
+                pst.setInt(1, int_gty);
+                pst.setString(2, partNumber);
+                pst.setString(3, reportDate);
+                pst.setString(4, shift);
+               
+                
                 pst.addBatch();
                 
             }
@@ -257,6 +348,58 @@ public class main extends javax.swing.JFrame {
         }
     
     }
+    
+    
+    public void oeeReject(){
+    try {
+            rejectAnalysisTable.getCellEditor().stopCellEditing();
+           
+            int emptyRows = 0;
+            rowSearch:
+            for (int row = 0; row < productionTable.getRowCount(); row++) { //Iterate through all the rows
+                for (int col = 0; col <productionTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+                    if (productionTable.getValueAt(row, col) != null) { //Check if the box is empty
+                        continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
+                    }
+                }
+                emptyRows++; //Conditional never evaluated to true so none of the columns in the row contained anything
+            }
+            
+            //System.out.println(emptyRows);
+
+            int rows = productionTable.getRowCount();
+            //System.out.println(rows);
+            
+            
+            int fullRows= rows-emptyRows;
+            
+            for (int row = 0; row < fullRows; row++) {
+                
+                String partNumber = (String) productionTable.getValueAt(row, 3);
+                int wastage =columnSum(row+1);
+                //String pack_qty = (String) productionTable.getValueAt(row, 5);
+                
+                oeeTable.setValueAt(wastage, row, 3);
+                //pst.setString(1, partNumber);
+                ;
+                
+            }
+            //productionTable.getSelectionModel().clearSelection();
+            
+            
+            //productionTable.setEnabled(false);
+            //prodTableInsert.setEnabled(false);
+            //prodTableUpdate.setEnabled(rootPaneCheckingEnabled);
+            
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    
+    }
+    
+    
+    
     
     
      public int columnSum(int n) {
@@ -427,22 +570,27 @@ public class main extends javax.swing.JFrame {
         addRow = new javax.swing.JButton();
         removeRow = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        prodTableUpdate = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
         jPanel6 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         rejectAnalysisTable = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         item2 = new javax.swing.JLabel();
+        jButton5 = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTable3 = new javax.swing.JTable();
         jScrollPane5 = new javax.swing.JScrollPane();
         downTimeTable = new javax.swing.JTable();
-        jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jPanel8 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         jTable4 = new javax.swing.JTable();
+        jPanel3 = new javax.swing.JPanel();
+        jScrollPane8 = new javax.swing.JScrollPane();
+        oeeTable = new javax.swing.JTable();
         shiftCombo = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
@@ -559,6 +707,20 @@ public class main extends javax.swing.JFrame {
             }
         });
 
+        prodTableUpdate.setText("Update");
+        prodTableUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                prodTableUpdateActionPerformed(evt);
+            }
+        });
+
+        jButton3.setText("OEE Insert");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -568,11 +730,18 @@ public class main extends javax.swing.JFrame {
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1255, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addComponent(jLabel2)
-                        .addGap(124, 124, 124)
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel5Layout.createSequentialGroup()
+                                .addGap(12, 12, 12)
+                                .addComponent(jLabel2)
+                                .addGap(124, 124, 124)
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                                .addComponent(jButton3)
+                                .addGap(18, 18, 18)
+                                .addComponent(prodTableUpdate)
+                                .addGap(18, 18, 18)))
                         .addComponent(prodTableInsert)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -600,7 +769,10 @@ public class main extends javax.swing.JFrame {
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel1)
                             .addComponent(jLabel2)))
-                    .addComponent(prodTableInsert))
+                    .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(prodTableInsert)
+                        .addComponent(prodTableUpdate)
+                        .addComponent(jButton3)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -632,6 +804,13 @@ public class main extends javax.swing.JFrame {
 
         item2.setText("Item 2");
 
+        jButton5.setText("OEE Insert");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -647,6 +826,8 @@ public class main extends javax.swing.JFrame {
                         .addGap(117, 117, 117)
                         .addComponent(item2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton5)
+                        .addGap(18, 18, 18)
                         .addComponent(jButton1)))
                 .addContainerGap(51, Short.MAX_VALUE))
         );
@@ -659,7 +840,8 @@ public class main extends javax.swing.JFrame {
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jLabel4)
-                    .addComponent(item2))
+                    .addComponent(item2)
+                    .addComponent(jButton5))
                 .addContainerGap())
         );
 
@@ -696,13 +878,6 @@ public class main extends javax.swing.JFrame {
         ));
         jScrollPane5.setViewportView(downTimeTable);
 
-        jButton3.setText("Populate");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
-            }
-        });
-
         jButton4.setText("Calculate");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -721,9 +896,7 @@ public class main extends javax.swing.JFrame {
                     .addGroup(jPanel7Layout.createSequentialGroup()
                         .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 575, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton3)
-                            .addComponent(jButton4))
+                        .addComponent(jButton4)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -734,8 +907,6 @@ public class main extends javax.swing.JFrame {
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
-                        .addComponent(jButton3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButton4)
                         .addGap(49, 49, 49)))
                 .addGap(40, 40, 40)
@@ -776,6 +947,38 @@ public class main extends javax.swing.JFrame {
         );
 
         jTabbedPane1.addTab("Planned Downtime", jPanel8);
+
+        oeeTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "Item", "SO Number", "SWO", "Total Reject/Rework", "Total Output", "Total Available Time", "Planned Downtime", "Downtime", "Operating Time", "Ideal Run Rate", "Avialability Rate", "Performance Rate", "Quality Rate", "Plant OEE"
+            }
+        ));
+        jScrollPane8.setViewportView(oeeTable);
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane8, javax.swing.GroupLayout.DEFAULT_SIZE, 1298, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(22, 22, 22)
+                .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(108, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("OEE", jPanel3);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -820,7 +1023,9 @@ public class main extends javax.swing.JFrame {
     private void prodTableInsertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prodTableInsertActionPerformed
         // TODO add your handling code here:
         //insertDatabaseProd();
+        //autoUpdateDownTime();
         insertDatabaseProdPack();
+      
     }//GEN-LAST:event_prodTableInsertActionPerformed
 
     private void addRowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addRowActionPerformed
@@ -901,15 +1106,27 @@ public class main extends javax.swing.JFrame {
         insertDatabaseReject();
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
-        autoUpdateDownTime();
-    }//GEN-LAST:event_jButton3ActionPerformed
-
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
         timeCalculate();
     }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void prodTableUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prodTableUpdateActionPerformed
+        // TODO add your handling code here:
+        updateRows();
+        
+        
+    }//GEN-LAST:event_prodTableUpdateActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        prodOEE();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+         oeeReject();
+    }//GEN-LAST:event_jButton5ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -956,6 +1173,7 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -964,6 +1182,7 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
@@ -973,10 +1192,13 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane8;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable3;
     private javax.swing.JTable jTable4;
+    private javax.swing.JTable oeeTable;
     private javax.swing.JButton prodTableInsert;
+    private javax.swing.JButton prodTableUpdate;
     private javax.swing.JTable productionTable;
     private javax.swing.JTable rejectAnalysisTable;
     private javax.swing.JMenuItem removeAbove;
