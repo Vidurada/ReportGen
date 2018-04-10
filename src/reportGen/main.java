@@ -45,7 +45,11 @@ public class main extends javax.swing.JFrame {
         //rejectPartNumberComboBox();
         setItemNumberColumn(productionTable, productionTable.getColumnModel().getColumn(3));
         setBaseColumn(rejectAnalysisTable, rejectAnalysisTable.getColumnModel().getColumn(0));
-
+        setItemNumberColumn(downtimeTable, downtimeTable.getColumnModel().getColumn(0));
+        hiddenPanel.setVisible(false);
+        totalDownTable.setVisible(false);
+        jPanel1.setVisible(false);
+        jPanel4.setVisible(false);
     }
 
     public void insertDatabaseProdPack() {
@@ -86,8 +90,8 @@ public class main extends javax.swing.JFrame {
                 String pack_qty = (String) productionTable.getValueAt(row, 5);
                 int int_pack_qty = Integer.parseInt(pack_qty);
 
-                downTimeTable.setValueAt(row + 1, row, 0);
-                downTimeTable.setValueAt(partNumber, row, 1);
+                machineWorkedTable.setValueAt(row + 1, row, 0);
+                machineWorkedTable.setValueAt(partNumber, row, 1);
                 //String PartNumber = (String) productionTable.getValueAt(row, 3);
 
                 pst.setString(1, SOnumber);
@@ -147,8 +151,11 @@ public class main extends javax.swing.JFrame {
                 String pack_qty = (String) productionTable.getValueAt(row, 5);
                 int int_pack_qty = Integer.parseInt(pack_qty);
 
-                downTimeTable.setValueAt(row + 1, row, 0);
-                downTimeTable.setValueAt(partNumber, row, 1);
+                machineWorkedTable.setValueAt(row + 1, row, 0);
+                machineWorkedTable.setValueAt(partNumber, row, 1);
+                
+                totalDownTable.setValueAt(partNumber, row, 0);
+                totalDownTable.setValueAt(0, row, 1);
 
                 oeeTable.setValueAt(partNumber, row, 0);
                 oeeTable.setValueAt(SOnumber, row, 1);
@@ -248,12 +255,12 @@ public class main extends javax.swing.JFrame {
 
     public void timeCalculate() {
         try {
-            downTimeTable.getCellEditor().stopCellEditing();
+            machineWorkedTable.getCellEditor().stopCellEditing();
             int emptyRows = 0;
             rowSearch:
-            for (int row = 0; row < downTimeTable.getRowCount(); row++) { //Iterate through all the rows
-                for (int col = 0; col < downTimeTable.getColumnCount(); col++) { //Iterate through all the columns in the row
-                    if (downTimeTable.getValueAt(row, col) != null) { //Check if the box is empty
+            for (int row = 0; row < machineWorkedTable.getRowCount(); row++) { //Iterate through all the rows
+                for (int col = 0; col < machineWorkedTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+                    if (machineWorkedTable.getValueAt(row, col) != null) { //Check if the box is empty
                         continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
                     }
                 }
@@ -261,15 +268,15 @@ public class main extends javax.swing.JFrame {
             }
 
             //System.out.println(emptyRows);
-            int rows = downTimeTable.getRowCount();
+            int rows = machineWorkedTable.getRowCount();
             //System.out.println(rows);
 
             int fullRows = rows - emptyRows;
 
             for (int row = 0; row < fullRows; row++) {
                 String PartNumber = (String) productionTable.getValueAt(row, 3);
-                String st_time = (String) downTimeTable.getValueAt(row, 2);
-                String end_time = (String) downTimeTable.getValueAt(row, 3);
+                String st_time = (String) machineWorkedTable.getValueAt(row, 2);
+                String end_time = (String) machineWorkedTable.getValueAt(row, 3);
 
                 //System.out.println(SOnumber);
                 SimpleDateFormat format = new SimpleDateFormat("HH.mm");
@@ -277,7 +284,7 @@ public class main extends javax.swing.JFrame {
                 Date date2 = format.parse(end_time);
                 long difference = (date2.getTime() - date1.getTime()) / (1000 * 60);
 
-                downTimeTable.setValueAt(difference, row, 4);
+                machineWorkedTable.setValueAt(difference, row, 4);
 
             }
             //productionTable.getSelectionModel().clearSelection();
@@ -371,6 +378,115 @@ public class main extends javax.swing.JFrame {
 
     }
 
+    public void hiddenTable(){
+        downtimeTable.getCellEditor().stopCellEditing();
+        
+    
+    int emptyRows = 0;
+            rowSearch:
+            for (int row = 0; row < productionTable.getRowCount(); row++) { //Iterate through all the rows
+                for (int col = 0; col < productionTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+                    if (productionTable.getValueAt(row, col) != null) { //Check if the box is empty
+                        continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
+                    }
+                }
+                emptyRows++; //Conditional never evaluated to true so none of the columns in the row contained anything
+            }
+            
+            
+            int emptyRowss = 0;
+            rowSearch:
+            for (int row = 0; row < downtimeTable.getRowCount(); row++) { //Iterate through all the rows
+                for (int col = 0; col < downtimeTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+                    if (downtimeTable.getValueAt(row, col) != null) { //Check if the box is empty
+                        continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
+                    }
+                }
+                emptyRowss++; //Conditional never evaluated to true so none of the columns in the row contained anything
+            }
+            
+            
+            
+
+            //System.out.println(emptyRows);
+            int rows = productionTable.getRowCount();
+            //System.out.println(rows);
+
+            int fullRows = rows - emptyRows;
+            int rowers= downtimeTable.getRowCount();
+            
+            int rower= rowers - emptyRowss;
+            
+             for (int row = 0; row < fullRows; row++) {
+                totalDownTable.setValueAt(0, row, 1);
+             
+             }
+            
+            
+            
+            //System.out.println(rower);
+            for (int row = 0; row < fullRows; row++) {
+                
+                String partNumber = (String) productionTable.getValueAt(row, 3);
+                
+                 //System.out.println(partNumber);
+                 
+                for (int roww = 0; roww < rower; roww++){
+                    
+                     String partNumberd = (String) downtimeTable.getValueAt(roww, 0);
+                     //System.out.println(partNumber);
+                     
+                     if (partNumber.equals(partNumberd)){
+                         
+                         int qty = (int) totalDownTable.getValueAt(row, 1);
+                         //int add_gty = Integer.parseInt(qty);
+                         System.out.println(qty);
+                         
+                         String addy = (String) downtimeTable.getValueAt(roww, 3);
+                         int add = Integer.parseInt(addy);
+                         System.out.println(addy);
+                         
+                         int summ = add + qty ; 
+                         System.out.println(summ);
+                         
+                        
+                     totalDownTable.setValueAt(summ, row, 1);
+                     
+                     
+                     }
+                
+                
+                
+                
+                }
+                
+                
+                
+                
+                
+                
+                
+    
+    
+    }
+            
+            
+            for (int row = 0; row < fullRows; row++) {
+                int addy = (int) totalDownTable.getValueAt(row, 1);
+                //int add = Integer.parseInt(addy);
+                oeeTable.setValueAt(addy, row, 7);
+             
+             }
+            
+    
+    
+    }  
+    
+    
+    
+    
+    
+    
     public void oeeReject() {
         try {
             rejectAnalysisTable.getCellEditor().stopCellEditing();
@@ -545,19 +661,25 @@ public class main extends javax.swing.JFrame {
         item2 = new javax.swing.JLabel();
         jButton5 = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
-        jScrollPane5 = new javax.swing.JScrollPane();
-        downTimeTable = new javax.swing.JTable();
         jButton4 = new javax.swing.JButton();
-        jPanel8 = new javax.swing.JPanel();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        machineWorkedTable = new javax.swing.JTable();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
         jScrollPane4 = new javax.swing.JScrollPane();
-        jTable4 = new javax.swing.JTable();
+        downtimeTable = new javax.swing.JTable();
+        jButton8 = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        totalDownTable = new javax.swing.JTable();
+        hiddenPanel = new javax.swing.JPanel();
+        jLabel7 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane8 = new javax.swing.JScrollPane();
         oeeTable = new javax.swing.JTable();
         jButton6 = new javax.swing.JButton();
         jButton7 = new javax.swing.JButton();
+        jPanel4 = new javax.swing.JPanel();
         shiftCombo = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
@@ -694,23 +816,24 @@ public class main extends javax.swing.JFrame {
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1255, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jButton3)
+                        .addGap(18, 18, 18)
+                        .addComponent(prodTableUpdate)
+                        .addGap(18, 18, 18)
+                        .addComponent(prodTableInsert)
+                        .addGap(6, 6, 6))
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel5Layout.createSequentialGroup()
                                 .addGap(12, 12, 12)
                                 .addComponent(jLabel2)
                                 .addGap(124, 124, 124)
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                                .addComponent(jButton3)
-                                .addGap(18, 18, 18)
-                                .addComponent(prodTableUpdate)
-                                .addGap(18, 18, 18)))
-                        .addComponent(prodTableInsert)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel1))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1255, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(addRow, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
                     .addComponent(removeRow, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
@@ -729,17 +852,15 @@ public class main extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 475, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(29, 29, 29)
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel2)))
-                    .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(prodTableInsert)
-                        .addComponent(prodTableUpdate)
-                        .addComponent(jButton3)))
+                .addGap(6, 6, 6)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton3)
+                    .addComponent(prodTableUpdate)
+                    .addComponent(prodTableInsert))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -796,14 +917,14 @@ public class main extends javax.swing.JFrame {
                         .addComponent(jButton5)
                         .addGap(18, 18, 18)
                         .addComponent(jButton1)))
-                .addContainerGap(51, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 501, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jLabel4)
@@ -814,25 +935,14 @@ public class main extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Reject Analysis", jPanel6);
 
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "From", "To", "Number of Minutes", "Reason"
+        jButton4.setText("Calculate");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
             }
-        ));
-        jScrollPane3.setViewportView(jTable3);
-        if (jTable3.getColumnModel().getColumnCount() > 0) {
-            jTable3.getColumnModel().getColumn(0).setMaxWidth(75);
-            jTable3.getColumnModel().getColumn(1).setMaxWidth(75);
-            jTable3.getColumnModel().getColumn(2).setMaxWidth(200);
-        }
+        });
 
-        downTimeTable.setModel(new javax.swing.table.DefaultTableModel(
+        machineWorkedTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
                 {null, null, null, null, null},
@@ -843,14 +953,67 @@ public class main extends javax.swing.JFrame {
                 "Item No", "Part Number", "From", "To", "No of Mins"
             }
         ));
-        jScrollPane5.setViewportView(downTimeTable);
+        jScrollPane6.setViewportView(machineWorkedTable);
 
-        jButton4.setText("Calculate");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel6.setText("Machine Worked");
+
+        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel9.setText("Machine Downtime");
+
+        downtimeTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "PartNumber", "From", "To", "No of Mins", "Reason"
+            }
+        ));
+        jScrollPane4.setViewportView(downtimeTable);
+
+        jButton8.setText("Insert");
+        jButton8.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                jButton8ActionPerformed(evt);
             }
         });
+
+        totalDownTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
+            },
+            new String [] {
+                "Item ", "Down"
+            }
+        ));
+        jScrollPane3.setViewportView(totalDownTable);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 424, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGap(24, 24, 24)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 376, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(24, Short.MAX_VALUE)))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 277, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGap(46, 46, 46)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(46, Short.MAX_VALUE)))
+        );
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -859,61 +1022,76 @@ public class main extends javax.swing.JFrame {
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 1298, Short.MAX_VALUE)
                     .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 575, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton4)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 685, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(22, 22, 22)
+                        .addComponent(jButton8))
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 575, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton4))
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addComponent(jLabel9)))
+                .addGap(48, 48, 48)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(54, Short.MAX_VALUE))
+            .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel7Layout.createSequentialGroup()
+                    .addGap(20, 20, 20)
+                    .addComponent(jLabel6)
+                    .addContainerGap(1131, Short.MAX_VALUE)))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
+                .addContainerGap(12, Short.MAX_VALUE)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel9)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 309, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(23, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
-                        .addComponent(jButton4)
-                        .addGap(49, 49, 49)))
-                .addGap(40, 40, 40)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(179, 179, 179))
+                .addComponent(jButton8)
+                .addGap(234, 234, 234))
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addGap(43, 43, 43)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel7Layout.createSequentialGroup()
+                    .addGap(30, 30, 30)
+                    .addComponent(jLabel6)
+                    .addContainerGap(494, Short.MAX_VALUE)))
         );
 
         jTabbedPane1.addTab("Down Time Summery", jPanel7);
 
-        jTable4.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        jScrollPane4.setViewportView(jTable4);
+        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel7.setText("Planned Machine Downtime");
 
-        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
-        jPanel8.setLayout(jPanel8Layout);
-        jPanel8Layout.setHorizontalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel8Layout.createSequentialGroup()
+        javax.swing.GroupLayout hiddenPanelLayout = new javax.swing.GroupLayout(hiddenPanel);
+        hiddenPanel.setLayout(hiddenPanelLayout);
+        hiddenPanelLayout.setHorizontalGroup(
+            hiddenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(hiddenPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 1334, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jLabel7)
+                .addContainerGap(1040, Short.MAX_VALUE))
         );
-        jPanel8Layout.setVerticalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel8Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 535, Short.MAX_VALUE)
-                .addContainerGap())
+        hiddenPanelLayout.setVerticalGroup(
+            hiddenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(hiddenPanelLayout.createSequentialGroup()
+                .addGap(22, 22, 22)
+                .addComponent(jLabel7)
+                .addContainerGap(502, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("Planned Downtime", jPanel8);
+        jTabbedPane1.addTab("Planned Downtime", hiddenPanel);
 
         oeeTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -949,7 +1127,7 @@ public class main extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane8, javax.swing.GroupLayout.DEFAULT_SIZE, 1298, Short.MAX_VALUE)
+                    .addComponent(jScrollPane8, javax.swing.GroupLayout.DEFAULT_SIZE, 1284, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jButton7)
@@ -966,10 +1144,23 @@ public class main extends javax.swing.JFrame {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton6)
                     .addComponent(jButton7))
-                .addContainerGap(67, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("OEE", jPanel3);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 1304, Short.MAX_VALUE)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 546, Short.MAX_VALUE)
+        );
+
+        jTabbedPane1.addTab("tab6", jPanel4);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -977,14 +1168,15 @@ public class main extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1)
-                .addContainerGap())
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1309, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(16, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+            .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 588, Short.MAX_VALUE))
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 577, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         reportArea.addTab("Extrusion Process", jPanel2);
@@ -1011,62 +1203,6 @@ public class main extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void prodTableInsertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prodTableInsertActionPerformed
-        // TODO add your handling code here:
-        //insertDatabaseProd();
-        //autoUpdateDownTime();
-        insertDatabaseProdPack();
-
-    }//GEN-LAST:event_prodTableInsertActionPerformed
-
-    private void addRowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addRowActionPerformed
-        // TODO add your handling code here:
-        DefaultTableModel model = (DefaultTableModel) productionTable.getModel();
-
-        Vector row = new Vector();
-        row.add(null);
-        row.add(null);
-        row.add(null);
-        row.add(null);
-        row.add(null);
-        row.add(null);
-        model.addRow(row);
-    }//GEN-LAST:event_addRowActionPerformed
-
-    private void removeRowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeRowActionPerformed
-        // TODO add your handling code here:
-        DefaultTableModel model = (DefaultTableModel) productionTable.getModel();
-        //int removeRow=1;
-        int removeRows = productionTable.getRowCount();
-        model.removeRow(removeRows - 1);
-    }//GEN-LAST:event_removeRowActionPerformed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-
-    }//GEN-LAST:event_jButton2ActionPerformed
-
-    private void productionTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_productionTableMouseClicked
-        // TODO add your handling code here:
-
-    }//GEN-LAST:event_productionTableMouseClicked
-
-    private void productionTableMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_productionTableMouseReleased
-        // TODO add your handling code here:
-        if (evt.isPopupTrigger()) {
-            int row = productionTable.getSelectedRow();
-
-            if (row >= 0) {
-                rowAdderDeleter.show(this, evt.getX() + 50, evt.getY() + 200);
-            }
-
-        }
-    }//GEN-LAST:event_productionTableMouseReleased
-
-    private void jTabbedPane1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTabbedPane1MouseReleased
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTabbedPane1MouseReleased
-
     private void addAboveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addAboveActionPerformed
         // TODO add your handling code here:
         rowOperations.addRowAbove(productionTable);
@@ -1092,43 +1228,99 @@ public class main extends javax.swing.JFrame {
         rowOperations.removeThisRow(productionTable);
     }//GEN-LAST:event_removeThisRowActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jTabbedPane1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTabbedPane1MouseReleased
         // TODO add your handling code here:
-        //item2.setText( Integer.toString(columnSum(3)));
-        insertDatabaseReject();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_jTabbedPane1MouseReleased
+
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        // TODO add your handling code here:
+
+    }//GEN-LAST:event_jButton7ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
         timeCalculate();
     }//GEN-LAST:event_jButton4ActionPerformed
 
-    private void prodTableUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prodTableUpdateActionPerformed
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
-        updateRows();
+        oeeReject();
+    }//GEN-LAST:event_jButton5ActionPerformed
 
-
-    }//GEN-LAST:event_prodTableUpdateActionPerformed
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        //item2.setText( Integer.toString(columnSum(3)));
+        insertDatabaseReject();
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
         prodOEE();
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+    private void prodTableUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prodTableUpdateActionPerformed
         // TODO add your handling code here:
-        oeeReject();
-    }//GEN-LAST:event_jButton5ActionPerformed
+        updateRows();
 
-    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+    }//GEN-LAST:event_prodTableUpdateActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
 
-    }//GEN-LAST:event_jButton6ActionPerformed
-
-    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+    private void removeRowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeRowActionPerformed
         // TODO add your handling code here:
-        
-    }//GEN-LAST:event_jButton7ActionPerformed
+        DefaultTableModel model = (DefaultTableModel) productionTable.getModel();
+        //int removeRow=1;
+        int removeRows = productionTable.getRowCount();
+        model.removeRow(removeRows - 1);
+    }//GEN-LAST:event_removeRowActionPerformed
+
+    private void addRowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addRowActionPerformed
+        // TODO add your handling code here:
+        DefaultTableModel model = (DefaultTableModel) productionTable.getModel();
+
+        Vector row = new Vector();
+        row.add(null);
+        row.add(null);
+        row.add(null);
+        row.add(null);
+        row.add(null);
+        row.add(null);
+        model.addRow(row);
+    }//GEN-LAST:event_addRowActionPerformed
+
+    private void prodTableInsertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prodTableInsertActionPerformed
+        // TODO add your handling code here:
+        //insertDatabaseProd();
+        //autoUpdateDownTime();
+        insertDatabaseProdPack();
+    }//GEN-LAST:event_prodTableInsertActionPerformed
+
+    private void productionTableMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_productionTableMouseReleased
+        // TODO add your handling code here:
+        if (evt.isPopupTrigger()) {
+            int row = productionTable.getSelectedRow();
+
+            if (row >= 0) {
+                rowAdderDeleter.show(this, evt.getX() + 50, evt.getY() + 200);
+            }
+
+        }
+    }//GEN-LAST:event_productionTableMouseReleased
+
+    private void productionTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_productionTableMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_productionTableMouseClicked
+
+    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+        // TODO add your handling code here:
+        hiddenTable();
+    }//GEN-LAST:event_jButton8ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1169,7 +1361,8 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JMenuItem addAbove;
     private javax.swing.JMenuItem addBelow;
     private javax.swing.JButton addRow;
-    private javax.swing.JTable downTimeTable;
+    private javax.swing.JTable downtimeTable;
+    private javax.swing.JPanel hiddenPanel;
     private javax.swing.JLabel item2;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
@@ -1178,28 +1371,33 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
+    private javax.swing.JButton jButton8;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
-    private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane8;
+    private javax.swing.JScrollPane jScrollPane9;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable3;
-    private javax.swing.JTable jTable4;
+    private javax.swing.JTable machineWorkedTable;
     private javax.swing.JTable oeeTable;
     private javax.swing.JButton prodTableInsert;
     private javax.swing.JButton prodTableUpdate;
@@ -1212,5 +1410,6 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JTabbedPane reportArea;
     private javax.swing.JPopupMenu rowAdderDeleter;
     private javax.swing.JComboBox<String> shiftCombo;
+    private javax.swing.JTable totalDownTable;
     // End of variables declaration//GEN-END:variables
 }
