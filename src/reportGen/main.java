@@ -27,6 +27,7 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
+import static java.lang.Math.toIntExact;
 
 public class main extends javax.swing.JFrame {
 
@@ -46,10 +47,10 @@ public class main extends javax.swing.JFrame {
         setItemNumberColumn(productionTable, productionTable.getColumnModel().getColumn(3));
         setBaseColumn(rejectAnalysisTable, rejectAnalysisTable.getColumnModel().getColumn(0));
         setItemNumberColumn(downtimeTable, downtimeTable.getColumnModel().getColumn(0));
-        hiddenPanel.setVisible(false);
+        //hiddenPanel.setVisible(false);
         totalDownTable.setVisible(false);
         jPanel1.setVisible(false);
-        jPanel4.setVisible(false);
+        //jPanel4.setVisible(false);
     }
 
     public void insertDatabaseProdPack() {
@@ -121,7 +122,7 @@ public class main extends javax.swing.JFrame {
 
     public void prodOEE() {
         try {
-            productionTable.getCellEditor().stopCellEditing();
+            
 
             int emptyRows = 0;
             rowSearch:
@@ -255,7 +256,7 @@ public class main extends javax.swing.JFrame {
 
     public void timeCalculate() {
         try {
-            machineWorkedTable.getCellEditor().stopCellEditing();
+            //machineWorkedTable.getCellEditor().stopCellEditing();
             int emptyRows = 0;
             rowSearch:
             for (int row = 0; row < machineWorkedTable.getRowCount(); row++) { //Iterate through all the rows
@@ -294,6 +295,53 @@ public class main extends javax.swing.JFrame {
         }
 
     }
+    
+    
+    public void timeCalculateDown() {
+        try {
+            //downtimeTable.getCellEditor().stopCellEditing();
+            int emptyRows = 0;
+            rowSearch:
+            for (int row = 0; row < downtimeTable.getRowCount(); row++) { //Iterate through all the rows
+                for (int col = 0; col < downtimeTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+                    if (downtimeTable.getValueAt(row, col) != null) { //Check if the box is empty
+                        continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
+                    }
+                }
+                emptyRows++; //Conditional never evaluated to true so none of the columns in the row contained anything
+            }
+
+            //System.out.println(emptyRows);
+            int rows = downtimeTable.getRowCount();
+            //System.out.println(rows);
+
+            int fullRows = rows - emptyRows;
+
+            for (int row = 0; row < fullRows; row++) {
+                //String PartNumber = (String) productionTable.getValueAt(row, 3);
+                String st_time = (String) downtimeTable.getValueAt(row, 1);
+                String end_time = (String) downtimeTable.getValueAt(row, 2);
+
+                //System.out.println(SOnumber);
+                SimpleDateFormat format = new SimpleDateFormat("HH.mm");
+                Date date1 = format.parse(st_time);
+                Date date2 = format.parse(end_time);
+                long difference = (date2.getTime() - date1.getTime()) / (1000 * 60);
+                int bar = toIntExact(difference);
+                downtimeTable.setValueAt(bar, row, 3);
+
+            }
+            //productionTable.getSelectionModel().clearSelection();
+
+        } catch (Exception e) {
+            //JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+
+    }
+    
+    
+    
+    
 
     public void setBaseColumn(JTable table,
             TableColumn sportColumn) {
@@ -379,7 +427,7 @@ public class main extends javax.swing.JFrame {
     }
 
     public void hiddenTable(){
-        downtimeTable.getCellEditor().stopCellEditing();
+        //downtimeTable.getCellEditor().stopCellEditing();
         
     
     int emptyRows = 0;
@@ -442,11 +490,11 @@ public class main extends javax.swing.JFrame {
                          //int add_gty = Integer.parseInt(qty);
                          System.out.println(qty);
                          
-                         String addy = (String) downtimeTable.getValueAt(roww, 3);
-                         int add = Integer.parseInt(addy);
+                         int addy = (int) downtimeTable.getValueAt(roww, 3);
+                         //int add = Integer.parseInt(addy);
                          System.out.println(addy);
                          
-                         int summ = add + qty ; 
+                         int summ = addy + qty ; 
                          System.out.println(summ);
                          
                         
@@ -489,7 +537,7 @@ public class main extends javax.swing.JFrame {
     
     public void oeeReject() {
         try {
-            rejectAnalysisTable.getCellEditor().stopCellEditing();
+            //rejectAnalysisTable.getCellEditor().stopCellEditing();
 
             int emptyRows = 0;
             rowSearch:
@@ -672,14 +720,11 @@ public class main extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         totalDownTable = new javax.swing.JTable();
-        hiddenPanel = new javax.swing.JPanel();
-        jLabel7 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane8 = new javax.swing.JScrollPane();
         oeeTable = new javax.swing.JTable();
         jButton6 = new javax.swing.JButton();
         jButton7 = new javax.swing.JButton();
-        jPanel4 = new javax.swing.JPanel();
         shiftCombo = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
@@ -974,7 +1019,7 @@ public class main extends javax.swing.JFrame {
         ));
         jScrollPane4.setViewportView(downtimeTable);
 
-        jButton8.setText("Insert");
+        jButton8.setText("Calculate");
         jButton8.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton8ActionPerformed(evt);
@@ -1023,17 +1068,17 @@ public class main extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 685, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(22, 22, 22)
-                        .addComponent(jButton8))
-                    .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 575, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton4))
-                    .addGroup(jPanel7Layout.createSequentialGroup()
                         .addGap(10, 10, 10)
-                        .addComponent(jLabel9)))
-                .addGap(48, 48, 48)
+                        .addComponent(jLabel9))
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 685, Short.MAX_VALUE)
+                            .addComponent(jScrollPane4))
+                        .addGap(22, 22, 22)
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButton8)
+                            .addComponent(jButton4, javax.swing.GroupLayout.Alignment.TRAILING))))
+                .addGap(32, 32, 32)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(54, Short.MAX_VALUE))
             .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1044,24 +1089,26 @@ public class main extends javax.swing.JFrame {
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
-                .addContainerGap(12, Short.MAX_VALUE)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel9)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 309, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(23, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton8)
-                .addGap(234, 234, 234))
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addGap(43, 43, 43)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addContainerGap(12, Short.MAX_VALUE)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jButton4)
+                    .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel9)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 309, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
+                        .addGap(114, 114, 114)
+                        .addComponent(jButton8)
+                        .addGap(234, 234, 234))))
             .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel7Layout.createSequentialGroup()
                     .addGap(30, 30, 30)
@@ -1070,28 +1117,6 @@ public class main extends javax.swing.JFrame {
         );
 
         jTabbedPane1.addTab("Down Time Summery", jPanel7);
-
-        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jLabel7.setText("Planned Machine Downtime");
-
-        javax.swing.GroupLayout hiddenPanelLayout = new javax.swing.GroupLayout(hiddenPanel);
-        hiddenPanel.setLayout(hiddenPanelLayout);
-        hiddenPanelLayout.setHorizontalGroup(
-            hiddenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(hiddenPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel7)
-                .addContainerGap(1040, Short.MAX_VALUE))
-        );
-        hiddenPanelLayout.setVerticalGroup(
-            hiddenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(hiddenPanelLayout.createSequentialGroup()
-                .addGap(22, 22, 22)
-                .addComponent(jLabel7)
-                .addContainerGap(502, Short.MAX_VALUE))
-        );
-
-        jTabbedPane1.addTab("Planned Downtime", hiddenPanel);
 
         oeeTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -1148,19 +1173,6 @@ public class main extends javax.swing.JFrame {
         );
 
         jTabbedPane1.addTab("OEE", jPanel3);
-
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1304, Short.MAX_VALUE)
-        );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 546, Short.MAX_VALUE)
-        );
-
-        jTabbedPane1.addTab("tab6", jPanel4);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -1243,12 +1255,30 @@ public class main extends javax.swing.JFrame {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
-        timeCalculate();
+        int click = machineWorkedTable.getEditingRow();
+        
+        if ( click == -1){
+       timeCalculate();
+        
+        }
+        else{
+        machineWorkedTable.getCellEditor().stopCellEditing();
+       timeCalculate();
+        }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
+        int click = rejectAnalysisTable.getEditingRow();
+        
+        if ( click == -1){
+       oeeReject();
+        
+        }
+        else{
+        rejectAnalysisTable.getCellEditor().stopCellEditing();
         oeeReject();
+        }
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -1259,7 +1289,18 @@ public class main extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
+        int click = productionTable.getEditingRow();
+        
+        if ( click == -1){
         prodOEE();
+        
+        }
+        else{
+        productionTable.getCellEditor().stopCellEditing();
+        prodOEE();
+        }
+        
+        
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void prodTableUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prodTableUpdateActionPerformed
@@ -1319,7 +1360,19 @@ public class main extends javax.swing.JFrame {
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
         // TODO add your handling code here:
+       int click =downtimeTable.getEditingRow();
+        
+        if ( click == -1){
+       timeCalculateDown();
         hiddenTable();
+        
+        }
+        else{
+        downtimeTable.getCellEditor().stopCellEditing();
+       timeCalculateDown();
+        hiddenTable();
+        }
+        
     }//GEN-LAST:event_jButton8ActionPerformed
 
     /**
@@ -1362,7 +1415,6 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JMenuItem addBelow;
     private javax.swing.JButton addRow;
     private javax.swing.JTable downtimeTable;
-    private javax.swing.JPanel hiddenPanel;
     private javax.swing.JLabel item2;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
@@ -1377,7 +1429,6 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
@@ -1385,7 +1436,6 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
