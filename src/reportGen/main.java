@@ -9,6 +9,7 @@ package reportGen;
  *
  * @author ViduraDan
  */
+import java.awt.event.KeyEvent;
 import java.sql.DriverManager;
 import java.sql.Connection;
 import static java.sql.JDBCType.NULL;
@@ -46,11 +47,23 @@ public class main extends javax.swing.JFrame {
         //rejectPartNumberComboBox();
         setItemNumberColumn(productionTable, productionTable.getColumnModel().getColumn(3));
         setBaseColumn(rejectAnalysisTable, rejectAnalysisTable.getColumnModel().getColumn(0));
-        setItemNumberColumn(downtimeTable, downtimeTable.getColumnModel().getColumn(1));
+        setItemNumberColumn(downtimeTable, downtimeTable.getColumnModel().getColumn(2));
         hidPanel.setVisible(false);
         totalDownTable.setVisible(false);
         jPanel1.setVisible(false);
+        hitTab ( productionTable);
+        downTimeColumn(downtimeTable, downtimeTable.getColumnModel().getColumn(1));
         //jPanel4.setVisible(false);
+    }
+    
+    
+    
+    public void hitTab (JTable table){
+           KeyStroke tab = KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0);
+    KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+    InputMap im = table.getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+    im.put(enter, im.get(tab));
+
     }
 
     public void insertDatabaseProdPack() {
@@ -319,8 +332,8 @@ public class main extends javax.swing.JFrame {
 
             for (int row = 0; row < fullRows; row++) {
                 //String PartNumber = (String) productionTable.getValueAt(row, 3);
-                String st_time = (String) downtimeTable.getValueAt(row, 2);
-                String end_time = (String) downtimeTable.getValueAt(row, 3);
+                String st_time = (String) downtimeTable.getValueAt(row, 3);
+                String end_time = (String) downtimeTable.getValueAt(row, 4);
 
                 //System.out.println(SOnumber);
                 SimpleDateFormat format = new SimpleDateFormat("HH.mm");
@@ -328,7 +341,7 @@ public class main extends javax.swing.JFrame {
                 Date date2 = format.parse(end_time);
                 long difference = (date2.getTime() - date1.getTime()) / (1000 * 60);
                 int bar = toIntExact(difference);
-                downtimeTable.setValueAt(bar, row, 4);
+                downtimeTable.setValueAt(bar, row, 5);
 
             }
             //productionTable.getSelectionModel().clearSelection();
@@ -368,6 +381,27 @@ public class main extends javax.swing.JFrame {
         renderer.setToolTipText("Click to select base");
         sportColumn.setCellRenderer(renderer);
     }
+    
+     public void downTimeColumn(JTable table,
+            TableColumn sportColumn) {
+        //Set up the editor for the sport cells.
+        String[] petStrings = { "Planned", "Unplanned"};
+
+        JComboBox itemNumberComboBox = new JComboBox(petStrings);
+        sportColumn.setCellEditor(new DefaultCellEditor(itemNumberComboBox));
+
+        
+
+        //Set up tool tips for the sport cells.
+        DefaultTableCellRenderer renderer
+                = new DefaultTableCellRenderer();
+        renderer.setToolTipText("Click to select base");
+        sportColumn.setCellRenderer(renderer);
+    }
+    
+    
+    
+    
 
     public void insertDatabaseReject() {
         try {
@@ -469,6 +503,11 @@ public class main extends javax.swing.JFrame {
                 totalDownTable.setValueAt(0, row, 1);
              
              }
+             
+              for (int row = 0; row < fullRows; row++) {
+                plannedDownTable.setValueAt(0, row, 1);
+             
+             }
             
             
             
@@ -481,16 +520,17 @@ public class main extends javax.swing.JFrame {
                  
                 for (int roww = 0; roww < rower; roww++){
                     
-                     String partNumberd = (String) downtimeTable.getValueAt(roww, 1);
+                     String partNumberd = (String) downtimeTable.getValueAt(roww, 2);
                      //System.out.println(partNumber);
                      
                      if (partNumber.equals(partNumberd)){
-                         
+                         String status = (String) downtimeTable.getValueAt(roww, 1);
+                         if(status=="Unplanned"){
                          int qty = (int) totalDownTable.getValueAt(row, 1);
                          //int add_gty = Integer.parseInt(qty);
                          System.out.println(qty);
                          
-                         int addy = (int) downtimeTable.getValueAt(roww, 4);
+                         int addy = (int) downtimeTable.getValueAt(roww, 5);
                          //int add = Integer.parseInt(addy);
                          System.out.println(addy);
                          
@@ -499,7 +539,26 @@ public class main extends javax.swing.JFrame {
                          
                         
                      totalDownTable.setValueAt(summ, row, 1);
-                     
+                         }
+                         
+                         else{
+                         int qty = (int) plannedDownTable.getValueAt(row, 1);
+                         //int add_gty = Integer.parseInt(qty);
+                         System.out.println(qty);
+                         
+                         int addy = (int) downtimeTable.getValueAt(roww, 5);
+                         //int add = Integer.parseInt(addy);
+                         System.out.println(addy);
+                         
+                         int summ = addy + qty ; 
+                         System.out.println(summ);
+                         
+                        
+                     plannedDownTable.setValueAt(summ, row, 1);
+                         
+                         
+                         
+                         }
                      
                      }
                 
@@ -523,6 +582,14 @@ public class main extends javax.swing.JFrame {
                 int addy = (int) totalDownTable.getValueAt(row, 1);
                 //int add = Integer.parseInt(addy);
                 oeeTable.setValueAt(addy, row, 7);
+             
+             }
+            
+            
+            for (int row = 0; row < fullRows; row++) {
+                int addy = (int) plannedDownTable.getValueAt(row, 1);
+                //int add = Integer.parseInt(addy);
+                oeeTable.setValueAt(addy, row, 6);
              
              }
             
@@ -716,6 +783,8 @@ public class main extends javax.swing.JFrame {
         hidPanel = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         totalDownTable = new javax.swing.JTable();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        plannedDownTable = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane8 = new javax.swing.JScrollPane();
         oeeTable = new javax.swing.JTable();
@@ -797,6 +866,11 @@ public class main extends javax.swing.JFrame {
             }
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 productionTableMouseReleased(evt);
+            }
+        });
+        productionTable.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                productionTableKeyReleased(evt);
             }
         });
         jScrollPane1.setViewportView(productionTable);
@@ -954,13 +1028,13 @@ public class main extends javax.swing.JFrame {
 
         downtimeTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "Reason", "Attribute To", "From", "To", "No of Mins"
+                "Reason", "Status", "Attribute To", "From", "To", "No of Mins"
             }
         ));
         jScrollPane4.setViewportView(downtimeTable);
@@ -996,20 +1070,37 @@ public class main extends javax.swing.JFrame {
         ));
         jScrollPane3.setViewportView(totalDownTable);
 
+        plannedDownTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
+            },
+            new String [] {
+                "Item", "Down"
+            }
+        ));
+        jScrollPane5.setViewportView(plannedDownTable);
+
         javax.swing.GroupLayout hidPanelLayout = new javax.swing.GroupLayout(hidPanel);
         hidPanel.setLayout(hidPanelLayout);
         hidPanelLayout.setHorizontalGroup(
             hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(hidPanelLayout.createSequentialGroup()
-                .addGap(34, 34, 34)
+                .addGap(55, 55, 55)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(257, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(190, Short.MAX_VALUE))
         );
         hidPanelLayout.setVerticalGroup(
             hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(hidPanelLayout.createSequentialGroup()
                 .addGap(53, 53, 53)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -1020,46 +1111,54 @@ public class main extends javax.swing.JFrame {
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 685, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton8))
                     .addComponent(jLabel9)
                     .addGroup(jPanel7Layout.createSequentialGroup()
                         .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 685, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel6))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton4)))
+                        .addComponent(jButton4))
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 795, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(hidPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addGap(69, 69, 69)
+                        .addComponent(hidPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(578, 578, 578)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jButton8))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
-                        .addComponent(jLabel6)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton4))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel9))
-                    .addComponent(hidPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton8))
-                .addContainerGap(61, Short.MAX_VALUE))
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addGap(43, 43, 43)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap()
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel7Layout.createSequentialGroup()
+                                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(jPanel7Layout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 265, Short.MAX_VALUE)
+                                        .addComponent(jLabel6)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel7Layout.createSequentialGroup()
+                                        .addGap(0, 0, Short.MAX_VALUE)
+                                        .addComponent(jButton4)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel9))
+                            .addComponent(hidPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel7Layout.createSequentialGroup()
+                                .addGap(221, 221, 221)
+                                .addComponent(jButton8))
+                            .addGroup(jPanel7Layout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addGap(43, 43, 43)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
 
@@ -1303,6 +1402,11 @@ public class main extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton5ActionPerformed
 
+    private void productionTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_productionTableKeyReleased
+        // TODO add your handling code here:
+
+    }//GEN-LAST:event_productionTableKeyReleased
+
     /**
      * @param args the command line arguments
      */
@@ -1315,7 +1419,8 @@ public class main extends javax.swing.JFrame {
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Windows".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    javax.swing.UIManager.setLookAndFeel("com.alee.laf.WebLookAndFeel");
+                    //javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
             }
@@ -1369,11 +1474,13 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane8;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable machineWorkedTable;
     private javax.swing.JTable oeeTable;
+    private javax.swing.JTable plannedDownTable;
     private javax.swing.JTable productionTable;
     private javax.swing.JTable rejectAnalysisTable;
     private javax.swing.JMenuItem removeAbove;
