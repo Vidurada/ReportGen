@@ -14,6 +14,7 @@ import javax.swing.table.DefaultTableModel;
  * @author ViduraDan
  */
 public class rowOperations {
+    
     public static void addRowAbove(JTable table) {
         int rows = table.getSelectedRow();
         DefaultTableModel model = (DefaultTableModel) table.getModel();
@@ -68,6 +69,16 @@ public class rowOperations {
         int rows = table.getSelectedRow();
         model.removeRow(rows);
     }
+    
+     public static void removeFromBottom(JTable table){
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        //int removeRow=1;
+        int removeRows = table.getRowCount();
+        model.removeRow(removeRows - 1);
+    }
+    
+    
+    
     
     
 }
