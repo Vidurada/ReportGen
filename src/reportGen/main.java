@@ -46,8 +46,8 @@ public class main extends javax.swing.JFrame {
         //rejectPartNumberComboBox();
         setItemNumberColumn(productionTable, productionTable.getColumnModel().getColumn(3));
         setBaseColumn(rejectAnalysisTable, rejectAnalysisTable.getColumnModel().getColumn(0));
-        setItemNumberColumn(downtimeTable, downtimeTable.getColumnModel().getColumn(0));
-        //hiddenPanel.setVisible(false);
+        setItemNumberColumn(downtimeTable, downtimeTable.getColumnModel().getColumn(1));
+        hidPanel.setVisible(false);
         totalDownTable.setVisible(false);
         jPanel1.setVisible(false);
         //jPanel4.setVisible(false);
@@ -110,7 +110,7 @@ public class main extends javax.swing.JFrame {
 
             pst.executeBatch();
             //productionTable.setEnabled(false);
-            prodTableInsert.setEnabled(false);
+            //prodTableInsert.setEnabled(false);
             //prodTableUpdate.setEnabled(rootPaneCheckingEnabled);
             JOptionPane.showMessageDialog(null, "Saved Entries in the Database", "Successful!", JOptionPane.INFORMATION_MESSAGE);
 
@@ -319,8 +319,8 @@ public class main extends javax.swing.JFrame {
 
             for (int row = 0; row < fullRows; row++) {
                 //String PartNumber = (String) productionTable.getValueAt(row, 3);
-                String st_time = (String) downtimeTable.getValueAt(row, 1);
-                String end_time = (String) downtimeTable.getValueAt(row, 2);
+                String st_time = (String) downtimeTable.getValueAt(row, 2);
+                String end_time = (String) downtimeTable.getValueAt(row, 3);
 
                 //System.out.println(SOnumber);
                 SimpleDateFormat format = new SimpleDateFormat("HH.mm");
@@ -328,7 +328,7 @@ public class main extends javax.swing.JFrame {
                 Date date2 = format.parse(end_time);
                 long difference = (date2.getTime() - date1.getTime()) / (1000 * 60);
                 int bar = toIntExact(difference);
-                downtimeTable.setValueAt(bar, row, 3);
+                downtimeTable.setValueAt(bar, row, 4);
 
             }
             //productionTable.getSelectionModel().clearSelection();
@@ -481,7 +481,7 @@ public class main extends javax.swing.JFrame {
                  
                 for (int roww = 0; roww < rower; roww++){
                     
-                     String partNumberd = (String) downtimeTable.getValueAt(roww, 0);
+                     String partNumberd = (String) downtimeTable.getValueAt(roww, 1);
                      //System.out.println(partNumber);
                      
                      if (partNumber.equals(partNumberd)){
@@ -490,7 +490,7 @@ public class main extends javax.swing.JFrame {
                          //int add_gty = Integer.parseInt(qty);
                          System.out.println(qty);
                          
-                         int addy = (int) downtimeTable.getValueAt(roww, 3);
+                         int addy = (int) downtimeTable.getValueAt(roww, 4);
                          //int add = Integer.parseInt(addy);
                          System.out.println(addy);
                          
@@ -695,18 +695,13 @@ public class main extends javax.swing.JFrame {
         productionTable = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        prodTableInsert = new javax.swing.JButton();
         addRow = new javax.swing.JButton();
         removeRow = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        prodTableUpdate = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jPanel6 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         rejectAnalysisTable = new javax.swing.JTable();
-        jButton1 = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
-        item2 = new javax.swing.JLabel();
         jButton5 = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
         jButton4 = new javax.swing.JButton();
@@ -718,6 +713,7 @@ public class main extends javax.swing.JFrame {
         downtimeTable = new javax.swing.JTable();
         jButton8 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
+        hidPanel = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         totalDownTable = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
@@ -814,13 +810,6 @@ public class main extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel2.setText("Total Produced Qty :");
 
-        prodTableInsert.setText("Insert");
-        prodTableInsert.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                prodTableInsertActionPerformed(evt);
-            }
-        });
-
         addRow.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addRowActionPerformed(evt);
@@ -841,13 +830,6 @@ public class main extends javax.swing.JFrame {
             }
         });
 
-        prodTableUpdate.setText("Update");
-        prodTableUpdate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                prodTableUpdateActionPerformed(evt);
-            }
-        });
-
         jButton3.setText("OEE Insert");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -860,25 +842,16 @@ public class main extends javax.swing.JFrame {
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jButton3)
-                        .addGap(18, 18, 18)
-                        .addComponent(prodTableUpdate)
-                        .addGap(18, 18, 18)
-                        .addComponent(prodTableInsert)
-                        .addGap(6, 6, 6))
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel5Layout.createSequentialGroup()
-                                .addGap(12, 12, 12)
-                                .addComponent(jLabel2)
-                                .addGap(124, 124, 124)
-                                .addComponent(jLabel1))
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1255, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jButton3)
+                    .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel5Layout.createSequentialGroup()
+                            .addGap(22, 22, 22)
+                            .addComponent(jLabel2)
+                            .addGap(124, 124, 124)
+                            .addComponent(jLabel1))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1242, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(addRow, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
                     .addComponent(removeRow, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
@@ -897,12 +870,9 @@ public class main extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 475, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(6, 6, 6)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3)
-                    .addComponent(prodTableUpdate)
-                    .addComponent(prodTableInsert))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButton3)
+                .addGap(1, 1, 1)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jLabel2))
@@ -926,17 +896,6 @@ public class main extends javax.swing.JFrame {
         jScrollPane2.setViewportView(rejectAnalysisTable);
         rejectAnalysisTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 
-        jButton1.setText("Sum");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
-        jLabel4.setText("Item 1");
-
-        item2.setText("Item 2");
-
         jButton5.setText("OEE Insert");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -949,19 +908,10 @@ public class main extends javax.swing.JFrame {
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1257, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addGap(228, 228, 228)
-                        .addComponent(jLabel4)
-                        .addGap(117, 117, 117)
-                        .addComponent(item2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton5)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton1)))
+                .addContainerGap()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jButton5)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1257, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
@@ -969,13 +919,9 @@ public class main extends javax.swing.JFrame {
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 501, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jLabel4)
-                    .addComponent(item2)
-                    .addComponent(jButton5))
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton5)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Reject Analysis", jPanel6);
@@ -1014,7 +960,7 @@ public class main extends javax.swing.JFrame {
                 {null, null, null, null, null}
             },
             new String [] {
-                "PartNumber", "From", "To", "No of Mins", "Reason"
+                "Reason", "Attribute To", "From", "To", "No of Mins"
             }
         ));
         jScrollPane4.setViewportView(downtimeTable);
@@ -1025,6 +971,17 @@ public class main extends javax.swing.JFrame {
                 jButton8ActionPerformed(evt);
             }
         });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 424, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 277, Short.MAX_VALUE)
+        );
 
         totalDownTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -1039,25 +996,21 @@ public class main extends javax.swing.JFrame {
         ));
         jScrollPane3.setViewportView(totalDownTable);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 424, Short.MAX_VALUE)
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel1Layout.createSequentialGroup()
-                    .addGap(24, 24, 24)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 376, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(24, Short.MAX_VALUE)))
+        javax.swing.GroupLayout hidPanelLayout = new javax.swing.GroupLayout(hidPanel);
+        hidPanel.setLayout(hidPanelLayout);
+        hidPanelLayout.setHorizontalGroup(
+            hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(hidPanelLayout.createSequentialGroup()
+                .addGap(34, 34, 34)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(257, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 277, Short.MAX_VALUE)
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel1Layout.createSequentialGroup()
-                    .addGap(46, 46, 46)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(46, Short.MAX_VALUE)))
+        hidPanelLayout.setVerticalGroup(
+            hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(hidPanelLayout.createSequentialGroup()
+                .addGap(53, 53, 53)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
@@ -1068,52 +1021,46 @@ public class main extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(jLabel9))
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 685, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton8))
+                    .addComponent(jLabel9)
                     .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 685, Short.MAX_VALUE)
-                            .addComponent(jScrollPane4))
-                        .addGap(22, 22, 22)
                         .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton8)
-                            .addComponent(jButton4, javax.swing.GroupLayout.Alignment.TRAILING))))
-                .addGap(32, 32, 32)
+                            .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 685, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel6))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton4)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(hidPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(54, Short.MAX_VALUE))
-            .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel7Layout.createSequentialGroup()
-                    .addGap(20, 20, 20)
-                    .addComponent(jLabel6)
-                    .addContainerGap(1131, Short.MAX_VALUE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
-                .addGap(43, 43, 43)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addContainerGap(12, Short.MAX_VALUE)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jButton4)
-                    .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap()
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                        .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel9)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 309, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
-                        .addGap(114, 114, 114)
-                        .addComponent(jButton8)
-                        .addGap(234, 234, 234))))
-            .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel7Layout.createSequentialGroup()
-                    .addGap(30, 30, 30)
-                    .addComponent(jLabel6)
-                    .addContainerGap(494, Short.MAX_VALUE)))
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton4))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel9))
+                    .addComponent(hidPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton8))
+                .addContainerGap(61, Short.MAX_VALUE))
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addGap(43, 43, 43)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         jTabbedPane1.addTab("Down Time Summery", jPanel7);
@@ -1267,26 +1214,6 @@ public class main extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton4ActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
-        int click = rejectAnalysisTable.getEditingRow();
-        
-        if ( click == -1){
-       oeeReject();
-        
-        }
-        else{
-        rejectAnalysisTable.getCellEditor().stopCellEditing();
-        oeeReject();
-        }
-    }//GEN-LAST:event_jButton5ActionPerformed
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-        //item2.setText( Integer.toString(columnSum(3)));
-        insertDatabaseReject();
-    }//GEN-LAST:event_jButton1ActionPerformed
-
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
         int click = productionTable.getEditingRow();
@@ -1302,12 +1229,6 @@ public class main extends javax.swing.JFrame {
         
         
     }//GEN-LAST:event_jButton3ActionPerformed
-
-    private void prodTableUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prodTableUpdateActionPerformed
-        // TODO add your handling code here:
-        updateRows();
-
-    }//GEN-LAST:event_prodTableUpdateActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
@@ -1334,13 +1255,6 @@ public class main extends javax.swing.JFrame {
         row.add(null);
         model.addRow(row);
     }//GEN-LAST:event_addRowActionPerformed
-
-    private void prodTableInsertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prodTableInsertActionPerformed
-        // TODO add your handling code here:
-        //insertDatabaseProd();
-        //autoUpdateDownTime();
-        insertDatabaseProdPack();
-    }//GEN-LAST:event_prodTableInsertActionPerformed
 
     private void productionTableMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_productionTableMouseReleased
         // TODO add your handling code here:
@@ -1374,6 +1288,20 @@ public class main extends javax.swing.JFrame {
         }
         
     }//GEN-LAST:event_jButton8ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+        int click = rejectAnalysisTable.getEditingRow();
+
+        if ( click == -1){
+            oeeReject();
+
+        }
+        else{
+            rejectAnalysisTable.getCellEditor().stopCellEditing();
+            oeeReject();
+        }
+    }//GEN-LAST:event_jButton5ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1415,8 +1343,7 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JMenuItem addBelow;
     private javax.swing.JButton addRow;
     private javax.swing.JTable downtimeTable;
-    private javax.swing.JLabel item2;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JPanel hidPanel;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
@@ -1427,7 +1354,6 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JMenu jMenu1;
@@ -1445,12 +1371,9 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane8;
-    private javax.swing.JScrollPane jScrollPane9;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable machineWorkedTable;
     private javax.swing.JTable oeeTable;
-    private javax.swing.JButton prodTableInsert;
-    private javax.swing.JButton prodTableUpdate;
     private javax.swing.JTable productionTable;
     private javax.swing.JTable rejectAnalysisTable;
     private javax.swing.JMenuItem removeAbove;
