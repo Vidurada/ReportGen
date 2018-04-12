@@ -264,7 +264,7 @@
                             <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="productionTableKeyReleased"/>
                           </Events>
                           <AuxValues>
-                            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTable()"/>
+                            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTable(){&#xa;public void changeSelection(final int row, final int column, boolean toggle, boolean extend)&#xa;            {&#xa;                super.changeSelection(row, column, toggle, extend);&#xa;                productionTable.editCellAt(row, column);&#xa;                productionTable.transferFocus();&#xa;            }&#xa;&#xa;&#xa;&#xa;&#xa;}"/>
                           </AuxValues>
                         </Component>
                       </SubComponents>
@@ -419,6 +419,9 @@
                               <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                             </Property>
                           </Properties>
+                          <AuxValues>
+                            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTable(){&#xa;public void changeSelection(final int row, final int column, boolean toggle, boolean extend)&#xa;            {&#xa;                super.changeSelection(row, column, toggle, extend);&#xa;                rejectAnalysisTable.editCellAt(row, column);&#xa;                rejectAnalysisTable.transferFocus();&#xa;            }&#xa;&#xa;}"/>
+                          </AuxValues>
                         </Component>
                       </SubComponents>
                     </Container>
@@ -616,6 +619,9 @@
                               <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                             </Property>
                           </Properties>
+                          <AuxValues>
+                            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTable(){&#xa;public void changeSelection(final int row, final int column, boolean toggle, boolean extend)&#xa;            {&#xa;                super.changeSelection(row, column, toggle, extend);&#xa;                machineWorkedTable.editCellAt(row, column);&#xa;                machineWorkedTable.transferFocus();&#xa;            }&#xa;}"/>
+                          </AuxValues>
                         </Component>
                       </SubComponents>
                     </Container>
@@ -692,6 +698,9 @@
                               <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                             </Property>
                           </Properties>
+                          <AuxValues>
+                            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTable(){&#xa;public void changeSelection(final int row, final int column, boolean toggle, boolean extend)&#xa;            {&#xa;                super.changeSelection(row, column, toggle, extend);&#xa;               downtimeTable .editCellAt(row, column);&#xa;                downtimeTable .transferFocus();&#xa;            }&#xa;}"/>
+                          </AuxValues>
                         </Component>
                       </SubComponents>
                     </Container>
@@ -993,6 +1002,9 @@
                               <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                             </Property>
                           </Properties>
+                          <AuxValues>
+                            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTable(){&#xa;public void changeSelection(final int row, final int column, boolean toggle, boolean extend)&#xa;            {&#xa;                super.changeSelection(row, column, toggle, extend);&#xa;                oeeTable.editCellAt(row, column);&#xa;                oeeTable.transferFocus();&#xa;            }&#xa;}"/>
+                          </AuxValues>
                         </Component>
                       </SubComponents>
                     </Container>

@@ -759,24 +759,54 @@ public class main extends javax.swing.JFrame {
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel5 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        productionTable = new javax.swing.JTable();
+        productionTable = new javax.swing.JTable(){
+            public void changeSelection(final int row, final int column, boolean toggle, boolean extend)
+            {
+                super.changeSelection(row, column, toggle, extend);
+                productionTable.editCellAt(row, column);
+                productionTable.transferFocus();
+            }
+
+        };
         addRow = new javax.swing.JButton();
         removeRow = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jPanel6 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        rejectAnalysisTable = new javax.swing.JTable();
+        rejectAnalysisTable = new javax.swing.JTable(){
+            public void changeSelection(final int row, final int column, boolean toggle, boolean extend)
+            {
+                super.changeSelection(row, column, toggle, extend);
+                rejectAnalysisTable.editCellAt(row, column);
+                rejectAnalysisTable.transferFocus();
+            }
+
+        };
         jButton5 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         jButton9 = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
         jButton4 = new javax.swing.JButton();
         jScrollPane6 = new javax.swing.JScrollPane();
-        machineWorkedTable = new javax.swing.JTable();
+        machineWorkedTable = new javax.swing.JTable(){
+            public void changeSelection(final int row, final int column, boolean toggle, boolean extend)
+            {
+                super.changeSelection(row, column, toggle, extend);
+                machineWorkedTable.editCellAt(row, column);
+                machineWorkedTable.transferFocus();
+            }
+        };
         jLabel6 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jScrollPane4 = new javax.swing.JScrollPane();
-        downtimeTable = new javax.swing.JTable();
+        downtimeTable = new javax.swing.JTable(){
+            public void changeSelection(final int row, final int column, boolean toggle, boolean extend)
+            {
+                super.changeSelection(row, column, toggle, extend);
+                downtimeTable .editCellAt(row, column);
+                downtimeTable .transferFocus();
+            }
+        };
         jButton8 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         hidPanel = new javax.swing.JPanel();
@@ -788,7 +818,14 @@ public class main extends javax.swing.JFrame {
         jButton10 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane8 = new javax.swing.JScrollPane();
-        oeeTable = new javax.swing.JTable();
+        oeeTable = new javax.swing.JTable(){
+            public void changeSelection(final int row, final int column, boolean toggle, boolean extend)
+            {
+                super.changeSelection(row, column, toggle, extend);
+                oeeTable.editCellAt(row, column);
+                oeeTable.transferFocus();
+            }
+        };
         jButton6 = new javax.swing.JButton();
         jButton7 = new javax.swing.JButton();
         shiftCombo = new javax.swing.JComboBox<>();
@@ -1357,6 +1394,11 @@ public class main extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    
+    
+    
+    
+    
     private void removeRowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeRowActionPerformed
         // TODO add your handling code here:
         rowOperations.removeFromBottom(productionTable);
