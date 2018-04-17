@@ -35,8 +35,7 @@ public class main extends javax.swing.JFrame {
     Connection conn = null;
     ResultSet rs = null;
     PreparedStatement pst = null;
-    int disrow=1;
-    int discol=2;
+  
 
     /**
      * Creates new form main
@@ -47,9 +46,10 @@ public class main extends javax.swing.JFrame {
         //partnumberComboBox();
         //baseComboBox();
         //rejectPartNumberComboBox();
-        setItemNumberColumn(productionTable, productionTable.getColumnModel().getColumn(3));
-        setBaseColumn(rejectAnalysisTable, rejectAnalysisTable.getColumnModel().getColumn(0));
-        setItemNumberColumn(downtimeTable, downtimeTable.getColumnModel().getColumn(2));
+        databaseOperations cellFill = new databaseOperations();
+        cellFill.setItemNumberColumn(productionTable, productionTable.getColumnModel().getColumn(3));
+        cellFill.setItemNumberColumn(downtimeTable, downtimeTable.getColumnModel().getColumn(2));
+        setBaseColumn(rejectAnalysisTable, rejectAnalysisTable.getColumnModel().getColumn(0));      
         hidPanel.setVisible(false);
         totalDownTable.setVisible(false);
         jPanel1.setVisible(false);
@@ -156,28 +156,40 @@ public class main extends javax.swing.JFrame {
             //System.out.println(rows);
 
             int fullRows = rows - emptyRows;
-
+            int bb =-1;
+            
+          //  for (int row = 0; row < fullRows; row++) {
+          //  String qty = (String) productionTable.getValueAt(row, 4);
+          //  if(qty.isEmpty()){
+          //  productionTable.setValueAt(null, row, 4);
+          //  }
+          //  }
+            
+            
             for (int row = 0; row < fullRows; row++) {
+                
+                if(productionTable.getValueAt(row, 4)!=null){
+                    String qty = (String) productionTable.getValueAt(row, 4);
+                    if(!qty.isEmpty()){
+                bb = bb +1;
                 String SOnumber = (String) productionTable.getValueAt(row, 1);
-                //System.out.println(SOnumber);
                 String customer = (String) productionTable.getValueAt(row, 2);
                 String shift = shiftCombo.getSelectedItem().toString();
                 String partNumber = (String) productionTable.getValueAt(row, 3);
-                String qty = (String) productionTable.getValueAt(row, 4);
                 int int_gty = Integer.parseInt(qty);
                 String pack_qty = (String) productionTable.getValueAt(row, 5);
                 int int_pack_qty = Integer.parseInt(pack_qty);
 
-                machineWorkedTable.setValueAt(row + 1, row, 0);
-                machineWorkedTable.setValueAt(partNumber, row, 1);
+                machineWorkedTable.setValueAt(bb+1, bb, 0);
+                machineWorkedTable.setValueAt(partNumber, bb, 1);
                 
                 totalDownTable.setValueAt(partNumber, row, 0);
                 totalDownTable.setValueAt(0, row, 1);
 
-                oeeTable.setValueAt(partNumber, row, 0);
-                oeeTable.setValueAt(SOnumber, row, 1);
-                oeeTable.setValueAt(int_gty, row, 4);
-                //String PartNumber = (String) productionTable.getValueAt(row, 3);
+                oeeTable.setValueAt(partNumber, bb, 0);
+                oeeTable.setValueAt(SOnumber, bb, 1);
+                oeeTable.setValueAt(int_gty, bb, 4);
+                
                 
                 
                 java.sql.PreparedStatement preparedStatement = null;
@@ -194,10 +206,11 @@ public class main extends javax.swing.JFrame {
                 if (rs.next()) {
                     season = rs.getString("swo");
                     System.out.println(season);
-                    oeeTable.setValueAt(season, row, 2);
+                    oeeTable.setValueAt(season, bb, 2);
                 }
                 
                 
+            }
                 
                 
                 
@@ -205,8 +218,7 @@ public class main extends javax.swing.JFrame {
                 
                 
                 
-                
-                
+                }
 
             }
             //productionTable.getSelectionModel().clearSelection();
@@ -664,33 +676,7 @@ public class main extends javax.swing.JFrame {
 
     }
 
-    public void setItemNumberColumn(JTable table,
-            TableColumn sportColumn) {
-        //Set up the editor for the sport cells.
-        JComboBox itemNumberComboBox = new JComboBox();
-        //temNumberComboBox.setSelectedIndex(0);
-        sportColumn.setCellEditor(new DefaultCellEditor(itemNumberComboBox));
-
-        try {
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
-            Statement st = connection.createStatement();
-            String query = "SELECT DISTINCT(PartNumber) FROM parts";
-            ResultSet rs = st.executeQuery(query);
-
-            while (rs.next()) {
-                itemNumberComboBox.addItem(rs.getString("PartNumber"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        //Set up tool tips for the sport cells.
-        DefaultTableCellRenderer renderer
-                = new DefaultTableCellRenderer();
-        renderer.setToolTipText("Click for combo box");
-        sportColumn.setCellRenderer(renderer);
-    }
-
+    
     
 
     /*public void partnumberComboBox()
@@ -823,6 +809,8 @@ public class main extends javax.swing.JFrame {
         totalDownTable = new javax.swing.JTable();
         jScrollPane5 = new javax.swing.JScrollPane();
         plannedDownTable = new javax.swing.JTable();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        intermTable = new javax.swing.JTable();
         jButton2 = new javax.swing.JButton();
         jButton10 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
@@ -1148,15 +1136,31 @@ public class main extends javax.swing.JFrame {
         ));
         jScrollPane5.setViewportView(plannedDownTable);
 
+        intermTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
+            },
+            new String [] {
+                "Item ", "Down"
+            }
+        ));
+        jScrollPane7.setViewportView(intermTable);
+
         javax.swing.GroupLayout hidPanelLayout = new javax.swing.GroupLayout(hidPanel);
         hidPanel.setLayout(hidPanelLayout);
         hidPanelLayout.setHorizontalGroup(
             hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(hidPanelLayout.createSequentialGroup()
                 .addGap(55, 55, 55)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(hidPanelLayout.createSequentialGroup()
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(190, Short.MAX_VALUE))
         );
         hidPanelLayout.setVerticalGroup(
@@ -1165,8 +1169,11 @@ public class main extends javax.swing.JFrame {
                 .addGap(53, 53, 53)
                 .addGroup(hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(110, Short.MAX_VALUE))
+                    .addGroup(hidPanelLayout.createSequentialGroup()
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/plus.png"))); // NOI18N
@@ -1228,7 +1235,7 @@ public class main extends javax.swing.JFrame {
                                         .addGap(18, 18, 18)
                                         .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addComponent(jButton4))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jLabel9))
                             .addComponent(hidPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(18, 18, 18)
@@ -1399,15 +1406,21 @@ public class main extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
+        
+        databaseOperations calculate = new databaseOperations();
+        
         int click = productionTable.getEditingRow();
         
         if ( click == -1){
         prodOEE();
+        //calculate.prodOEEClone(productionTable, machineWorkedTable, totalDownTable, oeeTable);
+        
         
         }
         else{
         productionTable.getCellEditor().stopCellEditing();
         prodOEE();
+        //calculate.prodOEEClone(productionTable, machineWorkedTable, totalDownTable, oeeTable);
         }
         
         
@@ -1549,6 +1562,7 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JMenuItem biProduct;
     private javax.swing.JTable downtimeTable;
     private javax.swing.JPanel hidPanel;
+    private javax.swing.JTable intermTable;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton2;
@@ -1577,6 +1591,7 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JScrollPane jScrollPane8;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable machineWorkedTable;

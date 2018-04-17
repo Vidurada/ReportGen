@@ -5,8 +5,12 @@
  */
 package reportGen;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.Vector;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
@@ -15,6 +19,13 @@ import javax.swing.table.DefaultTableModel;
  * @author ViduraDan
  */
 public class rowOperations {
+    
+    Connection conn = null;
+    ResultSet rs = null;
+    PreparedStatement pst = null;
+    
+    
+    
 
     public static void addRowAbove(JTable table) {
         int rows = table.getSelectedRow();
@@ -97,4 +108,14 @@ public class rowOperations {
         //table.isCellEditable(max, 2);
     }
 
-}
+    
+
+    }
+    
+    
+    
+    
+    
+    
+    
+
