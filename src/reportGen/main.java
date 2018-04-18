@@ -179,6 +179,8 @@ public class main extends javax.swing.JFrame {
                 int int_gty = Integer.parseInt(qty);
                 String pack_qty = (String) productionTable.getValueAt(row, 5);
                 int int_pack_qty = Integer.parseInt(pack_qty);
+                
+                intermTable.setValueAt(partNumber, bb, 0);
 
                 machineWorkedTable.setValueAt(bb+1, bb, 0);
                 machineWorkedTable.setValueAt(partNumber, bb, 1);
@@ -303,7 +305,7 @@ public class main extends javax.swing.JFrame {
             int fullRows = rows - emptyRows;
 
             for (int row = 0; row < fullRows; row++) {
-                String PartNumber = (String) productionTable.getValueAt(row, 3);
+                String PartNumber = (String) intermTable.getValueAt(row, 3);
                 String st_time = (String) machineWorkedTable.getValueAt(row, 2);
                 String end_time = (String) machineWorkedTable.getValueAt(row, 3);
 
@@ -481,9 +483,9 @@ public class main extends javax.swing.JFrame {
     
     int emptyRows = 0;
             rowSearch:
-            for (int row = 0; row < productionTable.getRowCount(); row++) { //Iterate through all the rows
-                for (int col = 0; col < productionTable.getColumnCount(); col++) { //Iterate through all the columns in the row
-                    if (productionTable.getValueAt(row, col) != null) { //Check if the box is empty
+            for (int row = 0; row < intermTable.getRowCount(); row++) { //Iterate through all the rows
+                for (int col = 0; col < intermTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+                    if (intermTable.getValueAt(row, col) != null) { //Check if the box is empty
                         continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
                     }
                 }
@@ -506,7 +508,7 @@ public class main extends javax.swing.JFrame {
             
 
             //System.out.println(emptyRows);
-            int rows = productionTable.getRowCount();
+            int rows = intermTable.getRowCount();
             //System.out.println(rows);
 
             int fullRows = rows - emptyRows;
@@ -529,7 +531,7 @@ public class main extends javax.swing.JFrame {
             //System.out.println(rower);
             for (int row = 0; row < fullRows; row++) {
                 
-                String partNumber = (String) productionTable.getValueAt(row, 3);
+                String partNumber = (String) intermTable.getValueAt(row, 0);
                 
                  //System.out.println(partNumber);
                  
@@ -623,9 +625,9 @@ public class main extends javax.swing.JFrame {
 
             int emptyRows = 0;
             rowSearch:
-            for (int row = 0; row < productionTable.getRowCount(); row++) { //Iterate through all the rows
-                for (int col = 0; col < productionTable.getColumnCount(); col++) { //Iterate through all the columns in the row
-                    if (productionTable.getValueAt(row, col) != null) { //Check if the box is empty
+            for (int row = 0; row < intermTable.getRowCount(); row++) { //Iterate through all the rows
+                for (int col = 0; col < intermTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+                    if (intermTable.getValueAt(row, col) != null) { //Check if the box is empty
                         continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
                     }
                 }
@@ -633,14 +635,14 @@ public class main extends javax.swing.JFrame {
             }
 
             //System.out.println(emptyRows);
-            int rows = productionTable.getRowCount();
+            int rows = intermTable.getRowCount();
             //System.out.println(rows);
 
             int fullRows = rows - emptyRows;
 
             for (int row = 0; row < fullRows; row++) {
 
-                String partNumber = (String) productionTable.getValueAt(row, 3);
+                String partNumber = (String) intermTable.getValueAt(row, 1);
                 int wastage = columnSum(row + 1);
                 //String pack_qty = (String) productionTable.getValueAt(row, 5);
 
@@ -809,10 +811,10 @@ public class main extends javax.swing.JFrame {
         totalDownTable = new javax.swing.JTable();
         jScrollPane5 = new javax.swing.JScrollPane();
         plannedDownTable = new javax.swing.JTable();
-        jScrollPane7 = new javax.swing.JScrollPane();
-        intermTable = new javax.swing.JTable();
         jButton2 = new javax.swing.JButton();
         jButton10 = new javax.swing.JButton();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        intermTable = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane8 = new javax.swing.JScrollPane();
         oeeTable = new javax.swing.JTable(){
@@ -952,13 +954,10 @@ public class main extends javax.swing.JFrame {
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(1137, 1137, 1137)
-                        .addComponent(jButton3))
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1242, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap()
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jButton3)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1242, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(addRow, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -984,13 +983,13 @@ public class main extends javax.swing.JFrame {
 
         rejectAnalysisTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Base", "Item 1", "Item 2", "Item 3", "Item 4/5", "Item 6", "Item 7", "Total"
+                "Base", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Item 7", "Item 8", "Item 9", "Item 10", "Total"
             }
         ));
         rejectAnalysisTable.setColumnSelectionAllowed(true);
@@ -1115,6 +1114,12 @@ public class main extends javax.swing.JFrame {
                 {null, null},
                 {null, null},
                 {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
                 {null, null}
             },
             new String [] {
@@ -1128,6 +1133,12 @@ public class main extends javax.swing.JFrame {
                 {null, null},
                 {null, null},
                 {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
                 {null, null}
             },
             new String [] {
@@ -1136,31 +1147,15 @@ public class main extends javax.swing.JFrame {
         ));
         jScrollPane5.setViewportView(plannedDownTable);
 
-        intermTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
-            },
-            new String [] {
-                "Item ", "Down"
-            }
-        ));
-        jScrollPane7.setViewportView(intermTable);
-
         javax.swing.GroupLayout hidPanelLayout = new javax.swing.GroupLayout(hidPanel);
         hidPanel.setLayout(hidPanelLayout);
         hidPanelLayout.setHorizontalGroup(
             hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(hidPanelLayout.createSequentialGroup()
                 .addGap(55, 55, 55)
-                .addGroup(hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(hidPanelLayout.createSequentialGroup()
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(190, Short.MAX_VALUE))
         );
         hidPanelLayout.setVerticalGroup(
@@ -1171,8 +1166,7 @@ public class main extends javax.swing.JFrame {
                     .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(hidPanelLayout.createSequentialGroup()
                         .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(111, 111, 111)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -1189,6 +1183,25 @@ public class main extends javax.swing.JFrame {
                 jButton10ActionPerformed(evt);
             }
         });
+
+        intermTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
+            },
+            new String [] {
+                "Item ", "Down"
+            }
+        ));
+        jScrollPane7.setViewportView(intermTable);
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -1215,7 +1228,9 @@ public class main extends javax.swing.JFrame {
                                 .addGap(4, 4, 4)
                                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(72, 72, 72)
+                                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(578, 578, 578)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jButton8))
@@ -1242,9 +1257,14 @@ public class main extends javax.swing.JFrame {
                         .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel7Layout.createSequentialGroup()
                                 .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(128, 128, 128)
+                                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel7Layout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel7Layout.createSequentialGroup()
+                                        .addGap(19, 19, 19)
+                                        .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(45, 45, 45)
                                 .addComponent(jButton8))
                             .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel7Layout.createSequentialGroup()
