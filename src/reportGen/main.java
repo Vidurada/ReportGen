@@ -556,19 +556,93 @@ public class main extends javax.swing.JFrame {
             oeeTable.setValueAt(addy, row, 6);
 
         }
-        
+
         for (int row = 0; row < fullRows; row++) {
             int n1 = (int) plannedDownTable.getValueAt(row, 1);
             int n2 = (int) totalDownTable.getValueAt(row, 1);
             int n3 = (int) machineWorkedTable.getValueAt(row, 4);
             //int add = Integer.parseInt(addy);
-            int num_sum=n1+n2+n3;
+            int num_sum = n1 + n2 + n3;
             oeeTable.setValueAt(num_sum, row, 5);
             oeeTable.setValueAt(n3, row, 8);
 
         }
-        
-        
+
+    }
+
+    public void oeeCalculation() {
+
+        //rejectAnalysisTable.getCellEditor().stopCellEditing();
+        int emptyRows = 0;
+        rowSearch:
+        for (int row = 0; row < oeeTable.getRowCount(); row++) { //Iterate through all the rows
+            for (int col = 0; col < oeeTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+                if (oeeTable.getValueAt(row, col) != null) { //Check if the box is empty
+                    continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
+                }
+            }
+            emptyRows++; //Conditional never evaluated to true so none of the columns in the row contained anything
+        }
+
+        int rows = oeeTable.getRowCount();
+        //System.out.println(rows);
+
+        int fullRows = rows - emptyRows;
+
+        for (int row = 0; row < fullRows; row++) {
+
+            //calculate the ideal run rate
+            String swo = (String) oeeTable.getValueAt(row, 2);
+            double swo_int = Double.parseDouble(swo);
+            double ideal_run_rate;
+            ideal_run_rate = swo_int / 60;
+            oeeTable.setValueAt(ideal_run_rate * 100, row, 9);
+
+            //calculate availability rate
+            int o_time = (int) oeeTable.getValueAt(row, 8);
+            int t_available = (int) oeeTable.getValueAt(row, 5);
+            int pd_time = (int) oeeTable.getValueAt(row, 6);
+
+            double o_time_double = o_time;
+            double t_available_double = t_available;
+            double pd_time_double = pd_time;
+
+            double a_rate = o_time_double / (t_available_double - pd_time_double);
+            System.out.println(a_rate);
+            oeeTable.setValueAt(a_rate * 100, row, 10);
+
+            //calculate performance rate
+            int t_output = (int) oeeTable.getValueAt(row, 4);
+            double t_output_double = t_output;
+            double c_rate = t_output_double / o_time_double;
+
+            if (ideal_run_rate <= c_rate) {
+
+                oeeTable.setValueAt(100, row, 11);
+
+            } else {
+                double p_rate = c_rate / ideal_run_rate;
+                oeeTable.setValueAt(p_rate*100, row, 11);
+
+            }
+            
+            
+            //calculate quality rate
+            int t_reject = (int) oeeTable.getValueAt(row, 3);
+            double t_reject_double = t_reject;
+            
+            double q_rate= (t_output_double -t_reject_double)/t_output_double;
+            oeeTable.setValueAt(q_rate*100, row, 12);
+            
+            //calculate oee rate
+            double pro_rate=(double)oeeTable.getValueAt(row, 10);
+            //double pro_rate_double = pro_rate;
+            double oee = q_rate*pro_rate*a_rate*10000000;
+            
+            oeeTable.setValueAt(oee, row, 13);
+            
+
+        }
 
     }
 
@@ -594,15 +668,18 @@ public class main extends javax.swing.JFrame {
             int fullRows = rows - emptyRows;
 
             for (int row = 0; row < fullRows; row++) {
-
-                String partNumber = (String) intermTable.getValueAt(row, 1);
+                
+                   
+               
+                
                 int wastage = columnSum(row + 1);
                 //String pack_qty = (String) productionTable.getValueAt(row, 5);
 
                 oeeTable.setValueAt(wastage, row, 3);
                 //pst.setString(1, partNumber);
                 ;
-
+                
+            
             }
             //productionTable.getSelectionModel().clearSelection();
 
@@ -623,9 +700,11 @@ public class main extends javax.swing.JFrame {
         for (int i = 0; i < rowsCount; i++) {
             //int amount = integer.parseInt(rejectAnalysisTable.getValueAt(i, 2).toString());
             Object value = rejectAnalysisTable.getValueAt(i, n);
+             String qty = (String) rejectAnalysisTable.getValueAt(i, n);
             if (value != null) {
+                 if (!qty.isEmpty()) {
                 sum = sum + Integer.parseInt(rejectAnalysisTable.getValueAt(i, n).toString());
-            }
+            } }
         }
         return sum;
 
@@ -773,6 +852,7 @@ public class main extends javax.swing.JFrame {
                 oeeTable.transferFocus();
             }
         };
+        oeeCalculate = new javax.swing.JButton();
         shiftCombo = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
@@ -1146,21 +1226,32 @@ public class main extends javax.swing.JFrame {
             oeeTable.getColumnModel().getColumn(13).setMaxWidth(100);
         }
 
+        oeeCalculate.setText("Calculate");
+        oeeCalculate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                oeeCalculateActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 1563, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 1563, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(oeeCalculate))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addGap(25, 25, 25)
-                .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(665, Short.MAX_VALUE))
+                .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(oeeCalculate)
+                .addContainerGap(693, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("OEE", jPanel4);
@@ -1171,11 +1262,14 @@ public class main extends javax.swing.JFrame {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 1325, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 1305, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE)
                 .addContainerGap())
@@ -1341,6 +1435,19 @@ public class main extends javax.swing.JFrame {
         rowOperations.addRowBelow(productionTable);
     }//GEN-LAST:event_addRowActionPerformed
 
+    private void oeeCalculateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_oeeCalculateActionPerformed
+        // TODO add your handling code here:
+        int click = oeeTable.getEditingRow();
+
+        if (click == -1) {
+            oeeCalculation();
+
+        } else {
+            oeeTable.getCellEditor().stopCellEditing();
+            oeeCalculation();
+        }
+    }//GEN-LAST:event_oeeCalculateActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1413,6 +1520,7 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane9;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable machineWorkedTable;
+    private javax.swing.JButton oeeCalculate;
     private javax.swing.JTable oeeTable;
     private javax.swing.JTable plannedDownTable;
     private javax.swing.JTable productionTable;
