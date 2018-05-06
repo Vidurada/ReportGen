@@ -940,6 +940,7 @@ public class main extends javax.swing.JFrame {
         jButton3 = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
+        jButton6 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane8 = new javax.swing.JScrollPane();
         oeeTable = new javax.swing.JTable(){
@@ -1269,6 +1270,14 @@ public class main extends javax.swing.JFrame {
         jLabel5.setText("Machine Down Time");
         jPanel5.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 695, -1, -1));
 
+        jButton6.setText("OEE Create");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+        jPanel5.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 1020, -1, -1));
+
         jTabbedPane1.addTab("Production", jPanel5);
 
         oeeTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -1522,6 +1531,17 @@ public class main extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_machineWorkedTableKeyPressed
 
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        // TODO add your handling code here:
+        
+        
+        
+        
+        //oeeCalculation();
+        excelCreator excal = new excelCreator();
+        excal.production(productionTable);
+    }//GEN-LAST:event_jButton6ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1570,6 +1590,7 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton8;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
