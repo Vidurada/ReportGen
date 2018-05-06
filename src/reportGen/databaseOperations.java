@@ -126,6 +126,34 @@ public class databaseOperations {
         sportColumn.setCellRenderer(renderer);
     }
     
+    
+    public void setDowntimeReasonColumn(JTable table,
+            TableColumn sportColumn) {
+        //Set up the editor for the sport cells.
+        JComboBox itemNumberComboBox = new JComboBox();
+        //temNumberComboBox.setSelectedIndex(0);
+        sportColumn.setCellEditor(new DefaultCellEditor(itemNumberComboBox));
+
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
+            Statement st = connection.createStatement();
+            String query = "SELECT DISTINCT(Reason) FROM downtimes";
+            ResultSet rs = st.executeQuery(query);
+
+            while (rs.next()) {
+                itemNumberComboBox.addItem(rs.getString("Reason"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //Set up tool tips for the sport cells.
+        DefaultTableCellRenderer renderer
+                = new DefaultTableCellRenderer();
+        renderer.setToolTipText("Click for combo box");
+        sportColumn.setCellRenderer(renderer);
+    }
+    
     public void prodOEEClone(JTable productionTable, JTable machineWorkedTable, JTable totalDownTable, JTable oeeTable ) {
         try {
             

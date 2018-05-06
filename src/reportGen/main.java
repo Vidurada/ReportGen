@@ -29,6 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
 import static java.lang.Math.toIntExact;
+import java.util.Arrays;
 
 public class main extends javax.swing.JFrame {
 
@@ -47,13 +48,17 @@ public class main extends javax.swing.JFrame {
         //rejectPartNumberComboBox();
         databaseOperations cellFill = new databaseOperations();
         cellFill.setItemNumberColumn(productionTable, productionTable.getColumnModel().getColumn(3));
-        cellFill.setItemNumberColumn(downtimeTable, downtimeTable.getColumnModel().getColumn(2));
+        cellFill.setDowntimeReasonColumn(machineDowntimeTable,machineDowntimeTable.getColumnModel().getColumn(5));
+        
+        
+        
+        //cellFill.setItemNumberColumn(downtimeTable, downtimeTable.getColumnModel().getColumn(2));
         setBaseColumn(rejectAnalysisTable, rejectAnalysisTable.getColumnModel().getColumn(0));
         hidPanel.setVisible(false);
         totalDownTable.setVisible(false);
         //jPanel1.setVisible(false);
         //hitTab(productionTable);
-        downTimeColumn(downtimeTable, downtimeTable.getColumnModel().getColumn(1));
+       downTimeColumn(machineDowntimeTable, machineDowntimeTable.getColumnModel().getColumn(0));
         //jPanel4.setVisible(false);
         productionTable.setRowSelectionAllowed(true);
         //timeCalculate();
@@ -177,6 +182,7 @@ public class main extends javax.swing.JFrame {
                         int int_pack_qty = Integer.parseInt(pack_qty);
 
                         intermTable.setValueAt(partNumber, bb, 0);
+                        itemFill(intermTable,2);
 
                         machineWorkedTable.setValueAt(bb + 1, bb, 0);
                         machineWorkedTable.setValueAt(partNumber, bb, 1);
@@ -215,12 +221,52 @@ public class main extends javax.swing.JFrame {
             //productionTable.setEnabled(false);
             //prodTableUpdate.setEnabled(rootPaneCheckingEnabled);
             JOptionPane.showMessageDialog(null, "Saved Entries in the Database", "Successful!", JOptionPane.INFORMATION_MESSAGE);
+           
+            
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
         }
 
     }
+    
+     public void itemColumn(JTable table,
+            TableColumn sportColumn) {
+
+        int emptyRows = 0;
+        rowSearch:
+        for (int row = 0; row < productionTable.getRowCount(); row++) { //Iterate through all the rows
+            for (int col = 0; col <productionTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+                if (productionTable.getValueAt(row, col) != null) { //Check if the box is empty
+                    continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
+                }
+            }
+            emptyRows++; //Conditional never evaluated to true so none of the columns in the row contained anything
+        }
+
+        //System.out.println(emptyRows);
+        int rows = productionTable.getRowCount();
+        //System.out.println(rows);
+
+        int fullRows = rows - emptyRows;
+       
+       
+        //Set up the editor for the sport cells.
+        
+        String[] petStrings = {"Item 1", "Item 2","Item 3","Item 4","Item 5","Item 6","Item 7","Item 8"};
+        String[] subString= Arrays.copyOfRange(petStrings, 0, fullRows);
+
+        JComboBox itemNumberComboBox = new JComboBox(subString);
+        sportColumn.setCellEditor(new DefaultCellEditor(itemNumberComboBox));
+
+        //Set up tool tips for the sport cells.
+        DefaultTableCellRenderer renderer
+                = new DefaultTableCellRenderer();
+        renderer.setToolTipText("Click to select base");
+        sportColumn.setCellRenderer(renderer);
+    }
+    
+    
 
     public void updateRows() {
 
@@ -271,6 +317,9 @@ public class main extends javax.swing.JFrame {
 
     public void timeCalculate() {
         try {
+            
+            itemColumn(machineDowntimeTable, machineDowntimeTable.getColumnModel().getColumn(1));
+            
             //machineWorkedTable.getCellEditor().stopCellEditing();
             int emptyRows = 0;
             rowSearch:
@@ -315,6 +364,7 @@ public class main extends javax.swing.JFrame {
 
             }
             //productionTable.getSelectionModel().clearSelection();
+             //itemColumn(machineDowntimeTable, machineDowntimeTable.getColumnModel().getColumn(2));
 
         } catch (Exception e) {
             //JOptionPane.showMessageDialog(this, e.getMessage());
@@ -327,9 +377,9 @@ public class main extends javax.swing.JFrame {
             //downtimeTable.getCellEditor().stopCellEditing();
             int emptyRows = 0;
             rowSearch:
-            for (int row = 0; row < downtimeTable.getRowCount(); row++) { //Iterate through all the rows
-                for (int col = 0; col < downtimeTable.getColumnCount(); col++) { //Iterate through all the columns in the row
-                    if (downtimeTable.getValueAt(row, col) != null) { //Check if the box is empty
+            for (int row = 0; row < machineDowntimeTable.getRowCount(); row++) { //Iterate through all the rows
+                for (int col = 0; col < machineDowntimeTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+                    if (machineDowntimeTable.getValueAt(row, col) != null) { //Check if the box is empty
                         continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
                     }
                 }
@@ -337,15 +387,15 @@ public class main extends javax.swing.JFrame {
             }
 
             //System.out.println(emptyRows);
-            int rows = downtimeTable.getRowCount();
+            int rows = machineDowntimeTable.getRowCount();
             //System.out.println(rows);
 
             int fullRows = rows - emptyRows;
 
             for (int row = 0; row < fullRows; row++) {
                 //String PartNumber = (String) productionTable.getValueAt(row, 3);
-                String st_time = (String) downtimeTable.getValueAt(row, 3);
-                String end_time = (String) downtimeTable.getValueAt(row, 4);
+                String st_time = (String) machineDowntimeTable.getValueAt(row, 2);
+                String end_time = (String) machineDowntimeTable.getValueAt(row, 3);
 
                 //System.out.println(SOnumber);
                 SimpleDateFormat format = new SimpleDateFormat("HH.mm");
@@ -353,7 +403,7 @@ public class main extends javax.swing.JFrame {
                 Date date2 = format.parse(end_time);
                 long difference = (date2.getTime() - date1.getTime()) / (1000 * 60);
                 int bar = toIntExact(difference);
-                downtimeTable.setValueAt(bar, row, 5);
+                machineDowntimeTable.setValueAt(bar, row, 4);
 
             }
             //productionTable.getSelectionModel().clearSelection();
@@ -478,9 +528,9 @@ public class main extends javax.swing.JFrame {
 
         int emptyRowss = 0;
         rowSearch:
-        for (int row = 0; row < downtimeTable.getRowCount(); row++) { //Iterate through all the rows
-            for (int col = 0; col < downtimeTable.getColumnCount(); col++) { //Iterate through all the columns in the row
-                if (downtimeTable.getValueAt(row, col) != null) { //Check if the box is empty
+        for (int row = 0; row < machineDowntimeTable.getRowCount(); row++) { //Iterate through all the rows
+            for (int col = 0; col < machineDowntimeTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+                if (machineDowntimeTable.getValueAt(row, col) != null) { //Check if the box is empty
                     continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
                 }
             }
@@ -492,7 +542,7 @@ public class main extends javax.swing.JFrame {
         //System.out.println(rows);
 
         int fullRows = rows - emptyRows;
-        int rowers = downtimeTable.getRowCount();
+        int rowers = machineDowntimeTable.getRowCount();
 
         int rower = rowers - emptyRowss;
 
@@ -509,22 +559,22 @@ public class main extends javax.swing.JFrame {
         //System.out.println(rower);
         for (int row = 0; row < fullRows; row++) {
 
-            String partNumber = (String) intermTable.getValueAt(row, 0);
+            String partNumber = (String) intermTable.getValueAt(row, 2);
 
             //System.out.println(partNumber);
             for (int roww = 0; roww < rower; roww++) {
 
-                String partNumberd = (String) downtimeTable.getValueAt(roww, 2);
+                String partNumberd = (String) machineDowntimeTable.getValueAt(roww, 1);
                 //System.out.println(partNumber);
 
                 if (partNumber.equals(partNumberd)) {
-                    String status = (String) downtimeTable.getValueAt(roww, 1);
+                    String status = (String) machineDowntimeTable.getValueAt(roww, 1);
                     if (status == "Unplanned") {
                         int qty = (int) totalDownTable.getValueAt(row, 1);
                         //int add_gty = Integer.parseInt(qty);
                         System.out.println(qty);
 
-                        int addy = (int) downtimeTable.getValueAt(roww, 5);
+                        int addy = (int) machineDowntimeTable.getValueAt(roww, 4);
                         //int add = Integer.parseInt(addy);
                         System.out.println(addy);
 
@@ -537,7 +587,7 @@ public class main extends javax.swing.JFrame {
                         //int add_gty = Integer.parseInt(qty);
                         System.out.println(qty);
 
-                        int addy = (int) downtimeTable.getValueAt(roww, 5);
+                        int addy = (int) machineDowntimeTable.getValueAt(roww, 4);
                         //int add = Integer.parseInt(addy);
                         System.out.println(addy);
 
@@ -580,6 +630,38 @@ public class main extends javax.swing.JFrame {
         }
 
     }
+    
+    public void itemFill(JTable table, int column){
+    
+    String[] itemArray = {"Item 1", "Item 2","Item 3","Item 4","Item 5","Item 6","Item 7","Item 8"};
+    int row = filledRows(table);
+    for (int i=0;i<row;i++){
+         table.setValueAt(itemArray[i], i, column);
+    
+    }
+    
+    
+    
+    
+    
+    
+    }
+    
+    public int filledRows(JTable table){
+       int emptyRows = 0;
+            rowSearch:
+            for (int row = 0; row < table.getRowCount(); row++) { //Iterate through all the rows
+                for (int col = 0; col < table.getColumnCount(); col++) { //Iterate through all the columns in the row
+                    if (table.getValueAt(row, col) != null) { //Check if the box is empty
+                        continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
+                    }
+                }
+                emptyRows++; //Conditional never evaluated to true so none of the columns in the row contained anything
+            }
+            return table.getRowCount() - emptyRows;
+    
+    }
+    
 
     public void oeeCalculation() {
 
@@ -786,8 +868,6 @@ public class main extends javax.swing.JFrame {
         jScrollPane10 = new javax.swing.JScrollPane();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel5 = new javax.swing.JPanel();
-        addRow = new javax.swing.JButton();
-        removeRow = new javax.swing.JButton();
         jScrollPane9 = new javax.swing.JScrollPane();
         productionTable = new javax.swing.JTable(){
             public void changeSelection(final int row, final int column, boolean toggle, boolean extend)
@@ -822,6 +902,12 @@ public class main extends javax.swing.JFrame {
                 machineWorkedTable.editCellAt(row, column);
                 machineWorkedTable.transferFocus();
             }
+
+            public boolean isCellEditable(int row,int column){
+                if(column == 4) return false;//the 4th column is not editable
+                return true;
+            }
+
         };
         jButton4 = new javax.swing.JButton();
         hidPanel = new javax.swing.JPanel();
@@ -832,13 +918,19 @@ public class main extends javax.swing.JFrame {
         jScrollPane7 = new javax.swing.JScrollPane();
         intermTable = new javax.swing.JTable();
         jScrollPane4 = new javax.swing.JScrollPane();
-        downtimeTable = new javax.swing.JTable(){
+        machineDowntimeTable = new javax.swing.JTable(){
             public void changeSelection(final int row, final int column, boolean toggle, boolean extend)
             {
                 super.changeSelection(row, column, toggle, extend);
-                downtimeTable .editCellAt(row, column);
-                downtimeTable .transferFocus();
+                machineDowntimeTable .editCellAt(row, column);
+                machineDowntimeTable .transferFocus();
             }
+
+            public boolean isCellEditable(int row,int column){
+                if(column == 4) return false;//the 4th column is not editable
+                return true;
+            }
+
         };
         jButton8 = new javax.swing.JButton();
         jButton10 = new javax.swing.JButton();
@@ -932,22 +1024,6 @@ public class main extends javax.swing.JFrame {
         jPanel5.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jPanel5.setMaximumSize(new java.awt.Dimension(1272, 966));
         jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        addRow.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/plus.png"))); // NOI18N
-        addRow.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addRowActionPerformed(evt);
-            }
-        });
-        jPanel5.add(addRow, new org.netbeans.lib.awtextra.AbsoluteConstraints(1233, 52, 39, 36));
-
-        removeRow.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/remove.png"))); // NOI18N
-        removeRow.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                removeRowActionPerformed(evt);
-            }
-        });
-        jPanel5.add(removeRow, new org.netbeans.lib.awtextra.AbsoluteConstraints(1233, 94, 39, 34));
 
         productionTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -1078,19 +1154,19 @@ public class main extends javax.swing.JFrame {
 
         intermTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
             },
             new String [] {
-                "Item ", "Down"
+                "Item ", "Qty", "ItemNo"
             }
         ));
         jScrollPane7.setViewportView(intermTable);
@@ -1100,34 +1176,32 @@ public class main extends javax.swing.JFrame {
         hidPanelLayout.setHorizontalGroup(
             hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(hidPanelLayout.createSequentialGroup()
-                .addGroup(hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(hidPanelLayout.createSequentialGroup()
-                        .addGap(55, 55, 55)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(hidPanelLayout.createSequentialGroup()
-                        .addGap(114, 114, 114)
-                        .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(55, 55, 55)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(124, Short.MAX_VALUE))
         );
         hidPanelLayout.setVerticalGroup(
             hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(hidPanelLayout.createSequentialGroup()
-                .addGap(38, 38, 38)
                 .addGroup(hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(hidPanelLayout.createSequentialGroup()
-                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(21, 21, 21))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(38, 38, 38)
+                        .addGroup(hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(hidPanelLayout.createSequentialGroup()
+                        .addGap(46, 46, 46)
+                        .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(74, Short.MAX_VALUE))
         );
 
-        jPanel5.add(hidPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(895, 467, 242, 196));
+        jPanel5.add(hidPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(895, 467, 380, 170));
 
-        downtimeTable.setModel(new javax.swing.table.DefaultTableModel(
+        machineDowntimeTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null},
                 {null, null, null, null, null, null},
@@ -1135,12 +1209,15 @@ public class main extends javax.swing.JFrame {
                 {null, null, null, null, null, null}
             },
             new String [] {
-                "Reason", "Status", "Attribute To", "From", "To", "No of Mins"
+                "Status", "Attribute To", "From", "To", "No of Mins", "Reason"
             }
         ));
-        jScrollPane4.setViewportView(downtimeTable);
+        jScrollPane4.setViewportView(machineDowntimeTable);
+        if (machineDowntimeTable.getColumnModel().getColumnCount() > 0) {
+            machineDowntimeTable.getColumnModel().getColumn(5).setMinWidth(250);
+        }
 
-        jPanel5.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 728, 795, 238));
+        jPanel5.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 728, 850, 238));
 
         jButton8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/plus-and-minus.png"))); // NOI18N
         jButton8.setText("Calculate");
@@ -1149,7 +1226,7 @@ public class main extends javax.swing.JFrame {
                 jButton8ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(855, 941, -1, -1));
+        jPanel5.add(jButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(980, 940, -1, 30));
 
         jButton10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/remove.png"))); // NOI18N
         jButton10.addActionListener(new java.awt.event.ActionListener() {
@@ -1157,7 +1234,7 @@ public class main extends javax.swing.JFrame {
                 jButton10ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton10, new org.netbeans.lib.awtextra.AbsoluteConstraints(863, 768, 35, 35));
+        jPanel5.add(jButton10, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 770, 35, 35));
 
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/plus.png"))); // NOI18N
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -1165,7 +1242,7 @@ public class main extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(863, 728, 35, 34));
+        jPanel5.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 730, 35, 34));
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel1.setText("Production");
@@ -1256,8 +1333,8 @@ public class main extends javax.swing.JFrame {
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addGap(25, 25, 25)
-                .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 489, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton1)
                 .addContainerGap(693, Short.MAX_VALUE))
         );
@@ -1270,19 +1347,19 @@ public class main extends javax.swing.JFrame {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 1325, Short.MAX_VALUE)
+            .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 1335, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane10, javax.swing.GroupLayout.PREFERRED_SIZE, 722, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(66, Short.MAX_VALUE))
+                .addComponent(jScrollPane10, javax.swing.GroupLayout.PREFERRED_SIZE, 486, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(262, Short.MAX_VALUE))
         );
 
         reportArea.addTab("Extrusion Process", jPanel2);
 
-        getContentPane().add(reportArea, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 1330, 830));
+        getContentPane().add(reportArea, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 100, 1340, 790));
         reportArea.getAccessibleContext().setAccessibleName("Report01");
 
         shiftCombo.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
@@ -1360,24 +1437,24 @@ public class main extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-        rowOperations.addRowBelow(downtimeTable);
+        rowOperations.addRowBelow(machineDowntimeTable);
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
         // TODO add your handling code here:
-        rowOperations.removeFromBottom(downtimeTable);
+        rowOperations.removeFromBottom(machineDowntimeTable);
     }//GEN-LAST:event_jButton10ActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
         // TODO add your handling code here:
-        int click = downtimeTable.getEditingRow();
+        int click = machineDowntimeTable.getEditingRow();
 
         if (click == -1) {
             timeCalculateDown();
             hiddenTable();
 
         } else {
-            downtimeTable.getCellEditor().stopCellEditing();
+            machineDowntimeTable.getCellEditor().stopCellEditing();
             timeCalculateDown();
             hiddenTable();
         }
@@ -1428,17 +1505,6 @@ public class main extends javax.swing.JFrame {
     private void productionTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_productionTableMouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_productionTableMouseClicked
-
-    private void removeRowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeRowActionPerformed
-        // TODO add your handling code here:
-        rowOperations.removeFromBottom(productionTable);
-    }//GEN-LAST:event_removeRowActionPerformed
-
-    private void addRowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addRowActionPerformed
-        // TODO add your handling code here:
-
-        rowOperations.addRowBelow(productionTable);
-    }//GEN-LAST:event_addRowActionPerformed
 
     private void machineWorkedTableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_machineWorkedTableKeyPressed
         // TODO add your handling code here:
@@ -1495,9 +1561,7 @@ public class main extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem addAbove;
     private javax.swing.JMenuItem addBelow;
-    private javax.swing.JButton addRow;
     private javax.swing.JMenuItem biProduct;
-    private javax.swing.JTable downtimeTable;
     private javax.swing.JPanel hidPanel;
     private javax.swing.JTable intermTable;
     private javax.swing.JButton jButton1;
@@ -1528,6 +1592,7 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane8;
     private javax.swing.JScrollPane jScrollPane9;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTable machineDowntimeTable;
     private javax.swing.JTable machineWorkedTable;
     private javax.swing.JTable oeeTable;
     private javax.swing.JTable plannedDownTable;
@@ -1535,7 +1600,6 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JTable rejectAnalysisTable;
     private javax.swing.JMenuItem removeAbove;
     private javax.swing.JMenuItem removeBelow;
-    private javax.swing.JButton removeRow;
     private javax.swing.JMenuItem removeThisRow;
     private javax.swing.JTabbedPane reportArea;
     private javax.swing.JPopupMenu rowAdderDeleter;
