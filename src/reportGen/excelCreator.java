@@ -5,6 +5,7 @@
  */
 package reportGen;
 
+import java.io.File;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Row;
@@ -20,7 +21,7 @@ import javax.swing.JTable;
  */
 public class excelCreator {
 
-    public void production(JTable table) {
+    public void production(JTable table, File file) {
         Workbook workbook = new HSSFWorkbook();
         Sheet sheet1 = workbook.createSheet("Production");
 
@@ -71,7 +72,7 @@ public class excelCreator {
             pack_qty.setCellValue((String) table.getValueAt(row-1, 5));
         }
             try {
-                FileOutputStream output = new FileOutputStream("test.xls");
+                FileOutputStream output = new FileOutputStream(file);
                 workbook.write(output);
                 output.close();
             } catch (Exception e) {
@@ -80,5 +81,7 @@ public class excelCreator {
 
         
     }
+
+   
 
 }
