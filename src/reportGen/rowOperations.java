@@ -39,6 +39,17 @@ public class rowOperations {
         row.add(null);
         model.insertRow(rows, row);
     }
+    
+     public static void addColumn(JTable table) {
+        int cols = table.getColumnCount();
+        System.out.println(cols);
+        int colIndex = table.getColumnModel().getColumnIndex("Total");
+        System.out.println(colIndex);
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        model.addColumn("abc");
+        table.moveColumn(cols, colIndex);
+    }
+    
 
     public static void addRowBelow(JTable table) {
         int rows = table.getSelectedRow();
