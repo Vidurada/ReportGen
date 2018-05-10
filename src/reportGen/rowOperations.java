@@ -13,6 +13,7 @@ import java.util.Vector;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
 /**
  *
@@ -41,16 +42,22 @@ public class rowOperations {
     }
     
      public static void addColumn(JTable table) {
-        int cols = table.getColumnCount();
-        System.out.println(cols);
-        int colIndex = table.getColumnModel().getColumnIndex("Total");
-        System.out.println(colIndex);
         DefaultTableModel model = (DefaultTableModel) table.getModel();
-        model.addColumn("abc");
-        table.moveColumn(cols, colIndex);
+        int cols = table.getColumnCount();
+        System.out.println(cols);      
+        model.addColumn("Item"+(cols-1));
+        table.moveColumn(table.getColumnModel().getColumnIndex("Total"), table.getColumnCount()-1);
+        
     }
     
+    public static void setRowNumber(JTable table,int fullRows){
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        //int rowCount = table.getRowCount();
+        model.setRowCount(fullRows);
 
+    }
+    
+    
     public static void addRowBelow(JTable table) {
         int rows = table.getSelectedRow();
         DefaultTableModel model = (DefaultTableModel) table.getModel();

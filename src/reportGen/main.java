@@ -11,6 +11,7 @@ package reportGen;
  */
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.sql.DriverManager;
 import java.sql.Connection;
 import static java.sql.JDBCType.NULL;
@@ -36,6 +37,7 @@ import java.util.Arrays;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import static reportGen.rowOperations.addColumn;
+import static reportGen.rowOperations.setRowNumber;
 
 public class main extends javax.swing.JFrame {
 
@@ -162,20 +164,16 @@ public class main extends javax.swing.JFrame {
             //System.out.println(rows);
 
             int fullRows = rows - emptyRows;
+            //this variable defines the rows and columns in hidden tables
             int bb = -1;
-
-            //  for (int row = 0; row < fullRows; row++) {
-            //  String qty = (String) productionTable.getValueAt(row, 4);
-            //  if(qty.isEmpty()){
-            //  productionTable.setValueAt(null, row, 4);
-            //  }
-            //  }
             for (int row = 0; row < fullRows; row++) {
-
+                // check weather the 5th column is not null
                 if (productionTable.getValueAt(row, 4) != null) {
                     String qty = (String) productionTable.getValueAt(row, 4);
+                    //proceed if the cell is not empty
                     if (!qty.isEmpty()) {
                         bb = bb + 1;
+                        //get values form the production table
                         String SOnumber = (String) productionTable.getValueAt(row, 1);
                         String customer = (String) productionTable.getValueAt(row, 2);
                         String shift = shiftCombo.getSelectedItem().toString();
@@ -186,27 +184,33 @@ public class main extends javax.swing.JFrame {
 
                         intermTable.setValueAt(partNumber, bb, 0);
                         itemFill(intermTable, 2);
-
+                        
+                        //set index and partnumber in machine worked table
+                        setRowNumber(machineWorkedTable,fullRows);
                         machineWorkedTable.setValueAt(bb + 1, bb, 0);
                         machineWorkedTable.setValueAt(partNumber, bb, 1);
-
+                        
+                        //add the partnumber record in 'hidden' totaDownTable
+                        setRowNumber(totalDownTable,fullRows);
+                        setRowNumber(plannedDownTable,fullRows);
+                        setRowNumber(intermTable,fullRows);
                         totalDownTable.setValueAt(partNumber, row, 0);
-                        //totalDownTable.setValueAt(0, row, 1);
-
+                        
+                        //add the values to the oee table
+                        setRowNumber(oeeTable,fullRows);
                         oeeTable.setValueAt(partNumber, bb, 0);
                         oeeTable.setValueAt(SOnumber, bb, 1);
                         oeeTable.setValueAt(int_gty, bb, 4);
-
+                        
+                        //get the swo value from the database for each part
                         java.sql.PreparedStatement preparedStatement = null;
                         String query = "select swo from parts where PartNumber=?";
-
                         preparedStatement = conn.prepareStatement(query);
-                        //String partNumber = (String) productionTable.getValueAt(row, 3);
-                        //System.out.println(partNumber);
                         preparedStatement.setString(1, partNumber);
                         ResultSet rs = preparedStatement.executeQuery();
-
                         String season = null;
+                        
+                        
 
                         if (rs.next()) {
                             season = rs.getString("swo");
@@ -219,14 +223,12 @@ public class main extends javax.swing.JFrame {
                 }
 
             }
-            //productionTable.getSelectionModel().clearSelection();
-
-            //productionTable.setEnabled(false);
-            //prodTableUpdate.setEnabled(rootPaneCheckingEnabled);
-            //JOptionPane.showMessageDialog(null, "Saved Entries in the Database", "Successful!", JOptionPane.INFORMATION_MESSAGE);
-
+            
+            if (fullRows>5){
+                        addColumn(rejectAnalysisTable);
+                        }
+          
         } catch (Exception e) {
-            //JOptionPane.showMessageDialog(null, e.getMessage());
         }
 
     }
@@ -712,7 +714,7 @@ public class main extends javax.swing.JFrame {
 
             if (ideal_run_rate <= c_rate) {
 
-                oeeTable.setValueAt(100, row, 11);
+                oeeTable.setValueAt(100.00, row, 11);
 
             } else {
                 double p_rate = c_rate / ideal_run_rate;
@@ -1092,13 +1094,13 @@ public class main extends javax.swing.JFrame {
 
         rejectAnalysisTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Base", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Item 7", "Item 8", "Item 9", "Item 10", "Total"
+                "Base", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Total"
             }
         ));
         rejectAnalysisTable.setColumnSelectionAllowed(true);
@@ -1156,6 +1158,26 @@ public class main extends javax.swing.JFrame {
                 {null, null},
                 {null, null},
                 {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
                 {null, null}
             },
             new String [] {
@@ -1175,6 +1197,26 @@ public class main extends javax.swing.JFrame {
                 {null, null, null},
                 {null, null, null},
                 {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
                 {null, null, null}
             },
             new String [] {
@@ -1185,11 +1227,6 @@ public class main extends javax.swing.JFrame {
 
         totalDownTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null},
                 {null, null},
                 {null, null},
                 {null, null},
@@ -1218,13 +1255,12 @@ public class main extends javax.swing.JFrame {
         hidPanelLayout.setVerticalGroup(
             hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(hidPanelLayout.createSequentialGroup()
-                .addGap(38, 38, 38)
-                .addGroup(hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(62, Short.MAX_VALUE))
+                .addGap(36, 36, 36)
+                .addGroup(hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(74, Short.MAX_VALUE))
         );
 
         jPanel5.add(hidPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(895, 467, 380, 170));
@@ -1587,15 +1623,19 @@ public class main extends javax.swing.JFrame {
         JFileChooser fileChooser = new JFileChooser();
         // apply filter 
         FileNameExtensionFilter sdfFilter = new FileNameExtensionFilter(
-                "excel files (*.xls)", "xls");
+                "excel files (*.xlsx)", "xlsx");
         fileChooser.setFileFilter(sdfFilter);
 
         if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             //add .xls extention
-            file = new File(file.toString() + ".xls");
+            file = new File(file.toString() + ".xlsx");
             excelCreator excaly = new excelCreator();
-            excaly.production(productionTable, file);
+            try {
+                excaly.oee(oeeTable, file);
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
         }
     }//GEN-LAST:event_jButton7ActionPerformed
