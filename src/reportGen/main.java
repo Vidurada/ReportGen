@@ -153,7 +153,11 @@ public class main extends javax.swing.JFrame {
             for (int row = 0; row < productionTable.getRowCount(); row++) { //Iterate through all the rows
                 for (int col = 0; col < productionTable.getColumnCount(); col++) { //Iterate through all the columns in the row
                     if (productionTable.getValueAt(row, col) != null) { //Check if the box is empty
+                       String qty =productionTable.getValueAt(row, col).toString();
+                    if (!qty.isEmpty()){
+                     
                         continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
+                    }
                     }
                 }
                 emptyRows++; //Conditional never evaluated to true so none of the columns in the row contained anything
@@ -178,7 +182,8 @@ public class main extends javax.swing.JFrame {
                         String customer = (String) productionTable.getValueAt(row, 2);
                         String shift = shiftCombo.getSelectedItem().toString();
                         String partNumber = (String) productionTable.getValueAt(row, 3);
-                        int int_gty = Integer.parseInt(qty);
+                        int int_qty = Integer.parseInt(qty);
+                        double double_qty = Double.parseDouble(qty);
                         String pack_qty = (String) productionTable.getValueAt(row, 5);
                         int int_pack_qty = Integer.parseInt(pack_qty);
 
@@ -198,9 +203,10 @@ public class main extends javax.swing.JFrame {
                         
                         //add the values to the oee table
                         setRowNumber(oeeTable,fullRows);
-                        oeeTable.setValueAt(partNumber, bb, 0);
-                        oeeTable.setValueAt(SOnumber, bb, 1);
-                        oeeTable.setValueAt(int_gty, bb, 4);
+                        oeeTable.setValueAt(bb + 1, bb, 0);
+                        oeeTable.setValueAt(partNumber, bb, 1);
+                        oeeTable.setValueAt(SOnumber, bb, 2);
+                        oeeTable.setValueAt(int_qty, bb, 5);
                         
                         //get the swo value from the database for each part
                         java.sql.PreparedStatement preparedStatement = null;
@@ -215,7 +221,7 @@ public class main extends javax.swing.JFrame {
                         if (rs.next()) {
                             season = rs.getString("swo");
                             System.out.println(season);
-                            oeeTable.setValueAt(season, bb, 2);
+                            oeeTable.setValueAt(season, bb, 3);
                         }
 
                     }
@@ -603,14 +609,14 @@ public class main extends javax.swing.JFrame {
         for (int row = 0; row < fullRows; row++) {
             int addy = (int) totalDownTable.getValueAt(row, 1);
             //int add = Integer.parseInt(addy);
-            oeeTable.setValueAt(addy, row, 7);
+            oeeTable.setValueAt(addy, row, 8);
 
         }
 
         for (int row = 0; row < fullRows; row++) {
             int addy = (int) plannedDownTable.getValueAt(row, 1);
             //int add = Integer.parseInt(addy);
-            oeeTable.setValueAt(addy, row, 6);
+            oeeTable.setValueAt(addy, row, 7);
 
         }
 
@@ -620,8 +626,8 @@ public class main extends javax.swing.JFrame {
             int n3 = (int) machineWorkedTable.getValueAt(row, 4);
             //int add = Integer.parseInt(addy);
             int num_sum = n3 - (n2 + n1);
-            oeeTable.setValueAt(num_sum, row, 8);
-            oeeTable.setValueAt(n3, row, 5);
+            oeeTable.setValueAt(num_sum, row, 9);
+            oeeTable.setValueAt(n3, row, 6);
 
         }
 
@@ -675,7 +681,7 @@ public class main extends javax.swing.JFrame {
         for (int row = 0; row < fullRows; row++) {
 
             //calculate the ideal run rate
-            String swo = (String) oeeTable.getValueAt(row, 2);
+            String swo = (String) oeeTable.getValueAt(row, 3);
             double swo_int = Double.parseDouble(swo);
             double ideal_run_rate;
             ideal_run_rate = swo_int / 60;
@@ -686,12 +692,12 @@ public class main extends javax.swing.JFrame {
                     .setScale(2, RoundingMode.HALF_UP)
                     .doubleValue();
             
-            oeeTable.setValueAt(truncated_i_rate, row, 9);
+            oeeTable.setValueAt(truncated_i_rate, row, 10);
 
             //calculate availability rate
-            int o_time = (int) oeeTable.getValueAt(row, 8);
-            int t_available = (int) oeeTable.getValueAt(row, 5);
-            int pd_time = (int) oeeTable.getValueAt(row, 6);
+            int o_time = (int) oeeTable.getValueAt(row, 9);
+            int t_available = (int) oeeTable.getValueAt(row, 6);
+            int pd_time = (int) oeeTable.getValueAt(row, 7);
 
             double o_time_double = o_time;
             double t_available_double = t_available;
@@ -705,16 +711,16 @@ public class main extends javax.swing.JFrame {
                     .setScale(2, RoundingMode.HALF_UP)
                     .doubleValue();
 
-            oeeTable.setValueAt(truncatedDouble, row, 10);
+            oeeTable.setValueAt(truncatedDouble, row, 11);
 
             //calculate performance rate
-            int t_output = (int) oeeTable.getValueAt(row, 4);
+            int t_output = (int) oeeTable.getValueAt(row, 5);
             double t_output_double = t_output;
             double c_rate = t_output_double / o_time_double;
 
             if (ideal_run_rate <= c_rate) {
 
-                oeeTable.setValueAt(100.00, row, 11);
+                oeeTable.setValueAt(100.00, row, 12);
 
             } else {
                 double p_rate = c_rate / ideal_run_rate;
@@ -725,12 +731,12 @@ public class main extends javax.swing.JFrame {
                         .setScale(2, RoundingMode.HALF_UP)
                         .doubleValue();
 
-                oeeTable.setValueAt(truncated_p_rate, row, 11);
+                oeeTable.setValueAt(truncated_p_rate, row, 12);
 
             }
 
             //calculate quality rate
-            int t_reject = (int) oeeTable.getValueAt(row, 3);
+            int t_reject = (int) oeeTable.getValueAt(row, 4);
             double t_reject_double = t_reject;
 
             double q_rate = (t_output_double - t_reject_double) / t_output_double;
@@ -741,16 +747,16 @@ public class main extends javax.swing.JFrame {
                         .doubleValue();
             
             
-            oeeTable.setValueAt(truncated_q_rate, row, 12);
+            oeeTable.setValueAt(truncated_q_rate, row, 13);
 
             //calculate oee rate
-            double pro_rate = (double) oeeTable.getValueAt(row, 10);
+            double pro_rate = (double) oeeTable.getValueAt(row, 11);
             Double tobe_pro_rate = pro_rate*100;
             //double pro_rate_double = pro_rate;
             //double oee = q_rate * pro_rate * a_rate;
-            double num1= (double) oeeTable.getValueAt(row, 10);
-            double num2= (double) oeeTable.getValueAt(row, 11);
-            double num3= (double) oeeTable.getValueAt(row, 12);
+            double num1= (double) oeeTable.getValueAt(row, 11);
+            double num2= (double) oeeTable.getValueAt(row, 12);
+            double num3= (double) oeeTable.getValueAt(row, 13);
             
             double oee= num1*num2*num3/(100*100);
             Double tobe_oee = oee;
@@ -758,7 +764,7 @@ public class main extends javax.swing.JFrame {
                         .setScale(2, RoundingMode.HALF_UP)
                         .doubleValue();
 
-            oeeTable.setValueAt(truncated_oee, row, 13);
+            oeeTable.setValueAt(truncated_oee, row, 14);
 
         }
 
@@ -790,7 +796,7 @@ public class main extends javax.swing.JFrame {
                 int wastage = columnSum(row + 1);
                 //String pack_qty = (String) productionTable.getValueAt(row, 5);
 
-                oeeTable.setValueAt(wastage, row, 3);
+                oeeTable.setValueAt(wastage, row, 4);
                 //pst.setString(1, partNumber);
                 ;
 
@@ -969,7 +975,6 @@ public class main extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         jButton6 = new javax.swing.JButton();
         jButton7 = new javax.swing.JButton();
-        jButton9 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane8 = new javax.swing.JScrollPane();
         oeeTable = new javax.swing.JTable(){
@@ -1349,33 +1354,24 @@ public class main extends javax.swing.JFrame {
         });
         jPanel5.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 1020, -1, -1));
 
-        jButton9.setText("jButton9");
-        jButton9.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton9ActionPerformed(evt);
-            }
-        });
-        jPanel5.add(jButton9, new org.netbeans.lib.awtextra.AbsoluteConstraints(1020, 410, -1, -1));
-
         jTabbedPane1.addTab("Production", jPanel5);
 
         oeeTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Item", "SO Number", "SWO", "Total Reject/Rework", "Total Output", "Total Available Time", "Planned Downtime", "Downtime", "Operating Time", "Ideal Run Rate", "Avialability Rate", "Performance Rate", "Quality Rate", "Plant OEE"
+                "", "Item", "SO Number", "SWO", "Total Reject/Rework", "Total Output", "Total Available Time", "Planned Downtime", "Downtime", "Operating Time", "Ideal Run Rate", "Avialability Rate", "Performance Rate", "Quality Rate", "Plant OEE"
             }
         ));
         jScrollPane8.setViewportView(oeeTable);
         if (oeeTable.getColumnModel().getColumnCount() > 0) {
-            oeeTable.getColumnModel().getColumn(0).setMinWidth(250);
-            oeeTable.getColumnModel().getColumn(0).setMaxWidth(250);
-            oeeTable.getColumnModel().getColumn(1).setMinWidth(100);
-            oeeTable.getColumnModel().getColumn(1).setMaxWidth(100);
+            oeeTable.getColumnModel().getColumn(0).setMaxWidth(60);
+            oeeTable.getColumnModel().getColumn(1).setMinWidth(250);
+            oeeTable.getColumnModel().getColumn(1).setMaxWidth(250);
             oeeTable.getColumnModel().getColumn(2).setMinWidth(100);
             oeeTable.getColumnModel().getColumn(2).setMaxWidth(100);
             oeeTable.getColumnModel().getColumn(3).setMinWidth(100);
@@ -1400,6 +1396,8 @@ public class main extends javax.swing.JFrame {
             oeeTable.getColumnModel().getColumn(12).setMaxWidth(100);
             oeeTable.getColumnModel().getColumn(13).setMinWidth(100);
             oeeTable.getColumnModel().getColumn(13).setMaxWidth(100);
+            oeeTable.getColumnModel().getColumn(14).setMinWidth(100);
+            oeeTable.getColumnModel().getColumn(14).setMaxWidth(100);
         }
 
         jButton1.setText("jButton1");
@@ -1665,11 +1663,6 @@ public class main extends javax.swing.JFrame {
         
     }//GEN-LAST:event_productionTableKeyPressed
 
-    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
-        // TODO add your handling code here:
-        addColumn(rejectAnalysisTable);
-    }//GEN-LAST:event_jButton9ActionPerformed
-
     /**
      * @param args the command line arguments
      */
@@ -1721,7 +1714,6 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
-    private javax.swing.JButton jButton9;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
