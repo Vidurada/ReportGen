@@ -9,6 +9,7 @@ package reportGen;
  *
  * @author ViduraDan
  */
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -144,6 +145,27 @@ public class main extends javax.swing.JFrame {
         }
 
     }
+    
+    private void createKeybindingsEnter(JTable table) {
+table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
+    table.getActionMap().put("Enter", new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            //do something on JTable enter pressed
+            int click = productionTable.getEditingRow();
+
+            if (click == -1) {
+                prodOEE();
+            } else {
+                productionTable.getCellEditor().stopCellEditing();
+                prodOEE();
+                
+
+            }
+            
+        }
+    });
+}
 
     public void prodOEE() {
         try {
@@ -153,11 +175,11 @@ public class main extends javax.swing.JFrame {
             for (int row = 0; row < productionTable.getRowCount(); row++) { //Iterate through all the rows
                 for (int col = 0; col < productionTable.getColumnCount(); col++) { //Iterate through all the columns in the row
                     if (productionTable.getValueAt(row, col) != null) { //Check if the box is empty
-                       String qty =productionTable.getValueAt(row, col).toString();
-                    if (!qty.isEmpty()){
-                     
-                        continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
-                    }
+                        String qty = productionTable.getValueAt(row, col).toString();
+                        if (!qty.isEmpty()) {
+
+                            continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
+                        }
                     }
                 }
                 emptyRows++; //Conditional never evaluated to true so none of the columns in the row contained anything
@@ -189,25 +211,25 @@ public class main extends javax.swing.JFrame {
 
                         intermTable.setValueAt(partNumber, bb, 0);
                         itemFill(intermTable, 2);
-                        
+
                         //set index and partnumber in machine worked table
-                        setRowNumber(machineWorkedTable,fullRows);
+                        setRowNumber(machineWorkedTable, fullRows);
                         machineWorkedTable.setValueAt(bb + 1, bb, 0);
                         machineWorkedTable.setValueAt(partNumber, bb, 1);
-                        
+
                         //add the partnumber record in 'hidden' totaDownTable
-                        setRowNumber(totalDownTable,fullRows);
-                        setRowNumber(plannedDownTable,fullRows);
-                        setRowNumber(intermTable,fullRows);
+                        setRowNumber(totalDownTable, fullRows);
+                        setRowNumber(plannedDownTable, fullRows);
+                        setRowNumber(intermTable, fullRows);
                         totalDownTable.setValueAt(partNumber, row, 0);
-                        
+
                         //add the values to the oee table
-                        setRowNumber(oeeTable,fullRows);
+                        setRowNumber(oeeTable, fullRows);
                         oeeTable.setValueAt(bb + 1, bb, 0);
                         oeeTable.setValueAt(partNumber, bb, 1);
                         oeeTable.setValueAt(SOnumber, bb, 2);
                         oeeTable.setValueAt(int_qty, bb, 5);
-                        
+
                         //get the swo value from the database for each part
                         java.sql.PreparedStatement preparedStatement = null;
                         String query = "select swo from parts where PartNumber=?";
@@ -215,8 +237,6 @@ public class main extends javax.swing.JFrame {
                         preparedStatement.setString(1, partNumber);
                         ResultSet rs = preparedStatement.executeQuery();
                         String season = null;
-                        
-                        
 
                         if (rs.next()) {
                             season = rs.getString("swo");
@@ -229,15 +249,17 @@ public class main extends javax.swing.JFrame {
                 }
 
             }
-            
-            if (fullRows>5){
-                        addColumn(rejectAnalysisTable);
-                        }
-          
+
+            if (fullRows > 5) {
+                addColumn(rejectAnalysisTable);
+            }
+
         } catch (Exception e) {
         }
 
     }
+    
+ 
 
     public void itemColumn(JTable table,
             TableColumn sportColumn) {
@@ -574,14 +596,14 @@ public class main extends javax.swing.JFrame {
                     if ("Unplanned".equals(status)) {
                         int qty = (int) totalDownTable.getValueAt(row, 1);
                         //int add_gty = Integer.parseInt(qty);
-                        System.out.println("addy"+qty);
+                        System.out.println("addy" + qty);
 
                         int addy = (int) machineDowntimeTable.getValueAt(roww, 4);
                         //int add = Integer.parseInt(addy);
                         System.out.println(addy);
 
                         int summ = addy + qty;
-                        System.out.println("summ"+summ);
+                        System.out.println("summ" + summ);
 
                         totalDownTable.setValueAt(summ, row, 1);
                     } else {
@@ -649,8 +671,12 @@ public class main extends javax.swing.JFrame {
         rowSearch:
         for (int row = 0; row < table.getRowCount(); row++) { //Iterate through all the rows
             for (int col = 0; col < table.getColumnCount(); col++) { //Iterate through all the columns in the row
-                if (table.getValueAt(row, col) != null) { //Check if the box is empty
-                    continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
+                if (table.getValueAt(row, col) != null) {
+                    String demi = table.getValueAt(row, col).toString();
+                    if (!demi.isEmpty()) {
+
+                        continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
+                    }
                 }
             }
             emptyRows++; //Conditional never evaluated to true so none of the columns in the row contained anything
@@ -685,13 +711,13 @@ public class main extends javax.swing.JFrame {
             double swo_int = Double.parseDouble(swo);
             double ideal_run_rate;
             ideal_run_rate = swo_int / 60;
-            
-            Double tobe_i_rate =  ideal_run_rate*100;
+
+            Double tobe_i_rate = ideal_run_rate * 100;
 
             Double truncated_i_rate = BigDecimal.valueOf(tobe_i_rate)
                     .setScale(2, RoundingMode.HALF_UP)
                     .doubleValue();
-            
+
             oeeTable.setValueAt(truncated_i_rate, row, 10);
 
             //calculate availability rate
@@ -727,7 +753,7 @@ public class main extends javax.swing.JFrame {
 
                 Double tobe_p_rate = p_rate * 100;
 
-                Double truncated_p_rate  = BigDecimal.valueOf(tobe_p_rate)
+                Double truncated_p_rate = BigDecimal.valueOf(tobe_p_rate)
                         .setScale(2, RoundingMode.HALF_UP)
                         .doubleValue();
 
@@ -740,29 +766,28 @@ public class main extends javax.swing.JFrame {
             double t_reject_double = t_reject;
 
             double q_rate = (t_output_double - t_reject_double) / t_output_double;
-            Double tobe_q_rate = q_rate*100;
-            
-            Double truncated_q_rate  = BigDecimal.valueOf(tobe_q_rate)
-                        .setScale(2, RoundingMode.HALF_UP)
-                        .doubleValue();
-            
-            
+            Double tobe_q_rate = q_rate * 100;
+
+            Double truncated_q_rate = BigDecimal.valueOf(tobe_q_rate)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .doubleValue();
+
             oeeTable.setValueAt(truncated_q_rate, row, 13);
 
             //calculate oee rate
             double pro_rate = (double) oeeTable.getValueAt(row, 11);
-            Double tobe_pro_rate = pro_rate*100;
+            Double tobe_pro_rate = pro_rate * 100;
             //double pro_rate_double = pro_rate;
             //double oee = q_rate * pro_rate * a_rate;
-            double num1= (double) oeeTable.getValueAt(row, 11);
-            double num2= (double) oeeTable.getValueAt(row, 12);
-            double num3= (double) oeeTable.getValueAt(row, 13);
-            
-            double oee= num1*num2*num3/(100*100);
+            double num1 = (double) oeeTable.getValueAt(row, 11);
+            double num2 = (double) oeeTable.getValueAt(row, 12);
+            double num3 = (double) oeeTable.getValueAt(row, 13);
+
+            double oee = num1 * num2 * num3 / (100 * 100);
             Double tobe_oee = oee;
-            Double truncated_oee   = BigDecimal.valueOf(tobe_oee)
-                        .setScale(2, RoundingMode.HALF_UP)
-                        .doubleValue();
+            Double truncated_oee = BigDecimal.valueOf(tobe_oee)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .doubleValue();
 
             oeeTable.setValueAt(truncated_oee, row, 14);
 
@@ -1060,6 +1085,12 @@ public class main extends javax.swing.JFrame {
         jPanel5.setMaximumSize(new java.awt.Dimension(1272, 966));
         jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        jScrollPane9.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jScrollPane9KeyPressed(evt);
+            }
+        });
+
         productionTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null},
@@ -1281,6 +1312,19 @@ public class main extends javax.swing.JFrame {
                 "Status", "Attribute To", "From", "To", "No of Mins", "Reason"
             }
         ));
+        machineDowntimeTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                machineDowntimeTableMouseReleased(evt);
+            }
+        });
+        machineDowntimeTable.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                machineDowntimeTableKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                machineDowntimeTableKeyReleased(evt);
+            }
+        });
         jScrollPane4.setViewportView(machineDowntimeTable);
         if (machineDowntimeTable.getColumnModel().getColumnCount() > 0) {
             machineDowntimeTable.getColumnModel().getColumn(5).setMinWidth(250);
@@ -1443,7 +1487,7 @@ public class main extends javax.swing.JFrame {
                 .addContainerGap(262, Short.MAX_VALUE))
         );
 
-        reportArea.addTab("Extrusion Process", jPanel2);
+        reportArea.addTab("Shift Report", jPanel2);
 
         getContentPane().add(reportArea, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 100, 1340, 790));
         reportArea.getAccessibleContext().setAccessibleName("Report01");
@@ -1505,8 +1549,7 @@ public class main extends javax.swing.JFrame {
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
 
-       // databaseOperations calculate = new databaseOperations();
-
+        // databaseOperations calculate = new databaseOperations();
         int click = productionTable.getEditingRow();
 
         if (click == -1) {
@@ -1579,7 +1622,7 @@ public class main extends javax.swing.JFrame {
     private void productionTableMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_productionTableMouseReleased
         // TODO add your handling code here:
         if (evt.isPopupTrigger()) {
-            int row = productionTable.getSelectedRow();
+            int row = machineDowntimeTable.getSelectedRow();
 
             if (row >= 0) {
                 rowAdderDeleter.show(this, evt.getX() + 50, evt.getY() + 200);
@@ -1640,28 +1683,89 @@ public class main extends javax.swing.JFrame {
 
     private void productionTableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_productionTableKeyPressed
         // TODO add your handling code here:
-        int rowCount = productionTable.getRowCount();
-          if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-             int click = productionTable.getEditingRow();
+        
+        createKeybindingsEnter(productionTable);
+       int rowCount = productionTable.getRowCount();
+        if (evt.getKeyCode() == KeyEvent.VK_INSERT) {
 
-        if (click == -1) {
-            prodOEE();
-            //calculate.prodOEEClone(productionTable, machineWorkedTable, totalDownTable, oeeTable);
+            int selectedRow = productionTable.getSelectedRow();
 
-        } 
-        else if (click == rowCount){}
-        
-        
-        
-        else {
-            productionTable.getCellEditor().stopCellEditing();
-            prodOEE();
-            //calculate.prodOEEClone(productionTable, machineWorkedTable, totalDownTable, oeeTable);
-        }
+            int filledRows = filledRows(productionTable);
+            if (filledRows == rowCount) {
+                 //productionTable.getCellEditor().stopCellEditing();
+                rowOperations.addRowbottom(productionTable);
+            }
 
         }
         
+       /* else if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            int click = productionTable.getEditingRow();
+
+            if (click == -1) {
+                prodOEE();
+            } else {
+                productionTable.getCellEditor().stopCellEditing();
+                prodOEE();
+                
+
+            }
+
+        }*/
+
     }//GEN-LAST:event_productionTableKeyPressed
+
+    private void machineDowntimeTableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_machineDowntimeTableKeyPressed
+        // TODO add your handling code here:
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            int click = machineWorkedTable.getEditingRow();
+
+            if (click == -1) {
+                timeCalculateDown();
+                hiddenTable();
+
+            } else {
+                machineWorkedTable.getCellEditor().stopCellEditing();
+                timeCalculateDown();
+                hiddenTable();
+            }
+
+        }
+
+        int rowCount = machineWorkedTable.getRowCount();
+        if (evt.getKeyCode() == KeyEvent.VK_INSERT) {
+
+            int selectedRow = machineWorkedTable.getSelectedRow();
+
+            int filledRows = filledRows(machineWorkedTable);
+            if (filledRows == rowCount) {
+
+                rowOperations.addRowBelow(machineWorkedTable);
+            }
+
+        }
+
+    }//GEN-LAST:event_machineDowntimeTableKeyPressed
+
+    private void jScrollPane9KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jScrollPane9KeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jScrollPane9KeyPressed
+
+    private void machineDowntimeTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_machineDowntimeTableKeyReleased
+        // TODO add your handling code here:
+
+    }//GEN-LAST:event_machineDowntimeTableKeyReleased
+
+    private void machineDowntimeTableMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_machineDowntimeTableMouseReleased
+        // TODO add your handling code here:
+        if (evt.isPopupTrigger()) {
+            int row = productionTable.getSelectedRow();
+
+            if (row >= 0) {
+                rowAdderDeleter.show(this, evt.getX() + 50, evt.getY() + 200);
+            }
+
+        }
+    }//GEN-LAST:event_machineDowntimeTableMouseReleased
 
     /**
      * @param args the command line arguments

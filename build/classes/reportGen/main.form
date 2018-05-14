@@ -124,8 +124,8 @@
         <Container class="javax.swing.JPanel" name="jPanel2">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-              <JTabbedPaneConstraints tabName="Extrusion Process">
-                <Property name="tabTitle" type="java.lang.String" value="Extrusion Process"/>
+              <JTabbedPaneConstraints tabName="Shift Report">
+                <Property name="tabTitle" type="java.lang.String" value="Shift Report"/>
               </JTabbedPaneConstraints>
             </Constraint>
           </Constraints>
@@ -189,6 +189,9 @@
                       </Layout>
                       <SubComponents>
                         <Container class="javax.swing.JScrollPane" name="jScrollPane9">
+                          <Events>
+                            <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jScrollPane9KeyPressed"/>
+                          </Events>
                           <Constraints>
                             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
                               <AbsoluteConstraints x="33" y="52" width="1182" height="149"/>
@@ -657,6 +660,11 @@
                                   <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                                 </Property>
                               </Properties>
+                              <Events>
+                                <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="machineDowntimeTableMouseReleased"/>
+                                <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="machineDowntimeTableKeyPressed"/>
+                                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="machineDowntimeTableKeyReleased"/>
+                              </Events>
                               <AuxValues>
                                 <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTable(){&#xa;    public void changeSelection(final int row, final int column, boolean toggle, boolean extend)&#xa;    {&#xa;        super.changeSelection(row, column, toggle, extend);&#xa;        machineDowntimeTable .editCellAt(row, column);&#xa;        machineDowntimeTable .transferFocus();&#xa;    }&#xa;&#xa;public boolean isCellEditable(int row,int column){&#xa;    if(column == 4) return false;//the 4th column is not editable&#xa;    return true;&#xa;  }&#xa;&#xa;&#xa;}"/>
                               </AuxValues>

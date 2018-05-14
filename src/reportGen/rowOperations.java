@@ -41,6 +41,19 @@ public class rowOperations {
         model.insertRow(rows, row);
     }
     
+    public static void addRowbottom(JTable table) {
+        int Rows = table.getRowCount();
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        Vector row = new Vector();
+        row.add(null);
+        row.add(null);
+        row.add(null);
+        row.add(null);
+        row.add(null);
+        row.add(null);
+        model.insertRow(Rows, row);
+    }
+    
      public static void addColumn(JTable table) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         int cols = table.getColumnCount();
@@ -81,6 +94,8 @@ public class rowOperations {
 
     public static void removeRowBelow(JTable table) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
+        table.getSelectionModel().clearSelection();
+
         int rows = table.getSelectedRow();
         //System.out.println(rows);
         int allRows = table.getRowCount();
