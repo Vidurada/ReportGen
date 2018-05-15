@@ -37,6 +37,7 @@ import java.math.RoundingMode;
 import java.util.Arrays;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import static reportGen.rowOperations.addColumn;
 import static reportGen.rowOperations.setRowNumber;
 
@@ -58,6 +59,7 @@ public class main extends javax.swing.JFrame {
         databaseOperations cellFill = new databaseOperations();
         cellFill.setItemNumberColumn(productionTable, productionTable.getColumnModel().getColumn(3));
         cellFill.setDowntimeReasonColumn(machineDowntimeTable, machineDowntimeTable.getColumnModel().getColumn(5));
+        
 
         //cellFill.setItemNumberColumn(downtimeTable, downtimeTable.getColumnModel().getColumn(2));
         setBaseColumn(rejectAnalysisTable, rejectAnalysisTable.getColumnModel().getColumn(0));
@@ -69,6 +71,7 @@ public class main extends javax.swing.JFrame {
         //jPanel4.setVisible(false);
         productionTable.setRowSelectionAllowed(true);
         //timeCalculate();
+        
     }
 
     /*
@@ -145,27 +148,26 @@ public class main extends javax.swing.JFrame {
         }
 
     }
-    
-    private void createKeybindingsEnter(JTable table) {
-table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
-    table.getActionMap().put("Enter", new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent ae) {
-            //do something on JTable enter pressed
-            int click = productionTable.getEditingRow();
 
-            if (click == -1) {
-                prodOEE();
-            } else {
-                productionTable.getCellEditor().stopCellEditing();
-                prodOEE();
-                
+    private void createKeybindingsEnter(JTable table) {
+        table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
+        table.getActionMap().put("Enter", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                //do something on JTable enter pressed
+                int click = productionTable.getEditingRow();
+
+                if (click == -1) {
+                    prodOEE();
+                } else {
+                    productionTable.getCellEditor().stopCellEditing();
+                    prodOEE();
+
+                }
 
             }
-            
-        }
-    });
-}
+        });
+    }
 
     public void prodOEE() {
         try {
@@ -258,8 +260,6 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
         }
 
     }
-    
- 
 
     public void itemColumn(JTable table,
             TableColumn sportColumn) {
@@ -949,7 +949,6 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
                 rejectAnalysisTable.editCellAt(row, column);
                 rejectAnalysisTable.transferFocus();
             }
-
         };
         jButton5 = new javax.swing.JButton();
         jScrollPane6 = new javax.swing.JScrollPane();
@@ -991,8 +990,6 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
 
         };
         jButton8 = new javax.swing.JButton();
-        jButton10 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
@@ -1139,7 +1136,16 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
                 "Base", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Total"
             }
         ));
-        rejectAnalysisTable.setColumnSelectionAllowed(true);
+        rejectAnalysisTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                rejectAnalysisTableMouseReleased(evt);
+            }
+        });
+        rejectAnalysisTable.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                rejectAnalysisTableKeyPressed(evt);
+            }
+        });
         jScrollPane2.setViewportView(rejectAnalysisTable);
         rejectAnalysisTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 
@@ -1172,7 +1178,7 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
         });
         jScrollPane6.setViewportView(machineWorkedTable);
 
-        jPanel5.add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 476, 685, 163));
+        jPanel5.add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 476, 1180, 163));
 
         jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/plus-and-minus.png"))); // NOI18N
         jButton4.setText("Calculate");
@@ -1181,7 +1187,7 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
                 jButton4ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(724, 614, -1, -1));
+        jPanel5.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 650, -1, -1));
 
         plannedDownTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -1286,7 +1292,7 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
                 .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(124, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         hidPanelLayout.setVerticalGroup(
             hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1330,7 +1336,7 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
             machineDowntimeTable.getColumnModel().getColumn(5).setMinWidth(250);
         }
 
-        jPanel5.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 728, 850, 238));
+        jPanel5.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 728, 1180, 238));
 
         jButton8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/plus-and-minus.png"))); // NOI18N
         jButton8.setText("Calculate");
@@ -1339,23 +1345,7 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
                 jButton8ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(980, 940, -1, 30));
-
-        jButton10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/remove.png"))); // NOI18N
-        jButton10.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton10ActionPerformed(evt);
-            }
-        });
-        jPanel5.add(jButton10, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 770, 35, 35));
-
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/plus.png"))); // NOI18N
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-        jPanel5.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 730, 35, 34));
+        jPanel5.add(jButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 980, -1, 30));
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel1.setText("Production");
@@ -1388,7 +1378,7 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
                 jButton6ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 1020, -1, -1));
+        jPanel5.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 980, -1, -1));
 
         jButton7.setText("Excel Save");
         jButton7.addActionListener(new java.awt.event.ActionListener() {
@@ -1396,7 +1386,7 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
                 jButton7ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 1020, -1, -1));
+        jPanel5.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 980, -1, -1));
 
         jTabbedPane1.addTab("Production", jPanel5);
 
@@ -1466,7 +1456,7 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
                 .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 489, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton1)
-                .addContainerGap(693, Short.MAX_VALUE))
+                .addContainerGap(467, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("OEE", jPanel4);
@@ -1564,16 +1554,6 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
 
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-        rowOperations.addRowBelow(machineDowntimeTable);
-    }//GEN-LAST:event_jButton2ActionPerformed
-
-    private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
-        // TODO add your handling code here:
-        rowOperations.removeFromBottom(machineDowntimeTable);
-    }//GEN-LAST:event_jButton10ActionPerformed
-
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
         // TODO add your handling code here:
         int click = machineDowntimeTable.getEditingRow();
@@ -1622,7 +1602,7 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
     private void productionTableMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_productionTableMouseReleased
         // TODO add your handling code here:
         if (evt.isPopupTrigger()) {
-            int row = machineDowntimeTable.getSelectedRow();
+            int row = productionTable.getSelectedRow();
 
             if (row >= 0) {
                 rowAdderDeleter.show(this, evt.getX() + 50, evt.getY() + 200);
@@ -1683,22 +1663,22 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
 
     private void productionTableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_productionTableKeyPressed
         // TODO add your handling code here:
-        
+
         createKeybindingsEnter(productionTable);
-       int rowCount = productionTable.getRowCount();
+        int rowCount = productionTable.getRowCount();
         if (evt.getKeyCode() == KeyEvent.VK_INSERT) {
 
             int selectedRow = productionTable.getSelectedRow();
 
             int filledRows = filledRows(productionTable);
             if (filledRows == rowCount) {
-                 //productionTable.getCellEditor().stopCellEditing();
+                //productionTable.getCellEditor().stopCellEditing();
                 rowOperations.addRowbottom(productionTable);
             }
 
         }
-        
-       /* else if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+
+        /* else if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             int click = productionTable.getEditingRow();
 
             if (click == -1) {
@@ -1767,6 +1747,61 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
         }
     }//GEN-LAST:event_machineDowntimeTableMouseReleased
 
+    private void rejectAnalysisTableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_rejectAnalysisTableKeyPressed
+        // TODO add your handling code here:
+        
+         int click = rejectAnalysisTable.getEditingRow();
+
+        if (click == -1) {
+            if (evt.getKeyCode() == KeyEvent.VK_INSERT) {
+            int rowCount = rejectAnalysisTable.getRowCount();
+            System.out.println(rowCount);
+
+            int selectedRow = rejectAnalysisTable.getSelectedRow();
+            System.out.println(selectedRow);
+            
+            if (rowCount>0) {
+
+                rowOperations.addRowbottom(rejectAnalysisTable);
+            }
+
+        }
+            //calculate.prodOEEClone(productionTable, machineWorkedTable, totalDownTable, oeeTable);
+
+        } else {
+            rejectAnalysisTable.getCellEditor().stopCellEditing();
+            if (evt.getKeyCode() == KeyEvent.VK_INSERT) {
+            int rowCount = rejectAnalysisTable.getRowCount();
+            System.out.println(rowCount);
+
+            int selectedRow = rejectAnalysisTable.getSelectedRow();
+            System.out.println(selectedRow);
+            
+            if (rowCount>0) {
+                //rejectAnalysisTable.getCellEditor().stopCellEditing();
+                rowOperations.addRowbottom(rejectAnalysisTable);
+            }
+
+        }
+            //calculate.prodOEEClone(productionTable, machineWorkedTable, totalDownTable, oeeTable);
+        }
+        
+        
+        
+    }//GEN-LAST:event_rejectAnalysisTableKeyPressed
+
+    private void rejectAnalysisTableMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rejectAnalysisTableMouseReleased
+        // TODO add your handling code here:
+         if (evt.isPopupTrigger()) {
+            int row = productionTable.getSelectedRow();
+
+            if (row >= 0) {
+                rowAdderDeleter.show(this, evt.getX() + 50, evt.getY() + 200);
+            }
+
+        }
+    }//GEN-LAST:event_rejectAnalysisTableMouseReleased
+
     /**
      * @param args the command line arguments
      */
@@ -1810,8 +1845,6 @@ table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.g
     private javax.swing.JPanel hidPanel;
     private javax.swing.JTable intermTable;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton10;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;

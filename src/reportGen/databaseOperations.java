@@ -15,14 +15,19 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
+import org.jdesktop.swingx.autocomplete.ComboBoxCellEditor;
 
 /**
  *
@@ -103,23 +108,32 @@ public class databaseOperations {
             TableColumn sportColumn) {
         //Set up the editor for the sport cells.
         JComboBox itemNumberComboBox = new JComboBox();
+        itemNumberComboBox.setEditable(true);
         //temNumberComboBox.setSelectedIndex(0);
-        sportColumn.setCellEditor(new DefaultCellEditor(itemNumberComboBox));
+        sportColumn.setCellEditor(new ComboBoxCellEditor(itemNumberComboBox));
+        //AutoCompleteDecorator.decorate(itemNumberComboBox);
 
         try {
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
             Statement st = connection.createStatement();
             String query = "SELECT DISTINCT(PartNumber) FROM parts";
             ResultSet rs = st.executeQuery(query);
-
+            String[] myStringArray = {};
+            String season = null;
+            List<String> item_list=new ArrayList<>();
             while (rs.next()) {
-                itemNumberComboBox.addItem(rs.getString("PartNumber"));
+                //season = rs.getString("PartNumber");
+                //itemNumberComboBox.addItem(rs.getString("PartNumber"));
+                item_list.add(rs.getString("PartNumber"));   
             }
+             itemNumberComboBox.setModel(new DefaultComboBoxModel(item_list.toArray()));
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         //Set up tool tips for the sport cells.
+        //itemNumberComboBox.setModel(new DefaultComboBoxModel(item_list.toArray()));
+        AutoCompleteDecorator.decorate(itemNumberComboBox);
         DefaultTableCellRenderer renderer
                 = new DefaultTableCellRenderer();
         renderer.setToolTipText("Click for combo box");
@@ -132,7 +146,7 @@ public class databaseOperations {
         //Set up the editor for the sport cells.
         JComboBox itemNumberComboBox = new JComboBox();
         //temNumberComboBox.setSelectedIndex(0);
-        sportColumn.setCellEditor(new DefaultCellEditor(itemNumberComboBox));
+        sportColumn.setCellEditor(new ComboBoxCellEditor(itemNumberComboBox));
 
         try {
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
@@ -246,7 +260,25 @@ public class databaseOperations {
         
     }
     
-    
+public void autocompleteCell(JTable table, int row){
+try {
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
+            Statement st = connection.createStatement();
+            String query = "SELECT DISTINCT(PartNumber) FROM parts";
+            ResultSet rs = st.executeQuery(query);
+
+            //AutoCompleteDecorator.decorate(itemNumberComboBox);
+
+            while (rs.next()) {
+                String part = rs.getString("PartNumber");
+                table.setValueAt(part,row,3);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+}
     
     
     

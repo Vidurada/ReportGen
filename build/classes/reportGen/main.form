@@ -338,13 +338,16 @@
                                     </Column>
                                   </TableColumnModel>
                                 </Property>
-                                <Property name="columnSelectionAllowed" type="boolean" value="true"/>
                                 <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
                                   <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                                 </Property>
                               </Properties>
+                              <Events>
+                                <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="rejectAnalysisTableMouseReleased"/>
+                                <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="rejectAnalysisTableKeyPressed"/>
+                              </Events>
                               <AuxValues>
-                                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTable(){&#xa;public void changeSelection(final int row, final int column, boolean toggle, boolean extend)&#xa;            {&#xa;                super.changeSelection(row, column, toggle, extend);&#xa;                rejectAnalysisTable.editCellAt(row, column);&#xa;                rejectAnalysisTable.transferFocus();&#xa;            }&#xa;&#xa;}"/>
+                                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTable(){&#xa;public void changeSelection(final int row, final int column, boolean toggle, boolean extend)&#xa;    {&#xa;        super.changeSelection(row, column, toggle, extend);&#xa;        rejectAnalysisTable.editCellAt(row, column);&#xa;        rejectAnalysisTable.transferFocus();&#xa;    }&#xa;}"/>
                               </AuxValues>
                             </Component>
                           </SubComponents>
@@ -371,7 +374,7 @@
                           </AuxValues>
                           <Constraints>
                             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                              <AbsoluteConstraints x="33" y="476" width="685" height="163"/>
+                              <AbsoluteConstraints x="33" y="476" width="1180" height="163"/>
                             </Constraint>
                           </Constraints>
 
@@ -442,7 +445,7 @@
                           </Events>
                           <Constraints>
                             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                              <AbsoluteConstraints x="724" y="614" width="-1" height="-1"/>
+                              <AbsoluteConstraints x="700" y="650" width="-1" height="-1"/>
                             </Constraint>
                           </Constraints>
                         </Component>
@@ -463,7 +466,7 @@
                                       <Component id="jScrollPane5" min="-2" pref="60" max="-2" attributes="0"/>
                                       <EmptySpace type="separate" max="-2" attributes="0"/>
                                       <Component id="jScrollPane7" min="-2" pref="70" max="-2" attributes="0"/>
-                                      <EmptySpace pref="124" max="32767" attributes="0"/>
+                                      <EmptySpace max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                             </DimensionLayout>
@@ -604,7 +607,7 @@
                           </AuxValues>
                           <Constraints>
                             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                              <AbsoluteConstraints x="33" y="728" width="850" height="238"/>
+                              <AbsoluteConstraints x="33" y="728" width="1180" height="238"/>
                             </Constraint>
                           </Constraints>
 
@@ -683,37 +686,7 @@
                           </Events>
                           <Constraints>
                             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                              <AbsoluteConstraints x="980" y="940" width="-1" height="30"/>
-                            </Constraint>
-                          </Constraints>
-                        </Component>
-                        <Component class="javax.swing.JButton" name="jButton10">
-                          <Properties>
-                            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                              <Image iconType="3" name="/Icons/remove.png"/>
-                            </Property>
-                          </Properties>
-                          <Events>
-                            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton10ActionPerformed"/>
-                          </Events>
-                          <Constraints>
-                            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                              <AbsoluteConstraints x="990" y="770" width="35" height="35"/>
-                            </Constraint>
-                          </Constraints>
-                        </Component>
-                        <Component class="javax.swing.JButton" name="jButton2">
-                          <Properties>
-                            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                              <Image iconType="3" name="/Icons/plus.png"/>
-                            </Property>
-                          </Properties>
-                          <Events>
-                            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton2ActionPerformed"/>
-                          </Events>
-                          <Constraints>
-                            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                              <AbsoluteConstraints x="990" y="730" width="35" height="34"/>
+                              <AbsoluteConstraints x="1110" y="980" width="-1" height="30"/>
                             </Constraint>
                           </Constraints>
                         </Component>
@@ -794,7 +767,7 @@
                           </Events>
                           <Constraints>
                             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                              <AbsoluteConstraints x="30" y="1020" width="-1" height="-1"/>
+                              <AbsoluteConstraints x="40" y="980" width="-1" height="-1"/>
                             </Constraint>
                           </Constraints>
                         </Component>
@@ -807,7 +780,7 @@
                           </Events>
                           <Constraints>
                             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                              <AbsoluteConstraints x="150" y="1020" width="-1" height="-1"/>
+                              <AbsoluteConstraints x="160" y="980" width="-1" height="-1"/>
                             </Constraint>
                           </Constraints>
                         </Component>
@@ -844,7 +817,7 @@
                                   <Component id="jScrollPane8" min="-2" pref="489" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jButton1" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace pref="693" max="32767" attributes="0"/>
+                                  <EmptySpace pref="467" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
