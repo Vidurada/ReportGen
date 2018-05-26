@@ -59,8 +59,7 @@ public class main extends javax.swing.JFrame {
         databaseOperations cellFill = new databaseOperations();
         cellFill.setItemNumberColumn(productionTable, productionTable.getColumnModel().getColumn(3));
         cellFill.setDowntimeReasonColumn(machineDowntimeTable, machineDowntimeTable.getColumnModel().getColumn(5));
-        
-
+        //cellFill.itemNumberComboBoxPopupMenuWillBecomeInvisible();
         //cellFill.setItemNumberColumn(downtimeTable, downtimeTable.getColumnModel().getColumn(2));
         setBaseColumn(rejectAnalysisTable, rejectAnalysisTable.getColumnModel().getColumn(0));
         hidPanel.setVisible(false);
@@ -71,7 +70,7 @@ public class main extends javax.swing.JFrame {
         //jPanel4.setVisible(false);
         productionTable.setRowSelectionAllowed(true);
         //timeCalculate();
-        
+
     }
 
     /*
@@ -82,6 +81,28 @@ public class main extends javax.swing.JFrame {
         im.put(enter, im.get(tab));
 
     }*/
+    public void nothing() {
+
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
+            String queryco = "Insert into parts(PartNumber,swo) values (?,?);";
+            pst = connection.prepareStatement(queryco);
+
+            //String partNumber = (String) newItem.itemNameText.getText();
+            String swo = (String) newItem.swoText.getText();
+
+//            pst.setString(1, partNumber);
+            pst.setString(2, swo);
+
+            pst.execute();
+            pst.close();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+
+    }
+
     public void insertDatabaseProdPack() {
         try {
             productionTable.getCellEditor().stopCellEditing();
@@ -149,6 +170,56 @@ public class main extends javax.swing.JFrame {
 
     }
 
+    private void packOEEReject() {
+
+        int rows = rejectAnalysisTable.getRowCount();
+        int cols = rejectAnalysisTable.getColumnCount();
+        
+        //iterete through reject analysis table
+        for (int i = 0; i < rows - 1; i++) {
+            //get the base 
+            String base = (String) rejectAnalysisTable.getValueAt(i, 0);
+            //check whether the base is cutter wastage
+            if ("Cutter wastage".equals(base)) {
+                //iterate through colums to get values
+                for (int j = 1; j < cols - 1; j++) {
+                    //make sure no null and empty values taken to calculation
+                    if (productionTable.getValueAt(j - 1, 5) != null) {
+                        String pack_qty = (String) productionTable.getValueAt(j - 1, 5);
+                        String part_name = (String) productionTable.getValueAt(j - 1, 3);
+                        if (!pack_qty.isEmpty()) {
+                            if (rejectAnalysisTable.getValueAt(i, j) != null) {
+                                String rej = (String) rejectAnalysisTable.getValueAt(i, j);
+
+                                //proceed if the cell is not empty
+                                if (!rej.isEmpty()) {
+                                    float float_rej = Float.parseFloat(rej);
+                                    
+                                    //get the row number of each part from park interim table
+                                    int count = 0;
+                                    for (int k = 0; k < packinterimTable.getRowCount(); k++) {
+
+                                        String part_name_2 = (String) packinterimTable.getValueAt(k, 0);
+                                        if (part_name.equals(part_name_2)) {
+                                            count = k;
+                                        }
+
+                                    }
+
+                                    packinterimTable.setValueAt(float_rej, count, 3);
+
+                                }
+                            }
+
+                        }
+                    }
+
+                }
+            }
+        }
+
+    }
+
     private void createKeybindingsEnter(JTable table) {
         table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
         table.getActionMap().put("Enter", new AbstractAction() {
@@ -159,6 +230,7 @@ public class main extends javax.swing.JFrame {
 
                 if (click == -1) {
                     prodOEE();
+
                 } else {
                     productionTable.getCellEditor().stopCellEditing();
                     prodOEE();
@@ -167,6 +239,72 @@ public class main extends javax.swing.JFrame {
 
             }
         });
+    }
+
+    public void packOEE() {
+
+        try {
+
+            int fullRows = filledRows(productionTable);
+            //this variable defines the rows and columns in hidden tables
+            int bb = -1;
+            for (int row = 0; row < fullRows; row++) {
+                // check weather the 5th column is not null
+                if (productionTable.getValueAt(row, 5) != null) {
+                    String pack_qty = (String) productionTable.getValueAt(row, 5);
+
+                    //proceed if the cell is not empty
+                    if (!pack_qty.isEmpty()) {
+                        bb = bb + 1;
+                        //get values form the production table
+
+                        String partNumber = (String) productionTable.getValueAt(row, 3);
+
+                        float float_pack_qty = Float.parseFloat(pack_qty);
+                        packinterimTable.setValueAt(float_pack_qty, bb, 1);
+                        packingOeeTable.setValueAt(float_pack_qty, bb, 5);
+                        packageTimeTable.setValueAt(partNumber, bb, 1);
+                        packageTimeTable.setValueAt(bb + 1, bb, 0);
+
+                        packinterimTable.setValueAt(partNumber, bb, 0);
+                        itemFill(packinterimTable, 2);
+
+                        setRowNumber(packinterimTable, fullRows);
+                        totalDownTable.setValueAt(partNumber, row, 0);
+
+                        //add the values to the oee table
+                        setRowNumber(packingOeeTable, fullRows);
+                        packingOeeTable.setValueAt(bb + 1, bb, 0);
+                        packingOeeTable.setValueAt(partNumber, bb, 1);
+
+                        String[] parts = partNumber.split("-");
+                        String cut_length = parts[2];
+                        packingOeeTable.setValueAt(cut_length, bb, 2);
+
+                        //get the swo value from the database for each part
+                        java.sql.PreparedStatement preparedStatement = null;
+                        String query = "select swo from parts where PartNumber=?";
+                        preparedStatement = conn.prepareStatement(query);
+                        preparedStatement.setString(1, partNumber);
+                        ResultSet rs = preparedStatement.executeQuery();
+                        String season = null;
+
+                        if (rs.next()) {
+                            season = rs.getString("swo");
+                            System.out.println(season);
+                            packingOeeTable.setValueAt(season, bb, 3);
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        } catch (Exception e) {
+        }
+
     }
 
     public void prodOEE() {
@@ -198,6 +336,7 @@ public class main extends javax.swing.JFrame {
                 // check weather the 5th column is not null
                 if (productionTable.getValueAt(row, 4) != null) {
                     String qty = (String) productionTable.getValueAt(row, 4);
+
                     //proceed if the cell is not empty
                     if (!qty.isEmpty()) {
                         bb = bb + 1;
@@ -206,10 +345,14 @@ public class main extends javax.swing.JFrame {
                         String customer = (String) productionTable.getValueAt(row, 2);
                         String shift = shiftCombo.getSelectedItem().toString();
                         String partNumber = (String) productionTable.getValueAt(row, 3);
-                        int int_qty = Integer.parseInt(qty);
-                        double double_qty = Double.parseDouble(qty);
-                        String pack_qty = (String) productionTable.getValueAt(row, 5);
-                        int int_pack_qty = Integer.parseInt(pack_qty);
+
+                        //insert new items to database
+                        databaseOperations dop = new databaseOperations();
+                        dop.insertIfNotExist(productionTable, partNumber, row);
+
+                        String second_qty = (String) productionTable.getValueAt(row, 4);
+                        float float_qty = Float.parseFloat(second_qty);
+                        System.out.println(float_qty);
 
                         intermTable.setValueAt(partNumber, bb, 0);
                         itemFill(intermTable, 2);
@@ -226,11 +369,15 @@ public class main extends javax.swing.JFrame {
                         totalDownTable.setValueAt(partNumber, row, 0);
 
                         //add the values to the oee table
-                        setRowNumber(oeeTable, fullRows);
-                        oeeTable.setValueAt(bb + 1, bb, 0);
-                        oeeTable.setValueAt(partNumber, bb, 1);
-                        oeeTable.setValueAt(SOnumber, bb, 2);
-                        oeeTable.setValueAt(int_qty, bb, 5);
+                        setRowNumber(productionOeeTable, fullRows);
+                        productionOeeTable.setValueAt(bb + 1, bb, 0);
+                        productionOeeTable.setValueAt(partNumber, bb, 1);
+                        productionOeeTable.setValueAt(SOnumber, bb, 2);
+                        productionOeeTable.setValueAt(float_qty, bb, 5);
+
+                        //packagetime table
+                        packageTimeTable.setValueAt(bb + 1, bb, 0);
+                        packageTimeTable.setValueAt(partNumber, bb, 1);
 
                         //get the swo value from the database for each part
                         java.sql.PreparedStatement preparedStatement = null;
@@ -243,7 +390,8 @@ public class main extends javax.swing.JFrame {
                         if (rs.next()) {
                             season = rs.getString("swo");
                             System.out.println(season);
-                            oeeTable.setValueAt(season, bb, 3);
+                            productionOeeTable.setValueAt(season, bb, 3);
+
                         }
 
                     }
@@ -338,6 +486,34 @@ public class main extends javax.swing.JFrame {
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+
+    }
+
+    public void timeCalculatePacking() {
+        try {
+            int fullRows = filledRows(packageTimeTable);
+            for (int row = 0; row < fullRows; row++) {
+                String st_time = (String) packageTimeTable.getValueAt(row, 2);
+                String end_time = (String) packageTimeTable.getValueAt(row, 3);
+
+                SimpleDateFormat format = new SimpleDateFormat("HH.mm");
+                Date date1 = format.parse(st_time);
+                Date date2 = format.parse(end_time);
+
+                long difference = (date2.getTime() - date1.getTime()) / (1000 * 60);
+
+                if (difference < 0) {
+                    difference = difference + 1440;
+                }
+
+                int bar = toIntExact(difference);
+                packageTimeTable.setValueAt(bar, row, 4);
+
+            }
+
+        } catch (Exception e) {
+
         }
 
     }
@@ -509,12 +685,12 @@ public class main extends javax.swing.JFrame {
             for (int row = 0; row < fullRows; row++) {
 
                 String partNumber = (String) productionTable.getValueAt(row, 3);
-                int int_gty = columnSum(row + 1);
+                float int_gty = columnSum(row + 1);
                 //String pack_qty = (String) productionTable.getValueAt(row, 5);
 
                 //pst.setString(1, partNumber);
                 String shift = shiftCombo.getSelectedItem().toString();
-                pst.setInt(1, int_gty);
+                pst.setFloat(1, int_gty);
                 pst.setString(2, partNumber);
                 pst.setString(3, reportDate);
                 pst.setString(4, shift);
@@ -631,14 +807,14 @@ public class main extends javax.swing.JFrame {
         for (int row = 0; row < fullRows; row++) {
             int addy = (int) totalDownTable.getValueAt(row, 1);
             //int add = Integer.parseInt(addy);
-            oeeTable.setValueAt(addy, row, 8);
+            productionOeeTable.setValueAt(addy, row, 8);
 
         }
 
         for (int row = 0; row < fullRows; row++) {
             int addy = (int) plannedDownTable.getValueAt(row, 1);
             //int add = Integer.parseInt(addy);
-            oeeTable.setValueAt(addy, row, 7);
+            productionOeeTable.setValueAt(addy, row, 7);
 
         }
 
@@ -648,8 +824,8 @@ public class main extends javax.swing.JFrame {
             int n3 = (int) machineWorkedTable.getValueAt(row, 4);
             //int add = Integer.parseInt(addy);
             int num_sum = n3 - (n2 + n1);
-            oeeTable.setValueAt(num_sum, row, 9);
-            oeeTable.setValueAt(n3, row, 6);
+            productionOeeTable.setValueAt(num_sum, row, 9);
+            productionOeeTable.setValueAt(n3, row, 6);
 
         }
 
@@ -685,21 +861,58 @@ public class main extends javax.swing.JFrame {
 
     }
 
-    public void oeeCalculation() {
+    public void packagingOeeCalculation() {
+        int deduct = 0;
+        int no_min = 0;
+        int fullRows = filledRows(packageTimeTable);
+        for (int row = 0; row < fullRows; row++) {
+
+            no_min = Integer.parseInt(packageTimeTable.getValueAt(row, 4).toString());
+
+            boolean tea_time_1 = (boolean) packageTimeTable.getValueAt(row, 5);
+            boolean tea_time_2 = (boolean) packageTimeTable.getValueAt(row, 6);
+            boolean lunch_dinner = (boolean) packageTimeTable.getValueAt(row, 7);
+
+            if (tea_time_1) {
+
+                deduct = deduct + 15;
+
+            }
+
+            if (tea_time_2) {
+
+                deduct = deduct + 15;
+
+            }
+            if (lunch_dinner) {
+
+                deduct = deduct + 60;
+
+            }
+
+            packingOeeTable.setValueAt(no_min, row, 6);
+            packingOeeTable.setValueAt(deduct, row, 7);
+            packingOeeTable.setValueAt(no_min - deduct, row, 9);
+
+        }
+
+    }
+
+    public void productionOeeCalculation() {
 
         //rejectAnalysisTable.getCellEditor().stopCellEditing();
         int emptyRows = 0;
         rowSearch:
-        for (int row = 0; row < oeeTable.getRowCount(); row++) { //Iterate through all the rows
-            for (int col = 0; col < oeeTable.getColumnCount(); col++) { //Iterate through all the columns in the row
-                if (oeeTable.getValueAt(row, col) != null) { //Check if the box is empty
+        for (int row = 0; row < productionOeeTable.getRowCount(); row++) { //Iterate through all the rows
+            for (int col = 0; col < productionOeeTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+                if (productionOeeTable.getValueAt(row, col) != null) { //Check if the box is empty
                     continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
                 }
             }
             emptyRows++; //Conditional never evaluated to true so none of the columns in the row contained anything
         }
 
-        int rows = oeeTable.getRowCount();
+        int rows = productionOeeTable.getRowCount();
         //System.out.println(rows);
 
         int fullRows = rows - emptyRows;
@@ -707,89 +920,89 @@ public class main extends javax.swing.JFrame {
         for (int row = 0; row < fullRows; row++) {
 
             //calculate the ideal run rate
-            String swo = (String) oeeTable.getValueAt(row, 3);
-            double swo_int = Double.parseDouble(swo);
-            double ideal_run_rate;
+            String swo = (String) productionOeeTable.getValueAt(row, 3);
+            float swo_int = Float.parseFloat(swo);
+            float ideal_run_rate;
             ideal_run_rate = swo_int / 60;
 
-            Double tobe_i_rate = ideal_run_rate * 100;
+            Float tobe_i_rate = ideal_run_rate * 100;
 
-            Double truncated_i_rate = BigDecimal.valueOf(tobe_i_rate)
+            Float truncated_i_rate = BigDecimal.valueOf(tobe_i_rate)
                     .setScale(2, RoundingMode.HALF_UP)
-                    .doubleValue();
+                    .floatValue();
 
-            oeeTable.setValueAt(truncated_i_rate, row, 10);
+            productionOeeTable.setValueAt(truncated_i_rate, row, 10);
 
             //calculate availability rate
-            int o_time = (int) oeeTable.getValueAt(row, 9);
-            int t_available = (int) oeeTable.getValueAt(row, 6);
-            int pd_time = (int) oeeTable.getValueAt(row, 7);
+            int o_time = (int) productionOeeTable.getValueAt(row, 9);
+            int t_available = (int) productionOeeTable.getValueAt(row, 6);
+            int pd_time = (int) productionOeeTable.getValueAt(row, 7);
 
-            double o_time_double = o_time;
-            double t_available_double = t_available;
-            double pd_time_double = pd_time;
+            float o_time_double = o_time;
+            float t_available_double = t_available;
+            float pd_time_double = pd_time;
 
-            double a_rate = o_time_double / (t_available_double - pd_time_double);
-            double a_rate_percent = a_rate * 100;
-            Double tobe_a_rate = a_rate_percent;
+            float a_rate = o_time_double / (t_available_double - pd_time_double);
+            float a_rate_percent = a_rate * 100;
+            Float tobe_a_rate = a_rate_percent;
 
-            Double truncatedDouble = BigDecimal.valueOf(tobe_a_rate)
+            Float truncatedDouble = BigDecimal.valueOf(tobe_a_rate)
                     .setScale(2, RoundingMode.HALF_UP)
-                    .doubleValue();
+                    .floatValue();
 
-            oeeTable.setValueAt(truncatedDouble, row, 11);
+            productionOeeTable.setValueAt(truncatedDouble, row, 11);
 
             //calculate performance rate
-            int t_output = (int) oeeTable.getValueAt(row, 5);
-            double t_output_double = t_output;
-            double c_rate = t_output_double / o_time_double;
+            float t_output = (float) productionOeeTable.getValueAt(row, 5);
+            float t_output_double = t_output;
+            float c_rate = t_output_double / o_time_double;
 
             if (ideal_run_rate <= c_rate) {
 
-                oeeTable.setValueAt(100.00, row, 12);
+                productionOeeTable.setValueAt(100.00, row, 12);
 
             } else {
-                double p_rate = c_rate / ideal_run_rate;
+                float p_rate = c_rate / ideal_run_rate;
 
-                Double tobe_p_rate = p_rate * 100;
+                Float tobe_p_rate = p_rate * 100;
 
-                Double truncated_p_rate = BigDecimal.valueOf(tobe_p_rate)
+                Float truncated_p_rate = BigDecimal.valueOf(tobe_p_rate)
                         .setScale(2, RoundingMode.HALF_UP)
-                        .doubleValue();
+                        .floatValue();
 
-                oeeTable.setValueAt(truncated_p_rate, row, 12);
+                productionOeeTable.setValueAt(truncated_p_rate, row, 12);
 
             }
 
             //calculate quality rate
-            int t_reject = (int) oeeTable.getValueAt(row, 4);
-            double t_reject_double = t_reject;
+            float t_reject = (float) productionOeeTable.getValueAt(row, 4);
+            float t_reject_double = t_reject;
 
-            double q_rate = (t_output_double - t_reject_double) / t_output_double;
-            Double tobe_q_rate = q_rate * 100;
+            float q_rate = (t_output_double - t_reject_double) / t_output_double;
+            Float tobe_q_rate = q_rate * 100;
 
-            Double truncated_q_rate = BigDecimal.valueOf(tobe_q_rate)
+            Float truncated_q_rate = BigDecimal.valueOf(tobe_q_rate)
                     .setScale(2, RoundingMode.HALF_UP)
-                    .doubleValue();
+                    .floatValue();
 
-            oeeTable.setValueAt(truncated_q_rate, row, 13);
+            productionOeeTable.setValueAt(truncated_q_rate, row, 13);
 
             //calculate oee rate
-            double pro_rate = (double) oeeTable.getValueAt(row, 11);
-            Double tobe_pro_rate = pro_rate * 100;
+            float pro_rate = (float) productionOeeTable.getValueAt(row, 11);
+            Float tobe_pro_rate = pro_rate * 100;
             //double pro_rate_double = pro_rate;
             //double oee = q_rate * pro_rate * a_rate;
-            double num1 = (double) oeeTable.getValueAt(row, 11);
-            double num2 = (double) oeeTable.getValueAt(row, 12);
-            double num3 = (double) oeeTable.getValueAt(row, 13);
+            float num1 = (float) productionOeeTable.getValueAt(row, 11);
+            float num2 = (float) productionOeeTable.getValueAt(row, 12);
+            float num3 = (float) productionOeeTable.getValueAt(row, 13);
 
-            double oee = num1 * num2 * num3 / (100 * 100);
-            Double tobe_oee = oee;
-            Double truncated_oee = BigDecimal.valueOf(tobe_oee)
+            float oee = num1 * num2 * num3 / (100 * 100);
+            Float tobe_oee = oee;
+            Float truncated_oee = BigDecimal.valueOf(tobe_oee)
                     .setScale(2, RoundingMode.HALF_UP)
-                    .doubleValue();
+                    .floatValue();
 
-            oeeTable.setValueAt(truncated_oee, row, 14);
+            productionOeeTable.setValueAt(truncated_oee, row, 14);
 
         }
 
@@ -818,10 +1031,10 @@ public class main extends javax.swing.JFrame {
 
             for (int row = 0; row < fullRows; row++) {
 
-                int wastage = columnSum(row + 1);
+                float wastage = columnSum(row + 1);
                 //String pack_qty = (String) productionTable.getValueAt(row, 5);
 
-                oeeTable.setValueAt(wastage, row, 4);
+                productionOeeTable.setValueAt(wastage, row, 4);
                 //pst.setString(1, partNumber);
                 ;
 
@@ -837,18 +1050,18 @@ public class main extends javax.swing.JFrame {
 
     }
 
-    public int columnSum(int n) {
+    public float columnSum(int n) {
 
         int rowsCount = rejectAnalysisTable.getRowCount();
 
-        int sum = 0;
+        float sum = 0;
         for (int i = 0; i < rowsCount; i++) {
             //int amount = integer.parseInt(rejectAnalysisTable.getValueAt(i, 2).toString());
             Object value = rejectAnalysisTable.getValueAt(i, n);
             String qty = (String) rejectAnalysisTable.getValueAt(i, n);
             if (value != null) {
                 if (!qty.isEmpty()) {
-                    sum = sum + Integer.parseInt(rejectAnalysisTable.getValueAt(i, n).toString());
+                    sum = sum + Float.parseFloat(rejectAnalysisTable.getValueAt(i, n).toString());
                 }
             }
         }
@@ -997,17 +1210,30 @@ public class main extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         jButton6 = new javax.swing.JButton();
         jButton7 = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        packageTimeTable = new javax.swing.JTable();
+        jButton2 = new javax.swing.JButton();
+        jScrollPane12 = new javax.swing.JScrollPane();
+        packinterimTable = new javax.swing.JTable();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane8 = new javax.swing.JScrollPane();
-        oeeTable = new javax.swing.JTable(){
+        productionOeeTable = new javax.swing.JTable(){
             public void changeSelection(final int row, final int column, boolean toggle, boolean extend)
             {
                 super.changeSelection(row, column, toggle, extend);
-                oeeTable.editCellAt(row, column);
-                oeeTable.transferFocus();
+                productionOeeTable.editCellAt(row, column);
+                productionOeeTable.transferFocus();
             }
         };
-        jButton1 = new javax.swing.JButton();
+        jScrollPane11 = new javax.swing.JScrollPane();
+        packingOeeTable = new javax.swing.JTable(){
+            public void changeSelection(final int row, final int column, boolean toggle, boolean extend)
+            {
+                super.changeSelection(row, column, toggle, extend);
+                productionOeeTable.editCellAt(row, column);
+                productionOeeTable.transferFocus();
+            }
+        };
         shiftCombo = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
@@ -1130,12 +1356,24 @@ public class main extends javax.swing.JFrame {
                 {null, null, null, null, null, null, null, null},
                 {null, null, null, null, null, null, null, null},
                 {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
                 {null, null, null, null, null, null, null, null}
             },
             new String [] {
                 "Base", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Total"
             }
         ));
+        rejectAnalysisTable.setColumnSelectionAllowed(true);
         rejectAnalysisTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 rejectAnalysisTableMouseReleased(evt);
@@ -1291,31 +1529,46 @@ public class main extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(129, Short.MAX_VALUE))
         );
         hidPanelLayout.setVerticalGroup(
             hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(hidPanelLayout.createSequentialGroup()
-                .addGap(36, 36, 36)
-                .addGroup(hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(hidPanelLayout.createSequentialGroup()
+                        .addGap(36, 36, 36)
+                        .addGroup(hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(hidPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(74, Short.MAX_VALUE))
         );
 
-        jPanel5.add(hidPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(895, 467, 380, 170));
+        jPanel5.add(hidPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(870, 470, 380, 170));
 
         machineDowntimeTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "Status", "Attribute To", "From", "To", "No of Mins", "Reason"
+                "Status", "Attribute To", "From", "To", "No of Mins", "Reason", "Comment"
             }
         ));
         machineDowntimeTable.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -1333,7 +1586,13 @@ public class main extends javax.swing.JFrame {
         });
         jScrollPane4.setViewportView(machineDowntimeTable);
         if (machineDowntimeTable.getColumnModel().getColumnCount() > 0) {
-            machineDowntimeTable.getColumnModel().getColumn(5).setMinWidth(250);
+            machineDowntimeTable.getColumnModel().getColumn(0).setMaxWidth(300);
+            machineDowntimeTable.getColumnModel().getColumn(1).setMaxWidth(150);
+            machineDowntimeTable.getColumnModel().getColumn(2).setMaxWidth(75);
+            machineDowntimeTable.getColumnModel().getColumn(3).setMaxWidth(75);
+            machineDowntimeTable.getColumnModel().getColumn(4).setMaxWidth(75);
+            machineDowntimeTable.getColumnModel().getColumn(5).setMinWidth(200);
+            machineDowntimeTable.getColumnModel().getColumn(5).setMaxWidth(300);
         }
 
         jPanel5.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 728, 1180, 238));
@@ -1378,7 +1637,7 @@ public class main extends javax.swing.JFrame {
                 jButton6ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 980, -1, -1));
+        jPanel5.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 1260, -1, -1));
 
         jButton7.setText("Excel Save");
         jButton7.addActionListener(new java.awt.event.ActionListener() {
@@ -1386,11 +1645,62 @@ public class main extends javax.swing.JFrame {
                 jButton7ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 980, -1, -1));
+        jPanel5.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 1260, -1, -1));
+
+        packageTimeTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null,  new Boolean(false),  new Boolean(false),  new Boolean(false)},
+                {null, null, null, null, null,  new Boolean(false),  new Boolean(false),  new Boolean(false)},
+                {null, null, null, null, null,  new Boolean(false),  new Boolean(false),  new Boolean(false)},
+                {null, null, null, null, null,  new Boolean(false),  new Boolean(false),  new Boolean(false)}
+            },
+            new String [] {
+                "No", "Part Number", "From", "To", "Number of Mins", "Tea 1", "Tea 2", "Lunch/Dinner"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        packageTimeTable.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                packageTimeTableKeyPressed(evt);
+            }
+        });
+        jScrollPane1.setViewportView(packageTimeTable);
+
+        jPanel5.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 1020, 1190, 200));
+
+        jButton2.setText("Test");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        jPanel5.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 1260, -1, -1));
+
+        packinterimTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "ItemName", "Qty", "Ito", "Rej"
+            }
+        ));
+        jScrollPane12.setViewportView(packinterimTable);
+
+        jPanel5.add(jScrollPane12, new org.netbeans.lib.awtextra.AbsoluteConstraints(1280, 350, 210, 210));
 
         jTabbedPane1.addTab("Production", jPanel5);
 
-        oeeTable.setModel(new javax.swing.table.DefaultTableModel(
+        productionOeeTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
                 {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
@@ -1401,40 +1711,82 @@ public class main extends javax.swing.JFrame {
                 "", "Item", "SO Number", "SWO", "Total Reject/Rework", "Total Output", "Total Available Time", "Planned Downtime", "Downtime", "Operating Time", "Ideal Run Rate", "Avialability Rate", "Performance Rate", "Quality Rate", "Plant OEE"
             }
         ));
-        jScrollPane8.setViewportView(oeeTable);
-        if (oeeTable.getColumnModel().getColumnCount() > 0) {
-            oeeTable.getColumnModel().getColumn(0).setMaxWidth(60);
-            oeeTable.getColumnModel().getColumn(1).setMinWidth(250);
-            oeeTable.getColumnModel().getColumn(1).setMaxWidth(250);
-            oeeTable.getColumnModel().getColumn(2).setMinWidth(100);
-            oeeTable.getColumnModel().getColumn(2).setMaxWidth(100);
-            oeeTable.getColumnModel().getColumn(3).setMinWidth(100);
-            oeeTable.getColumnModel().getColumn(3).setMaxWidth(100);
-            oeeTable.getColumnModel().getColumn(4).setMinWidth(100);
-            oeeTable.getColumnModel().getColumn(4).setMaxWidth(100);
-            oeeTable.getColumnModel().getColumn(5).setMinWidth(100);
-            oeeTable.getColumnModel().getColumn(5).setMaxWidth(100);
-            oeeTable.getColumnModel().getColumn(6).setMinWidth(100);
-            oeeTable.getColumnModel().getColumn(6).setMaxWidth(100);
-            oeeTable.getColumnModel().getColumn(7).setMinWidth(100);
-            oeeTable.getColumnModel().getColumn(7).setMaxWidth(100);
-            oeeTable.getColumnModel().getColumn(8).setMinWidth(100);
-            oeeTable.getColumnModel().getColumn(8).setMaxWidth(100);
-            oeeTable.getColumnModel().getColumn(9).setMinWidth(100);
-            oeeTable.getColumnModel().getColumn(9).setMaxWidth(100);
-            oeeTable.getColumnModel().getColumn(10).setMinWidth(100);
-            oeeTable.getColumnModel().getColumn(10).setMaxWidth(100);
-            oeeTable.getColumnModel().getColumn(11).setMinWidth(100);
-            oeeTable.getColumnModel().getColumn(11).setMaxWidth(100);
-            oeeTable.getColumnModel().getColumn(12).setMinWidth(100);
-            oeeTable.getColumnModel().getColumn(12).setMaxWidth(100);
-            oeeTable.getColumnModel().getColumn(13).setMinWidth(100);
-            oeeTable.getColumnModel().getColumn(13).setMaxWidth(100);
-            oeeTable.getColumnModel().getColumn(14).setMinWidth(100);
-            oeeTable.getColumnModel().getColumn(14).setMaxWidth(100);
+        jScrollPane8.setViewportView(productionOeeTable);
+        if (productionOeeTable.getColumnModel().getColumnCount() > 0) {
+            productionOeeTable.getColumnModel().getColumn(0).setMaxWidth(60);
+            productionOeeTable.getColumnModel().getColumn(1).setMinWidth(250);
+            productionOeeTable.getColumnModel().getColumn(1).setMaxWidth(250);
+            productionOeeTable.getColumnModel().getColumn(2).setMinWidth(100);
+            productionOeeTable.getColumnModel().getColumn(2).setMaxWidth(100);
+            productionOeeTable.getColumnModel().getColumn(3).setMinWidth(100);
+            productionOeeTable.getColumnModel().getColumn(3).setMaxWidth(100);
+            productionOeeTable.getColumnModel().getColumn(4).setMinWidth(100);
+            productionOeeTable.getColumnModel().getColumn(4).setMaxWidth(100);
+            productionOeeTable.getColumnModel().getColumn(5).setMinWidth(100);
+            productionOeeTable.getColumnModel().getColumn(5).setMaxWidth(100);
+            productionOeeTable.getColumnModel().getColumn(6).setMinWidth(100);
+            productionOeeTable.getColumnModel().getColumn(6).setMaxWidth(100);
+            productionOeeTable.getColumnModel().getColumn(7).setMinWidth(100);
+            productionOeeTable.getColumnModel().getColumn(7).setMaxWidth(100);
+            productionOeeTable.getColumnModel().getColumn(8).setMinWidth(100);
+            productionOeeTable.getColumnModel().getColumn(8).setMaxWidth(100);
+            productionOeeTable.getColumnModel().getColumn(9).setMinWidth(100);
+            productionOeeTable.getColumnModel().getColumn(9).setMaxWidth(100);
+            productionOeeTable.getColumnModel().getColumn(10).setMinWidth(100);
+            productionOeeTable.getColumnModel().getColumn(10).setMaxWidth(100);
+            productionOeeTable.getColumnModel().getColumn(11).setMinWidth(100);
+            productionOeeTable.getColumnModel().getColumn(11).setMaxWidth(100);
+            productionOeeTable.getColumnModel().getColumn(12).setMinWidth(100);
+            productionOeeTable.getColumnModel().getColumn(12).setMaxWidth(100);
+            productionOeeTable.getColumnModel().getColumn(13).setMinWidth(100);
+            productionOeeTable.getColumnModel().getColumn(13).setMaxWidth(100);
+            productionOeeTable.getColumnModel().getColumn(14).setMinWidth(100);
+            productionOeeTable.getColumnModel().getColumn(14).setMaxWidth(100);
         }
 
-        jButton1.setText("jButton1");
+        packingOeeTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "", "Item", "Cut Length", "SWO", "Total Reject/Rework", "Total Output", "Total Available Time", "Planned Downtime", "Downtime", "Operating Time", "Ideal Run Rate", "Avialability Rate", "Performance Rate", "Quality Rate", "Plant OEE"
+            }
+        ));
+        jScrollPane11.setViewportView(packingOeeTable);
+        if (packingOeeTable.getColumnModel().getColumnCount() > 0) {
+            packingOeeTable.getColumnModel().getColumn(0).setMaxWidth(60);
+            packingOeeTable.getColumnModel().getColumn(1).setMinWidth(250);
+            packingOeeTable.getColumnModel().getColumn(1).setMaxWidth(250);
+            packingOeeTable.getColumnModel().getColumn(2).setMinWidth(100);
+            packingOeeTable.getColumnModel().getColumn(2).setMaxWidth(100);
+            packingOeeTable.getColumnModel().getColumn(3).setMinWidth(100);
+            packingOeeTable.getColumnModel().getColumn(3).setMaxWidth(100);
+            packingOeeTable.getColumnModel().getColumn(4).setMinWidth(100);
+            packingOeeTable.getColumnModel().getColumn(4).setMaxWidth(100);
+            packingOeeTable.getColumnModel().getColumn(5).setMinWidth(100);
+            packingOeeTable.getColumnModel().getColumn(5).setMaxWidth(100);
+            packingOeeTable.getColumnModel().getColumn(6).setMinWidth(100);
+            packingOeeTable.getColumnModel().getColumn(6).setMaxWidth(100);
+            packingOeeTable.getColumnModel().getColumn(7).setMinWidth(100);
+            packingOeeTable.getColumnModel().getColumn(7).setMaxWidth(100);
+            packingOeeTable.getColumnModel().getColumn(8).setMinWidth(100);
+            packingOeeTable.getColumnModel().getColumn(8).setMaxWidth(100);
+            packingOeeTable.getColumnModel().getColumn(9).setMinWidth(100);
+            packingOeeTable.getColumnModel().getColumn(9).setMaxWidth(100);
+            packingOeeTable.getColumnModel().getColumn(10).setMinWidth(100);
+            packingOeeTable.getColumnModel().getColumn(10).setMaxWidth(100);
+            packingOeeTable.getColumnModel().getColumn(11).setMinWidth(100);
+            packingOeeTable.getColumnModel().getColumn(11).setMaxWidth(100);
+            packingOeeTable.getColumnModel().getColumn(12).setMinWidth(100);
+            packingOeeTable.getColumnModel().getColumn(12).setMaxWidth(100);
+            packingOeeTable.getColumnModel().getColumn(13).setMinWidth(100);
+            packingOeeTable.getColumnModel().getColumn(13).setMaxWidth(100);
+            packingOeeTable.getColumnModel().getColumn(14).setMinWidth(100);
+            packingOeeTable.getColumnModel().getColumn(14).setMaxWidth(100);
+        }
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -1442,26 +1794,26 @@ public class main extends javax.swing.JFrame {
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 1563, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton1)
-                .addGap(535, 535, 535))
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 1563, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane11, javax.swing.GroupLayout.PREFERRED_SIZE, 1563, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 458, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 489, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
-                .addContainerGap(467, Short.MAX_VALUE))
+                .addGap(35, 35, 35)
+                .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(50, 50, 50)
+                .addComponent(jScrollPane11, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(917, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("OEE", jPanel4);
 
         jScrollPane10.setViewportView(jTabbedPane1);
+
+        jScrollPane10.getVerticalScrollBar().setUnitIncrement(16);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -1544,12 +1896,13 @@ public class main extends javax.swing.JFrame {
 
         if (click == -1) {
             prodOEE();
-            //calculate.prodOEEClone(productionTable, machineWorkedTable, totalDownTable, oeeTable);
+            packOEE();
 
         } else {
             productionTable.getCellEditor().stopCellEditing();
             prodOEE();
-            //calculate.prodOEEClone(productionTable, machineWorkedTable, totalDownTable, oeeTable);
+            packOEE();
+
         }
 
     }//GEN-LAST:event_jButton3ActionPerformed
@@ -1588,10 +1941,12 @@ public class main extends javax.swing.JFrame {
 
         if (click == -1) {
             oeeReject();
+            packOEEReject();
 
         } else {
             rejectAnalysisTable.getCellEditor().stopCellEditing();
             oeeReject();
+            packOEEReject();
         }
     }//GEN-LAST:event_jButton5ActionPerformed
 
@@ -1633,8 +1988,8 @@ public class main extends javax.swing.JFrame {
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
-
-        oeeCalculation();
+        prodOEE();
+        productionOeeCalculation();
 
         //excal.production(productionTable);
     }//GEN-LAST:event_jButton6ActionPerformed
@@ -1653,7 +2008,7 @@ public class main extends javax.swing.JFrame {
             file = new File(file.toString() + ".xlsx");
             excelCreator excaly = new excelCreator();
             try {
-                excaly.oee(oeeTable, file);
+                excaly.oee(productionOeeTable, file);
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1749,50 +2104,49 @@ public class main extends javax.swing.JFrame {
 
     private void rejectAnalysisTableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_rejectAnalysisTableKeyPressed
         // TODO add your handling code here:
-        
-         int click = rejectAnalysisTable.getEditingRow();
+
+        int click = rejectAnalysisTable.getEditingRow();
 
         if (click == -1) {
             if (evt.getKeyCode() == KeyEvent.VK_INSERT) {
-            int rowCount = rejectAnalysisTable.getRowCount();
-            System.out.println(rowCount);
+                int rowCount = rejectAnalysisTable.getRowCount();
+                System.out.println(rowCount);
 
-            int selectedRow = rejectAnalysisTable.getSelectedRow();
-            System.out.println(selectedRow);
-            
-            if (rowCount>0) {
+                int selectedRow = rejectAnalysisTable.getSelectedRow();
+                System.out.println(selectedRow);
 
-                rowOperations.addRowbottom(rejectAnalysisTable);
+                if (rowCount > 0) {
+
+                    rowOperations.addRowbottom(rejectAnalysisTable);
+                }
+
             }
-
-        }
             //calculate.prodOEEClone(productionTable, machineWorkedTable, totalDownTable, oeeTable);
 
         } else {
             rejectAnalysisTable.getCellEditor().stopCellEditing();
             if (evt.getKeyCode() == KeyEvent.VK_INSERT) {
-            int rowCount = rejectAnalysisTable.getRowCount();
-            System.out.println(rowCount);
+                int rowCount = rejectAnalysisTable.getRowCount();
+                System.out.println(rowCount);
 
-            int selectedRow = rejectAnalysisTable.getSelectedRow();
-            System.out.println(selectedRow);
-            
-            if (rowCount>0) {
-                //rejectAnalysisTable.getCellEditor().stopCellEditing();
-                rowOperations.addRowbottom(rejectAnalysisTable);
+                int selectedRow = rejectAnalysisTable.getSelectedRow();
+                System.out.println(selectedRow);
+
+                if (rowCount > 0) {
+                    //rejectAnalysisTable.getCellEditor().stopCellEditing();
+                    rowOperations.addRowbottom(rejectAnalysisTable);
+                }
+
             }
-
-        }
             //calculate.prodOEEClone(productionTable, machineWorkedTable, totalDownTable, oeeTable);
         }
-        
-        
-        
+
+
     }//GEN-LAST:event_rejectAnalysisTableKeyPressed
 
     private void rejectAnalysisTableMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rejectAnalysisTableMouseReleased
         // TODO add your handling code here:
-         if (evt.isPopupTrigger()) {
+        if (evt.isPopupTrigger()) {
             int row = productionTable.getSelectedRow();
 
             if (row >= 0) {
@@ -1801,6 +2155,34 @@ public class main extends javax.swing.JFrame {
 
         }
     }//GEN-LAST:event_rejectAnalysisTableMouseReleased
+
+    private void packageTimeTableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_packageTimeTableKeyPressed
+        // TODO add your handling code here:
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            int click = packageTimeTable.getEditingRow();
+
+            if (click == -1) {
+                timeCalculatePacking();
+
+            } else {
+                packageTimeTable.getCellEditor().stopCellEditing();
+                timeCalculatePacking();
+            }
+
+        }
+    }//GEN-LAST:event_packageTimeTableKeyPressed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        timeCalculatePacking();
+        packagingOeeCalculation();
+    }//GEN-LAST:event_jButton2ActionPerformed
+    private void itemNumberComboBoxPopupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent e) {
+        databaseOperations dops = new databaseOperations();
+
+        newItem ni = new newItem();
+        ni.setVisible(true);
+    }
 
     /**
      * @param args the command line arguments
@@ -1838,13 +2220,14 @@ public class main extends javax.swing.JFrame {
         });
     }
 
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem addAbove;
     private javax.swing.JMenuItem addBelow;
     private javax.swing.JMenuItem biProduct;
     private javax.swing.JPanel hidPanel;
     private javax.swing.JTable intermTable;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
@@ -1862,7 +2245,10 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane10;
+    private javax.swing.JScrollPane jScrollPane11;
+    private javax.swing.JScrollPane jScrollPane12;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
@@ -1874,9 +2260,12 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable machineDowntimeTable;
     private javax.swing.JTable machineWorkedTable;
-    private javax.swing.JTable oeeTable;
+    private javax.swing.JTable packageTimeTable;
+    private javax.swing.JTable packingOeeTable;
+    private javax.swing.JTable packinterimTable;
     private javax.swing.JTable plannedDownTable;
-    private javax.swing.JTable productionTable;
+    private javax.swing.JTable productionOeeTable;
+    public static javax.swing.JTable productionTable;
     private javax.swing.JTable rejectAnalysisTable;
     private javax.swing.JMenuItem removeAbove;
     private javax.swing.JMenuItem removeBelow;
