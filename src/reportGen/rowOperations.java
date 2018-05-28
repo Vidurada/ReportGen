@@ -41,6 +41,27 @@ public class rowOperations {
         model.insertRow(rows, row);
     }
     
+    public static void addRowAboveMD(JTable table) {
+        int rows = table.getSelectedRow();
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        Vector row = new Vector();
+        for (int i=0; i<7;i++){
+        row.add("");
+        }
+        model.insertRow(rows, row);
+    }
+    
+        public static void addRowAboveReject(JTable table) {
+        int rows = table.getSelectedRow();
+         int columns = table.getColumnCount();
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        Vector row = new Vector();
+        for (int i=0; i<columns;i++){
+        row.add("");
+        }
+        model.insertRow(rows, row);
+    }
+    
     public static void addRowbottom(JTable table) {
         int Rows = table.getRowCount();
         DefaultTableModel model = (DefaultTableModel) table.getModel();
@@ -51,6 +72,27 @@ public class rowOperations {
         row.add(null);
         row.add(null);
         row.add(null);
+        model.insertRow(Rows, row);
+    }
+    
+    public static void addRowbottomOee(JTable table) {
+        int Rows = table.getRowCount();
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        Vector row = new Vector();
+        row.add("");
+        row.add("");
+        row.add("");
+        row.add("");
+        row.add("");
+        row.add("");
+        row.add("");
+        row.add("");
+        row.add("");
+        row.add("");
+        row.add("");
+        row.add("");
+        row.add("");
+        row.add("");
         model.insertRow(Rows, row);
     }
     
@@ -67,6 +109,24 @@ public class rowOperations {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         //int rowCount = table.getRowCount();
         model.setRowCount(fullRows);
+
+    }
+    
+    public static void setRowNumberMachineRunTime(JTable table,int fullRows){
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        int rowCount = table.getRowCount();
+        int dev = fullRows - rowCount;
+        for (int i=0; i<dev ; i++){
+        Vector row = new Vector();
+        row.add("");
+        row.add("");
+        row.add("");
+        row.add("");
+        row.add("");
+        row.add("");
+        model.insertRow(i, row);
+        }
+       
 
     }
     
@@ -140,6 +200,32 @@ public class rowOperations {
         //System.out.println(max);
         //table.isCellEditable(max, 2);
     }
+    
+    
+    public static void addRowBelowReject(JTable table) {
+        int rows = table.getSelectedRow();
+        int columns = table.getColumnCount();
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        Vector row = new Vector();
+        for (int i=0; i<columns;i++){
+        row.add("");
+        }
+        
+        model.insertRow(rows + 1, row);
+    }
+    
+    public static void addRowBelowMachine(JTable table) {
+        int rows = table.getSelectedRow();
+       
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        Vector row = new Vector();
+        for (int i=0; i<7;i++){
+        row.add("");
+        }
+        
+        model.insertRow(rows + 1, row);
+    }
+    
 
     
 
