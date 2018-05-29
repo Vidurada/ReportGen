@@ -255,11 +255,11 @@ public class main extends javax.swing.JFrame {
             for (int row = 0; row < productionTable.getRowCount(); row++) { //Iterate through all the rows
                 for (int col = 0; col < productionTable.getColumnCount(); col++) { //Iterate through all the columns in the row
                     if (productionTable.getValueAt(row, col) != null) { //Check if the box is empty
-                       String qty =productionTable.getValueAt(row, col).toString();
-                    if (!qty.isEmpty()){
-                     
-                        continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
-                    }
+                        String qty = productionTable.getValueAt(row, col).toString();
+                        if (!qty.isEmpty()) {
+
+                            continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
+                        }
                     }
                 }
                 emptyRows++; //Conditional never evaluated to true so none of the columns in the row contained anything
@@ -283,12 +283,15 @@ public class main extends javax.swing.JFrame {
                         //get values form the production table
 
                         String partNumber = (String) productionTable.getValueAt(row, 3);
-                        
+
                         setRowNumber(packageTimeTable, fullRows);
-                        
+
                         packinterimTable.setValueAt(partNumber, bb, 0);
+                        float z = 0;
+                        packinterimTable.setValueAt(z, bb, 3);
 
                         float float_pack_qty = Float.parseFloat(pack_qty);
+                        
                         packinterimTable.setValueAt(float_pack_qty, bb, 1);
                         packingOeeTable.setValueAt(float_pack_qty, bb, 5);
                         packageTimeTable.setValueAt(partNumber, bb, 1);
@@ -336,7 +339,7 @@ public class main extends javax.swing.JFrame {
     }
 
     public void prodOEE() {
-        
+
         try {
 
             int emptyRows = 0;
@@ -344,11 +347,11 @@ public class main extends javax.swing.JFrame {
             for (int row = 0; row < productionTable.getRowCount(); row++) { //Iterate through all the rows
                 for (int col = 0; col < productionTable.getColumnCount(); col++) { //Iterate through all the columns in the row
                     if (productionTable.getValueAt(row, col) != null) { //Check if the box is empty
-                       String qty =productionTable.getValueAt(row, col).toString();
-                    if (!qty.isEmpty()){
-                     
-                        continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
-                    }
+                        String qty = productionTable.getValueAt(row, col).toString();
+                        if (!qty.isEmpty()) {
+
+                            continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
+                        }
                     }
                 }
                 emptyRows++; //Conditional never evaluated to true so none of the columns in the row contained anything
@@ -377,30 +380,28 @@ public class main extends javax.swing.JFrame {
                         float float_qty = Float.parseFloat(second_qty);
                         String pack_qty = (String) productionTable.getValueAt(row, 5);
                         float int_pack_qty = Float.parseFloat(pack_qty);
-                        
-                        
 
                         intermTable.setValueAt(partNumber, bb, 0);
                         itemFill(intermTable, 2);
-                        
+
                         //set index and partnumber in machine worked table
-                        setRowNumber(machineWorkedTable,fullRows);
+                        setRowNumber(machineWorkedTable, fullRows);
                         machineWorkedTable.setValueAt(bb + 1, bb, 0);
                         machineWorkedTable.setValueAt(partNumber, bb, 1);
-                        
+
                         //add the partnumber record in 'hidden' totaDownTable
-                        setRowNumber(totalDownTable,fullRows);
-                        setRowNumber(plannedDownTable,fullRows);
-                        setRowNumber(intermTable,fullRows);
+                        setRowNumber(totalDownTable, fullRows);
+                        setRowNumber(plannedDownTable, fullRows);
+                        setRowNumber(intermTable, fullRows);
                         totalDownTable.setValueAt(partNumber, row, 0);
-                        
+
                         //add the values to the oee table
-                        setRowNumber(productionOeeTable,fullRows);
+                        setRowNumber(productionOeeTable, fullRows);
                         productionOeeTable.setValueAt(bb + 1, bb, 0);
                         productionOeeTable.setValueAt(partNumber, bb, 1);
                         productionOeeTable.setValueAt(SOnumber, bb, 2);
                         productionOeeTable.setValueAt(float_qty, bb, 5);
-                        
+
                         //get the swo value from the database for each part
                         java.sql.PreparedStatement preparedStatement = null;
                         String query = "select swo from parts where PartNumber=?";
@@ -408,8 +409,6 @@ public class main extends javax.swing.JFrame {
                         preparedStatement.setString(1, partNumber);
                         ResultSet rs = preparedStatement.executeQuery();
                         String season = null;
-                        
-                        
 
                         if (rs.next()) {
                             season = rs.getString("swo");
@@ -422,80 +421,72 @@ public class main extends javax.swing.JFrame {
                 }
 
             }
-            
-            if (fullRows>6){
-                int columns = fullRows-6;
-                for (int i=0;i<columns;i++){
-                        addColumn(rejectAnalysisTable);
-                        setBaseColumn(rejectAnalysisTable, rejectAnalysisTable.getColumnModel().getColumn(0));
-                
+
+            if (fullRows > 6) {
+                int columns = fullRows - 6;
+                for (int i = 0; i < columns; i++) {
+                    addColumn(rejectAnalysisTable);
+                    setBaseColumn(rejectAnalysisTable, rejectAnalysisTable.getColumnModel().getColumn(0));
+
                 }
-                        }
-          
+            }
+
         } catch (Exception e) {
         }
 
     }
-    
-    public void oeeTotal(JTable table){
-    
-    addRowbottomOee(table);  
-    
-    int rows = table.getRowCount();
-        
-    float total_reject = columnSumOEE(table,4);    
-    float total_output = columnSumOEE(table,5);   
-    float total_a_time = columnSumOEE(table,6);   
-    float total_p_down= columnSumOEE(table,7);   
-    float total_down = columnSumOEE(table,8);
-    float total_o_time = columnSumOEE(table,9);
-    float avg_ideal_run_rate = (columnSumOEE(table,10)/(rows-1));
-    
-    
-    
-    
-    
-    table.setValueAt(total_reject,rows-1,4);
-    table.setValueAt(total_output,rows-1,5);
-    table.setValueAt(total_a_time,rows-1,6);
-    table.setValueAt(total_p_down,rows-1,7);
-    table.setValueAt(total_down,rows-1,8);
-    table.setValueAt( total_o_time,rows-1,9);
-    table.setValueAt( avg_ideal_run_rate,rows-1,10);
-    
-     //calculate availability rate
-     float avl_rate = (total_o_time/(total_a_time-total_p_down))*100;
-      Float truncated_avl_rate = BigDecimal.valueOf(avl_rate)
-                        .setScale(2, RoundingMode.HALF_UP)
-                        .floatValue();
-     table.setValueAt(truncated_avl_rate,rows-1,11);
-     
-     //calulate performance rate
-    float performance_rate = (columnSumOEE(table,12)/(rows-1));
-     Float truncated_performance_rate = BigDecimal.valueOf(performance_rate)
-                        .setScale(2, RoundingMode.HALF_UP)
-                        .floatValue();
-    table.setValueAt(truncated_performance_rate,rows-1,12);
-    
-    //calculate quality rate
-    float quality_rate = ((total_output-(total_reject))/total_output)*100;
-    Float truncated_quality_rate = BigDecimal.valueOf(quality_rate)
-                        .setScale(2, RoundingMode.HALF_UP)
-                        .floatValue();
-    table.setValueAt(truncated_quality_rate,rows-1,13);
-    
-    //oee calculation
-    float oee = avl_rate * performance_rate * quality_rate/10000;
-    Float truncated_oee = BigDecimal.valueOf(oee)
-                        .setScale(2, RoundingMode.HALF_UP)
-                        .floatValue();
-    table.setValueAt(truncated_oee,rows-1,14);
-   
-    
-    
-    
+
+    public void oeeTotal(JTable table) {
+
+        addRowbottomOee(table);
+
+        int rows = table.getRowCount();
+
+        float total_reject = columnSumOEE(table, 4);
+        float total_output = columnSumOEE(table, 5);
+        float total_a_time = columnSumOEE(table, 6);
+        float total_p_down = columnSumOEE(table, 7);
+        float total_down = columnSumOEE(table, 8);
+        float total_o_time = columnSumOEE(table, 9);
+        float avg_ideal_run_rate = (columnSumOEE(table, 10) / (rows - 1));
+
+        table.setValueAt(total_reject, rows - 1, 4);
+        table.setValueAt(total_output, rows - 1, 5);
+        table.setValueAt(total_a_time, rows - 1, 6);
+        table.setValueAt(total_p_down, rows - 1, 7);
+        table.setValueAt(total_down, rows - 1, 8);
+        table.setValueAt(total_o_time, rows - 1, 9);
+        table.setValueAt(avg_ideal_run_rate, rows - 1, 10);
+
+        //calculate availability rate
+        float avl_rate = (total_o_time / (total_a_time - total_p_down)) * 100;
+        Float truncated_avl_rate = BigDecimal.valueOf(avl_rate)
+                .setScale(2, RoundingMode.HALF_UP)
+                .floatValue();
+        table.setValueAt(truncated_avl_rate, rows - 1, 11);
+
+        //calulate performance rate
+        float performance_rate = (columnSumOEE(table, 12) / (rows - 1));
+        Float truncated_performance_rate = BigDecimal.valueOf(performance_rate)
+                .setScale(2, RoundingMode.HALF_UP)
+                .floatValue();
+        table.setValueAt(truncated_performance_rate, rows - 1, 12);
+
+        //calculate quality rate
+        float quality_rate = ((total_output - (total_reject)) / total_output) * 100;
+        Float truncated_quality_rate = BigDecimal.valueOf(quality_rate)
+                .setScale(2, RoundingMode.HALF_UP)
+                .floatValue();
+        table.setValueAt(truncated_quality_rate, rows - 1, 13);
+
+        //oee calculation
+        float oee = avl_rate * performance_rate * quality_rate / 10000;
+        Float truncated_oee = BigDecimal.valueOf(oee)
+                .setScale(2, RoundingMode.HALF_UP)
+                .floatValue();
+        table.setValueAt(truncated_oee, rows - 1, 14);
+
     }
-    
 
     public void itemColumn(JTable table,
             TableColumn sportColumn) {
@@ -773,7 +764,7 @@ public class main extends javax.swing.JFrame {
             for (int row = 0; row < fullRows; row++) {
 
                 String partNumber = (String) productionTable.getValueAt(row, 3);
-                float int_gty = columnSum(rejectAnalysisTable,row + 1);
+                float int_gty = columnSum(rejectAnalysisTable, row + 1);
                 //String pack_qty = (String) productionTable.getValueAt(row, 5);
 
                 //pst.setString(1, partNumber);
@@ -923,7 +914,6 @@ public class main extends javax.swing.JFrame {
 
         //String[] itemArray = {"Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Item 7", "Item 8"};
         //int row = filledRows(table);
-        
         int emptyRows = 0;
         rowSearch:
         for (int row = 0; row < table.getRowCount(); row++) { //Iterate through all the rows
@@ -940,11 +930,10 @@ public class main extends javax.swing.JFrame {
         //System.out.println(rows);
 
         int fullRows = rows - emptyRows;
-        
-        
+
         for (int i = 0; i < fullRows; i++) {
-            int item_no= i+1;
-            table.setValueAt("Item "+item_no, i, column);
+            int item_no = i + 1;
+            table.setValueAt("Item " + item_no, i, column);
 
         }
 
@@ -970,10 +959,12 @@ public class main extends javax.swing.JFrame {
     }
 
     public void packagingOeeCalculation() throws SQLException {
-        int deduct = 0;
-        int no_min = 0;
+        //int no_min = 0;
         int fullRows = filledRows(packageTimeTable);
         for (int row = 0; row < fullRows; row++) {
+            
+            int deduct = 0;
+        int no_min = 0;
 
             no_min = Integer.parseInt(packageTimeTable.getValueAt(row, 4).toString());
 
@@ -1001,7 +992,7 @@ public class main extends javax.swing.JFrame {
             packingOeeTable.setValueAt(no_min, row, 6);
             packingOeeTable.setValueAt(deduct, row, 7);
             packingOeeTable.setValueAt(no_min - deduct, row, 9);
-            
+
             float downtime = 0;
             packingOeeTable.setValueAt(downtime, row, 8);
 
@@ -1029,7 +1020,7 @@ public class main extends javax.swing.JFrame {
             if (deviation > 0) {
                 packingOeeTable.setValueAt(deviation, row, 4);
             } else {
-                float zero= 0;
+                float zero = 0;
                 packingOeeTable.setValueAt(zero, row, 4);
             }
 
@@ -1099,7 +1090,7 @@ public class main extends javax.swing.JFrame {
                     .setScale(2, RoundingMode.HALF_UP)
                     .floatValue();
 
-           packingOeeTable.setValueAt(truncated_q_rate, row, 13);
+            packingOeeTable.setValueAt(truncated_q_rate, row, 13);
 
             //calculate productionOEEExcel rate
             float pro_rate = (float) packingOeeTable.getValueAt(row, 11);
@@ -1158,7 +1149,7 @@ public class main extends javax.swing.JFrame {
             productionOeeTable.setValueAt(truncated_i_rate, row, 10);
 
             //calculate availability rate
-            int o_time =(int) productionOeeTable.getValueAt(row, 9);
+            int o_time = (int) productionOeeTable.getValueAt(row, 9);
             int t_available = (int) productionOeeTable.getValueAt(row, 6);
             int pd_time = (int) productionOeeTable.getValueAt(row, 7);
 
@@ -1255,7 +1246,7 @@ public class main extends javax.swing.JFrame {
 
             for (int row = 0; row < fullRows; row++) {
 
-                float wastage = columnSum(rejectAnalysisTable,row + 1);
+                float wastage = columnSum(rejectAnalysisTable, row + 1);
                 //String pack_qty = (String) productionTable.getValueAt(row, 5);
 
                 productionOeeTable.setValueAt(wastage, row, 4);
@@ -1282,9 +1273,9 @@ public class main extends javax.swing.JFrame {
         for (int i = 0; i < rowsCount; i++) {
             Object value = table.getValueAt(i, n);
             //float qty = (float) table.getValueAt(i, n);
-            
+
             String st_qty = (String) table.getValueAt(i, n);
-            
+
             if (value != null) {
                 if (!st_qty.isEmpty()) {
                     sum = sum + Float.parseFloat(table.getValueAt(i, n).toString());
@@ -1294,18 +1285,18 @@ public class main extends javax.swing.JFrame {
         return sum;
 
     }
-    
+
     public float columnSumOEE(JTable table, int n) {
 
         int rowsCount = table.getRowCount();
-       
+
         float sum = 0;
-        for (int i = 0; i < rowsCount-1; i++) {
-            
-                    float item = Float.parseFloat(table.getValueAt(i, n)+"");
-                   
-                    sum = sum + item ;
-               
+        for (int i = 0; i < rowsCount - 1; i++) {
+
+            float item = Float.parseFloat(table.getValueAt(i, n) + "");
+
+            sum = sum + item;
+
         }
         return sum;
 
@@ -1432,7 +1423,6 @@ public class main extends javax.swing.JFrame {
             }
 
         };
-        jButton4 = new javax.swing.JButton();
         hidPanel = new javax.swing.JPanel();
         jScrollPane7 = new javax.swing.JScrollPane();
         intermTable = new javax.swing.JTable();
@@ -1469,8 +1459,9 @@ public class main extends javax.swing.JFrame {
         packageTimeTable = new javax.swing.JTable();
         jButton2 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
-        jButton9 = new javax.swing.JButton();
-        jButton11 = new javax.swing.JButton();
+        jButton12 = new javax.swing.JButton();
+        jLabel8 = new javax.swing.JLabel();
+        jButton4 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane8 = new javax.swing.JScrollPane();
         productionOeeTable = new javax.swing.JTable(){
@@ -1490,7 +1481,6 @@ public class main extends javax.swing.JFrame {
                 productionOeeTable.transferFocus();
             }
         };
-        jButton10 = new javax.swing.JButton();
         shiftCombo = new javax.swing.JComboBox<>();
         jLabel6 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
@@ -1734,13 +1724,13 @@ public class main extends javax.swing.JFrame {
         jPanel5.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 274, 1182, 130));
 
         jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/icon.png"))); // NOI18N
-        jButton5.setText("OEE Insert");
+        jButton5.setText("Insert Data");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton5ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 410, -1, -1));
+        jPanel5.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 420, -1, -1));
 
         machineWorkedTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -1761,15 +1751,6 @@ public class main extends javax.swing.JFrame {
         jScrollPane6.setViewportView(machineWorkedTable);
 
         jPanel5.add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 476, 1180, 163));
-
-        jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/plus-and-minus.png"))); // NOI18N
-        jButton4.setText("Calculate");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
-            }
-        });
-        jPanel5.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 650, -1, -1));
 
         intermTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -1911,13 +1892,13 @@ public class main extends javax.swing.JFrame {
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(hidPanelLayout.createSequentialGroup()
+                        .addGap(150, 150, 150)
+                        .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(hidPanelLayout.createSequentialGroup()
                         .addGap(54, 54, 54)
                         .addComponent(jScrollPane12, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(hidPanelLayout.createSequentialGroup()
-                        .addGap(150, 150, 150)
-                        .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(170, 170, 170))
         );
         hidPanelLayout.setVerticalGroup(
@@ -1934,10 +1915,10 @@ public class main extends javax.swing.JFrame {
                     .addGroup(hidPanelLayout.createSequentialGroup()
                         .addGap(43, 43, 43)
                         .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(31, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel5.add(hidPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(980, 450, 390, 230));
+        jPanel5.add(hidPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(980, 450, 390, 170));
 
         machineDowntimeTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -1978,13 +1959,13 @@ public class main extends javax.swing.JFrame {
         jPanel5.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 728, 1180, 150));
 
         jButton8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/plus-and-minus.png"))); // NOI18N
-        jButton8.setText("Calculate");
+        jButton8.setText("Insert Data");
         jButton8.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton8ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 980, -1, 30));
+        jPanel5.add(jButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 890, -1, 30));
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel1.setText("Production");
@@ -1995,29 +1976,29 @@ public class main extends javax.swing.JFrame {
         jPanel5.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 246, -1, -1));
 
         jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/icon.png"))); // NOI18N
-        jButton3.setText("OEE Insert");
+        jButton3.setText("Insert Data");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 212, -1, -1));
+        jPanel5.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 220, -1, -1));
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel4.setText("Machine Run Time");
         jPanel5.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 448, -1, -1));
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jLabel5.setText("Machine Down Time");
-        jPanel5.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 695, -1, -1));
+        jLabel5.setText("Packing Time");
+        jPanel5.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 920, -1, -1));
 
-        jButton6.setText("OEE Create");
+        jButton6.setText("Prod OEE");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton6ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 1260, -1, -1));
+        jPanel5.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 1210, -1, -1));
 
         jButton7.setText("Prod OEE Excel");
         jButton7.addActionListener(new java.awt.event.ActionListener() {
@@ -2025,7 +2006,7 @@ public class main extends javax.swing.JFrame {
                 jButton7ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 1260, -1, -1));
+        jPanel5.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 1210, -1, -1));
 
         packageTimeTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -2053,15 +2034,15 @@ public class main extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(packageTimeTable);
 
-        jPanel5.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 1020, 1190, 200));
+        jPanel5.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 960, 1190, 200));
 
-        jButton2.setText("Test");
+        jButton2.setText("Pack OEE");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 1260, -1, -1));
+        jPanel5.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 1210, 80, -1));
 
         jButton1.setText("Pack OEE Excel");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -2069,23 +2050,28 @@ public class main extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 1260, -1, -1));
+        jPanel5.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 1210, -1, -1));
 
-        jButton9.setText("jButton9");
-        jButton9.addActionListener(new java.awt.event.ActionListener() {
+        jButton12.setText("Shift Excel");
+        jButton12.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton9ActionPerformed(evt);
+                jButton12ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton9, new org.netbeans.lib.awtextra.AbsoluteConstraints(970, 220, -1, -1));
+        jPanel5.add(jButton12, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 1210, -1, -1));
 
-        jButton11.setText("Hid");
-        jButton11.addActionListener(new java.awt.event.ActionListener() {
+        jLabel8.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel8.setText("Machine Down Time");
+        jPanel5.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 695, -1, -1));
+
+        jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/plus-and-minus.png"))); // NOI18N
+        jButton4.setText("Insert Data");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton11ActionPerformed(evt);
+                jButton4ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton11, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 660, -1, -1));
+        jPanel5.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 660, -1, -1));
 
         jTabbedPane1.addTab("Production", jPanel5);
 
@@ -2177,13 +2163,6 @@ public class main extends javax.swing.JFrame {
             packingOeeTable.getColumnModel().getColumn(14).setMaxWidth(100);
         }
 
-        jButton10.setText("jButton10");
-        jButton10.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton10ActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -2193,20 +2172,14 @@ public class main extends javax.swing.JFrame {
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 1563, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane11, javax.swing.GroupLayout.PREFERRED_SIZE, 1563, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 458, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton10)
-                .addGap(969, 969, 969))
+                .addGap(0, 35, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addGap(35, 35, 35)
                 .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(17, 17, 17)
-                .addComponent(jButton10)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(51, 51, 51)
                 .addComponent(jScrollPane11, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(917, Short.MAX_VALUE))
         );
@@ -2440,15 +2413,15 @@ public class main extends javax.swing.JFrame {
         // TODO add your handling code here:
         prodOEE();
         productionOeeCalculation();
-         oeeTotal(productionOeeTable);
+        oeeTotal(productionOeeTable);
 
         //oeeTotal(productionOeeTable);
-
         //excal.production(productionTable);
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         // TODO add your handling code her
+
         JFileChooser fileChooser = new JFileChooser();
         // apply filter 
         FileNameExtensionFilter sdfFilter = new FileNameExtensionFilter(
@@ -2603,7 +2576,7 @@ public class main extends javax.swing.JFrame {
             int row = rejectAnalysisTable.getSelectedRow();
 
             if (row >= 0) {
-                rejectAnalysis.show(this, evt.getX()+50, evt.getY()+400);
+                rejectAnalysis.show(this, evt.getX() + 50, evt.getY() + 400);
             }
 
         }
@@ -2630,12 +2603,12 @@ public class main extends javax.swing.JFrame {
         timeCalculatePacking();
         try {
             packagingOeeCalculation();
-            
+
         } catch (SQLException ex) {
             Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
         }
         oeeTotal(packingOeeTable);
-        
+
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -2658,7 +2631,7 @@ public class main extends javax.swing.JFrame {
             }
 
         }
-        
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void rejectAnalysisMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rejectAnalysisMouseClicked
@@ -2667,7 +2640,7 @@ public class main extends javax.swing.JFrame {
 
     private void addBelowRejectMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addBelowRejectMouseClicked
         // TODO add your handling code here:
-        
+
     }//GEN-LAST:event_addBelowRejectMouseClicked
 
     private void addBelowRejectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBelowRejectActionPerformed
@@ -2675,24 +2648,9 @@ public class main extends javax.swing.JFrame {
         rowOperations.addRowBelowReject(rejectAnalysisTable);
     }//GEN-LAST:event_addBelowRejectActionPerformed
 
-    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
-        // TODO add your handling code here:
-        addColumn(rejectAnalysisTable);
-    }//GEN-LAST:event_jButton9ActionPerformed
-
-    private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
-        // TODO add your handling code here:
-        
-    }//GEN-LAST:event_jButton10ActionPerformed
-
-    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
-        // TODO add your handling code here:
-       
-    }//GEN-LAST:event_jButton11ActionPerformed
-
     private void removeThisRowRejectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeThisRowRejectActionPerformed
         // TODO add your handling code here:
-         rowOperations.removeThisRow(rejectAnalysisTable);
+        rowOperations.removeThisRow(rejectAnalysisTable);
     }//GEN-LAST:event_removeThisRowRejectActionPerformed
 
     private void removeAboveRejectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeAboveRejectActionPerformed
@@ -2716,7 +2674,7 @@ public class main extends javax.swing.JFrame {
 
     private void removeAboveMDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeAboveMDActionPerformed
         // TODO add your handling code here:
-         rowOperations.removeRowAbove(machineDowntimeTable);
+        rowOperations.removeRowAbove(machineDowntimeTable);
     }//GEN-LAST:event_removeAboveMDActionPerformed
 
     private void removeBelowMDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeBelowMDActionPerformed
@@ -2740,6 +2698,24 @@ public class main extends javax.swing.JFrame {
     private void shiftComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shiftComboActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_shiftComboActionPerformed
+
+    private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
+        // TODO add your handling code here:
+        JFileChooser fileChooser = new JFileChooser();
+        // apply filter 
+        FileNameExtensionFilter sdfFilter = new FileNameExtensionFilter(
+                "excel files (*.xlsx)", "xlsx");
+        fileChooser.setFileFilter(sdfFilter);
+
+        if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            //add .xls extention
+            file = new File(file.toString() + ".xlsx");
+            excelCreator shift = new excelCreator();
+            shift.shiftReport(productionTable, file);
+
+        }
+    }//GEN-LAST:event_jButton12ActionPerformed
     private void itemNumberComboBoxPopupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent e) {
         databaseOperations dops = new databaseOperations();
 
@@ -2794,8 +2770,7 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JPanel hidPanel;
     private javax.swing.JTable intermTable;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton10;
-    private javax.swing.JButton jButton11;
+    private javax.swing.JButton jButton12;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
@@ -2803,7 +2778,6 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
-    private javax.swing.JButton jButton9;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -2818,6 +2792,7 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
@@ -2873,5 +2848,5 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JTable totalDownTable;
     // End of variables declaration//GEN-END:variables
 
-    
+
 }
