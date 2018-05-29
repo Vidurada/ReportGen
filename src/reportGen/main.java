@@ -58,63 +58,25 @@ public class main extends javax.swing.JFrame {
     public main() {
         initComponents();
         conn = dbcon.dbconnector();
-        //partnumberComboBox();
-        //baseComboBox();
-        //rejectPartNumberComboBox();
         databaseOperations cellFill = new databaseOperations();
         cellFill.setItemNumberColumn(productionTable, productionTable.getColumnModel().getColumn(3));
-        cellFill.setDowntimeReasonColumn(machineDowntimeTable, machineDowntimeTable.getColumnModel().getColumn(5));
-        //cellFill.itemNumberComboBoxPopupMenuWillBecomeInvisible();
-        //cellFill.setItemNumberColumn(downtimeTable, downtimeTable.getColumnModel().getColumn(2));
+        cellFill.setDowntimeReasonColumn(machineDowntimeTable, machineDowntimeTable.getColumnModel().getColumn(5));;
         setBaseColumn(rejectAnalysisTable, rejectAnalysisTable.getColumnModel().getColumn(0));
         hidPanel.setVisible(false);
         totalDownTable.setVisible(true);
-        //jPanel1.setVisible(false);
-        //hitTab(productionTable);
         downTimeColumn(machineDowntimeTable, machineDowntimeTable.getColumnModel().getColumn(0));
-        //jPanel4.setVisible(false);
         productionTable.setRowSelectionAllowed(true);
-        //timeCalculate();
-
-    }
-
-    /*
-    public void hitTab(JTable table) {
-        KeyStroke tab = KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0);
-        KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
-        InputMap im = table.getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        im.put(enter, im.get(tab));
-
-    }*/
-    public void nothing() {
-
-        try {
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
-            String queryco = "Insert into parts(PartNumber,swo) values (?,?);";
-            pst = connection.prepareStatement(queryco);
-
-            //String partNumber = (String) newItem.itemNameText.getText();
-            String swo = (String) newItem.swoText.getText();
-
-//            pst.setString(1, partNumber);
-            pst.setString(2, swo);
-
-            pst.execute();
-            pst.close();
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage());
-        }
 
     }
 
     public void insertDatabaseProdPack() {
         try {
-            productionTable.getCellEditor().stopCellEditing();
+            
+           
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             Date today = Calendar.getInstance().getTime();
             String reportDate = df.format(today);
-
+            
             int emptyRows = 0;
             rowSearch:
             for (int row = 0; row < productionTable.getRowCount(); row++) { //Iterate through all the rows
@@ -125,38 +87,41 @@ public class main extends javax.swing.JFrame {
                 }
                 emptyRows++; //Conditional never evaluated to true so none of the columns in the row contained anything
             }
-
-            //System.out.println(emptyRows);
-            int rows = productionTable.getRowCount();
-            //System.out.println(rows);
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
-            String queryco = "Insert into production(SO_Num,Customer,Date,Shift,PartNumber,prod_qty,pack_qty) values (?,?,?,?,?,?,?);";
+            int rows = productionTable.getRowCount();            
+            String queryco = "Insert IGNORE into production(Prodid,SO_Num,Customer,Date,Shift,PartNumber,prod_qty,pack_qty,CartNew,CartUsed,Bags) values (?,?,?,?,?,?,?,?,?,?,?);";
             pst = connection.prepareStatement(queryco);
 
             int fullRows = rows - emptyRows;
-
+            
             for (int row = 0; row < fullRows; row++) {
                 String SOnumber = (String) productionTable.getValueAt(row, 1);
-                //System.out.println(SOnumber);
+                
                 String customer = (String) productionTable.getValueAt(row, 2);
                 String shift = shiftCombo.getSelectedItem().toString();
                 String partNumber = (String) productionTable.getValueAt(row, 3);
                 String qty = (String) productionTable.getValueAt(row, 4);
-                int int_gty = Integer.parseInt(qty);
+                float int_gty = Float.parseFloat(qty);
                 String pack_qty = (String) productionTable.getValueAt(row, 5);
-                int int_pack_qty = Integer.parseInt(pack_qty);
+                float int_pack_qty = Float.parseFloat(pack_qty);
+                String id = partNumber+"-"+reportDate+"-"+shift;
+                
+                String new_car = (String) productionTable.getValueAt(row, 6);
+                String used_car = (String) productionTable.getValueAt(row, 7);
+                String bags = (String) productionTable.getValueAt(row, 8);
 
-                machineWorkedTable.setValueAt(row + 1, row, 0);
-                machineWorkedTable.setValueAt(partNumber, row, 1);
-                //String PartNumber = (String) productionTable.getValueAt(row, 3);
-
-                pst.setString(1, SOnumber);
-                pst.setString(2, customer);
-                pst.setString(3, reportDate);
-                pst.setString(4, shift);
-                pst.setString(5, partNumber);
-                pst.setInt(6, int_gty);
-                pst.setInt(7, int_pack_qty);
+                pst.setString(1, id);
+                pst.setString(2, SOnumber);
+                pst.setString(3, customer);
+                pst.setString(4, reportDate);
+                pst.setString(5, shift);
+                pst.setString(6, partNumber);
+                pst.setFloat(7, int_gty);
+                pst.setFloat(8, int_pack_qty);
+                pst.setString(9, new_car);
+                pst.setString(10, used_car);
+                pst.setString(11, bags);
+                
 
                 pst.addBatch();
 
@@ -1462,6 +1427,7 @@ public class main extends javax.swing.JFrame {
         jButton12 = new javax.swing.JButton();
         jLabel8 = new javax.swing.JLabel();
         jButton4 = new javax.swing.JButton();
+        jButton9 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane8 = new javax.swing.JScrollPane();
         productionOeeTable = new javax.swing.JTable(){
@@ -2073,6 +2039,14 @@ public class main extends javax.swing.JFrame {
         });
         jPanel5.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 660, -1, -1));
 
+        jButton9.setText("jButton9");
+        jButton9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton9ActionPerformed(evt);
+            }
+        });
+        jPanel5.add(jButton9, new org.netbeans.lib.awtextra.AbsoluteConstraints(1000, 220, -1, -1));
+
         jTabbedPane1.addTab("Production", jPanel5);
 
         productionOeeTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -2319,11 +2293,13 @@ public class main extends javax.swing.JFrame {
         if (click == -1) {
             prodOEE();
             packOEE();
+            insertDatabaseProdPack();
 
         } else {
             productionTable.getCellEditor().stopCellEditing();
             prodOEE();
             packOEE();
+            insertDatabaseProdPack() ;
 
         }
 
@@ -2716,6 +2692,11 @@ public class main extends javax.swing.JFrame {
 
         }
     }//GEN-LAST:event_jButton12ActionPerformed
+
+    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
+        // TODO add your handling code here:
+         insertDatabaseProdPack();
+    }//GEN-LAST:event_jButton9ActionPerformed
     private void itemNumberComboBoxPopupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent e) {
         databaseOperations dops = new databaseOperations();
 
@@ -2778,6 +2759,7 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
+    private javax.swing.JButton jButton9;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
