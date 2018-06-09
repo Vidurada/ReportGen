@@ -43,7 +43,7 @@ public class newItem extends javax.swing.JFrame {
         
         
         databaseOperations cellFill = new databaseOperations();
-        cellFill.setItemNumberColumn(main.productionTable, main.productionTable.getColumnModel().getColumn(3));
+        //cellFill.setItemNumberColumn(productionTable, main.productionTable.getColumnModel().getColumn(3));
         
         dispose();
         

@@ -16,6 +16,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import javax.swing.JTable;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -570,7 +572,7 @@ public class excelCreator {
 
     }
 
-    public void shiftReport(JTable prodtable, File file) {
+    public void shiftReport(JTable prodTable,JTable rejectTable, File file) {
 
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet1 = workbook.createSheet("OEE");
@@ -966,10 +968,10 @@ public class excelCreator {
         
          int emptyRows = 0;
         rowSearch:
-        for (int row = 0; row < prodtable.getRowCount(); row++) { //Iterate through all the rows
-            for (int col = 0; col < prodtable.getColumnCount(); col++) { //Iterate through all the columns in the row
-                if (prodtable.getValueAt(row, col) != null) { //Check if the box is empty
-                    String qty = prodtable.getValueAt(row, col).toString();
+        for (int row = 0; row < prodTable.getRowCount(); row++) { //Iterate through all the rows
+            for (int col = 0; col < prodTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+                if (prodTable.getValueAt(row, col) != null) { //Check if the box is empty
+                    String qty = prodTable.getValueAt(row, col).toString();
                     if (!qty.isEmpty()) {
 
                         continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
@@ -982,7 +984,7 @@ public class excelCreator {
 
         Row row = null;
         Cell cell = null;
-        for (int i = 0; i < (prodtable.getRowCount()- emptyRows); i++) {
+        for (int i = 0; i < (prodTable.getRowCount()- emptyRows); i++) {
             row = sheet1.createRow(i + 11);
             
             sheet1.addMergedRegion(new CellRangeAddress(
@@ -1008,38 +1010,207 @@ public class excelCreator {
             
             
          Cell shift_no = row.createCell(0);
-         shift_no.setCellValue(prodtable.getValueAt(i, 0).toString());
+         shift_no.setCellValue(prodTable.getValueAt(i, 0).toString());
          
          Cell shift_so_no = row.createCell(1);
-         shift_so_no.setCellValue(prodtable.getValueAt(i, 1).toString());
+         shift_so_no.setCellValue(prodTable.getValueAt(i, 1).toString());
          
          Cell shift_custa = row.createCell(2);
-         shift_custa.setCellValue(prodtable.getValueAt(i, 2).toString());
+         shift_custa.setCellValue(prodTable.getValueAt(i, 2).toString());
          
          Cell shift_pno = row.createCell(3);
-         shift_pno.setCellValue(prodtable.getValueAt(i, 3).toString());
+         shift_pno.setCellValue(prodTable.getValueAt(i, 3).toString());
+         
+         
          
          Cell shift_prodq = row.createCell(8);
-         shift_prodq.setCellValue(prodtable.getValueAt(i, 4).toString());
+         if(prodTable.getValueAt(i, 4)==null){
+         shift_prodq.setCellValue("");
+         }
+         else{
+         shift_prodq.setCellValue(prodTable.getValueAt(i, 4).toString());
+         }
          
          Cell shift_packq = row.createCell(10);
-         shift_packq.setCellValue(prodtable.getValueAt(i, 5).toString());
+         if(prodTable.getValueAt(i, 5)==null){
+         shift_packq.setCellValue("");
+         }
+         else{
+         shift_packq.setCellValue(prodTable.getValueAt(i, 5).toString());
+         }
          
          Cell shift_new = row.createCell(12);
-         shift_new.setCellValue(prodtable.getValueAt(i, 6).toString());
+         if(prodTable.getValueAt(i, 6)==null){
+         shift_new.setCellValue("");
+         }
+         else{
+          shift_new.setCellValue(prodTable.getValueAt(i, 6).toString());
+         }
          
+        
          Cell shift_used = row.createCell(13);
-         shift_used.setCellValue(prodtable.getValueAt(i, 7).toString());
+         if(prodTable.getValueAt(i, 7)==null){
+         shift_used.setCellValue("");
+         }
+         else{
+         shift_used.setCellValue(prodTable.getValueAt(i, 7).toString());
+         }
          
          Cell shift_bags = row.createCell(14);
-         shift_bags.setCellValue(prodtable.getValueAt(i, 8).toString());
-        
+         if(prodTable.getValueAt(i, 8)==null){
+         shift_bags.setCellValue("");
+         }
+         else{
+         shift_bags.setCellValue(prodTable.getValueAt(i, 8).toString());
+         }
             
         }
         
+        int total_row = 11+(prodTable.getRowCount()- emptyRows);
+        
+        main mn = new main();
+        float prod_total = mn.columnSum(prodTable, 4);
+        Float truncated_prod_total = BigDecimal.valueOf(prod_total)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .floatValue();
+        
+        float pack_total = mn.columnSum(prodTable, 5);
+        Float truncated_pack_total = BigDecimal.valueOf(pack_total)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .floatValue();
+        
+        float prod_new = mn.columnSum(prodTable, 6);
+        Float truncated_prod_new = BigDecimal.valueOf(prod_new)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .floatValue();
+        
+        float prod_used = mn.columnSum(prodTable, 7);
+        Float truncated_prod_used = BigDecimal.valueOf(prod_used)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .floatValue();
+        
+        float prod_bags = mn.columnSum(prodTable, 8);
+        Float truncated_prod_bags = BigDecimal.valueOf(prod_bags)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .floatValue();
+        
+        
+         Row prod_total_row = sheet1.createRow(total_row);
+         sheet1.addMergedRegion(new CellRangeAddress(
+                total_row, //first row (0-based)
+                total_row, //last row  (0-based)
+                3, //first column (0-based)
+                7 //last column  (0-based)
+        ));
+         
+        Cell total_label = prod_total_row.createCell(3);
+        total_label.setCellValue("Total");
+        
+         sheet1.addMergedRegion(new CellRangeAddress(
+                total_row, //first row (0-based)
+                total_row, //last row  (0-based)
+                8, //first column (0-based)
+                9 //last column  (0-based)
+        ));
+        
+        sheet1.addMergedRegion(new CellRangeAddress(
+               total_row, //first row (0-based)
+                total_row, //last row  (0-based)
+                10, //first column (0-based)
+                11 //last column  (0-based)
+        ));
         
         
         
+        
+        Cell prod_total_label = prod_total_row.createCell(8);
+        prod_total_label.setCellValue(truncated_prod_total);
+        
+        Cell pack_total_label = prod_total_row.createCell(10);
+        pack_total_label.setCellValue(truncated_pack_total);
+        
+        Cell new_total_label = prod_total_row.createCell(11);
+        new_total_label.setCellValue(truncated_prod_new);
+        
+        Cell used_total_label = prod_total_row.createCell(12);
+        used_total_label.setCellValue(truncated_prod_used);
+        
+        Cell bags_total_label = prod_total_row.createCell(13);
+        bags_total_label.setCellValue(truncated_prod_bags);
+        
+        
+         int ra_label = total_row+1;
+         Row ra_label_row = sheet1.createRow(ra_label);
+         Cell ral = ra_label_row.createCell(0);
+         ral.setCellValue("REJECT ANALYSIS");
+         
+         
+         Row reject_base_row = sheet1.createRow(ra_label+1);
+         sheet1.addMergedRegion(new CellRangeAddress(
+               ra_label+1, //first row (0-based)
+                ra_label+2, //last row  (0-based)
+                0, //first column (0-based)
+                2 //last column  (0-based)
+        ));
+         
+         sheet1.addMergedRegion(new CellRangeAddress(
+               ra_label+1, //first row (0-based)
+                ra_label+1, //last row  (0-based)
+                3, //first column (0-based)
+                14 //last column  (0-based)
+        ));
+         
+         Cell base_label=reject_base_row.createCell(0);
+         base_label.setCellValue("BASE");
+         Cell base_label2=reject_base_row.createCell(3);
+         base_label2.setCellValue("Quantity(Kg)");
+         
+         Row reject_base_row2 = sheet1.createRow(ra_label+2);
+         int columnCount=rejectTable.getColumnCount()-2;
+         
+         
+         
+         for (int i=1;i<columnCount+1;i++){
+             Cell table_head=reject_base_row2.createCell(i+2);
+             String head = "Item "+i;
+             table_head.setCellValue(head);
+         }
+         
+         int emptyRows2 = 0;
+        rowSearch:
+        for (int rows = 0; rows < rejectTable.getRowCount(); rows++) { //Iterate through all the rows
+            for (int col = 0; col < rejectTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+                if (rejectTable.getValueAt(rows, col) != null) { //Check if the box is empty
+                    String qty = rejectTable.getValueAt(rows, col).toString();
+                    if (!qty.isEmpty()) {
+
+                        continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
+                    }
+                }
+            }
+            emptyRows2++; //Conditional never evaluated to true so none of the columns in the row contained anything
+        }
+
+        int rows =  rejectTable.getRowCount();
+        int fullRows = rows - emptyRows2;
+         
+         Cell table_head_total=reject_base_row2.createCell(3+columnCount+1);
+         table_head_total.setCellValue("TOTAL");
+         
+         for (int i = 0; i < rejectTable.getRowCount(); i++) {
+            row = sheet1.createRow(ra_label+3+i);
+            for (int j = 0; j < rejectTable.getColumnCount(); j++) {
+
+                cell = row.createCell(j);
+                if(rejectTable.getValueAt(i, j) == null){
+                cell.setCellValue("");
+                }
+                else{
+                cell.setCellValue(rejectTable.getValueAt(i, j).toString());
+                }
+            }
+        }
+         
         
         
         

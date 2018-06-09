@@ -105,11 +105,34 @@ public class rowOperations {
         
     }
     
-    public static void setRowNumber(JTable table,int fullRows){
+    public static void setRowNumber2(JTable table){
         DefaultTableModel model = (DefaultTableModel) table.getModel();
-        //int rowCount = table.getRowCount();
-        model.setRowCount(fullRows);
+        int rowCount = table.getRowCount();
+        model.setRowCount(rowCount);
 
+   }
+    
+    public static void setRowNumber(JTable table, JTable table2,int fullRows, int n){
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        int realRows= productionFullRows(table2,fullRows,n);
+        System.out.println(realRows);
+        model.setRowCount(realRows);
+
+    }
+    
+    public static int productionFullRows(JTable table, int fullRows, int n){
+     int count = 0;
+     for (int i=0; i<fullRows;i++){
+          if (table.getValueAt(i, n) != null){
+              String val = table.getValueAt(i, n).toString();
+              if (!val.isEmpty()){
+              count=count+1;
+              }
+          }
+     }
+     
+     return count;
+    
     }
     
     public static void setRowNumberMachineRunTime(JTable table,int fullRows){

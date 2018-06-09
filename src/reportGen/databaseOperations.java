@@ -315,4 +315,13 @@ public class databaseOperations {
 
     }
 
+    public void rejectAnalysisInsert(JTable table){
+        
+        
+    
+    
+    }
+    
+    
+    
 }
