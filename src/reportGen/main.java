@@ -67,9 +67,18 @@ public class main extends javax.swing.JFrame {
         totalDownTable.setVisible(true);
         downTimeColumn(machineDowntimeTable, machineDowntimeTable.getColumnModel().getColumn(0));
         productionTable.setRowSelectionAllowed(true);
-
+        
     }
 
+    public final void setPackPackingTime(){
+    
+      int fullRows = filledRows(packageTimeTable);
+        for (int row = 0; row < fullRows; row++) {
+         packageTimeTable.setValueAt(false,row, 5);
+         packageTimeTable.setValueAt(false,row, 6);
+         packageTimeTable.setValueAt(false,row, 7);
+        }
+    }
     public void productionDatabaseInsert() {
         try {
 
@@ -376,7 +385,7 @@ public class main extends javax.swing.JFrame {
 
         int rows = rejectAnalysisTable.getRowCount();
         int cols = rejectAnalysisTable.getColumnCount();
-
+        int fuCols = filledCols(rejectAnalysisTable);
         //iterete through reject analysis table
         for (int i = 0; i < rows - 1; i++) {
             //get the base 
@@ -384,14 +393,15 @@ public class main extends javax.swing.JFrame {
             //check whether the base is cutter wastage
             if ("Cutter wastage".equals(base)) {
                 //iterate through colums to get values
-                for (int j = 1; j < cols - 1; j++) {
+                
+                for (int j = 0; j < fuCols; j++) {
                     //make sure no null and empty values taken to calculation
-                    if (productionTable.getValueAt(j - 1, 5) != null) {
-                        String pack_qty = (String) productionTable.getValueAt(j - 1, 5);
-                        String part_name = (String) productionTable.getValueAt(j - 1, 3);
+                    if (productionTable.getValueAt(j, 5) != null) {
+                        String pack_qty = (String) productionTable.getValueAt(j, 5);
+                        String part_name = (String) productionTable.getValueAt(j, 3);
                         if (!pack_qty.isEmpty()) {
                             if (rejectAnalysisTable.getValueAt(i, j) != null) {
-                                String rej = (String) rejectAnalysisTable.getValueAt(i, j);
+                                String rej = (String) rejectAnalysisTable.getValueAt(i, j+1);
 
                                 //proceed if the cell is not empty
                                 if (!rej.isEmpty()) {
@@ -647,6 +657,7 @@ public class main extends javax.swing.JFrame {
         float total_o_time = columnSumOEE(table, 9);
         float avg_ideal_run_rate = (columnSumOEE(table, 10) / (rows - 1));
 
+        table.setValueAt("TOTAL", rows - 1, 1);
         table.setValueAt(total_reject, rows - 1, 4);
         table.setValueAt(total_output, rows - 1, 5);
         table.setValueAt(total_a_time, rows - 1, 6);
@@ -1156,10 +1167,10 @@ public class main extends javax.swing.JFrame {
     }
     
     public int filledCols(JTable table) {
-        int emptyRows = 0;
+        int emptyCols = 0;
         rowSearch:
-        for (int row = 0; row < table.getRowCount(); row++) { //Iterate through all the rows
-            for (int col = 0; col < table.getColumnCount(); col++) { //Iterate through all the columns in the row
+        for (int col = 0; col < table.getColumnCount(); col++) { //Iterate through all the rows
+            for (int row = 0; col < table.getRowCount(); row++) { //Iterate through all the columns in the row
                 if (table.getValueAt(row, col) != null) {
                     String demi = table.getValueAt(row, col).toString();
                     if (!demi.isEmpty()) {
@@ -1168,16 +1179,16 @@ public class main extends javax.swing.JFrame {
                     }
                 }
             }
-            emptyRows++; //Conditional never evaluated to true so none of the columns in the row contained anything
+            emptyCols++; //Conditional never evaluated to true so none of the columns in the row contained anything
         }
-        return table.getRowCount() - emptyRows;
+        return table.getColumnCount() - emptyCols;
 
     }
     
     
 
     public void packagingOeeCalculation() throws SQLException {
-        //int no_min = 0;
+        
         int fullRows = filledRows(packageTimeTable);
         for (int row = 0; row < fullRows; row++) {
 
@@ -1234,9 +1245,11 @@ public class main extends javax.swing.JFrame {
             float packed_Qty_float = (float) packingOeeTable.getValueAt(row, 5);
 
             float deviation = cutter_wastage_float - ((packed_Qty_float / (1 - standard_wastages_float)) - packed_Qty_float);
-
-            if (deviation > 0) {
-                packingOeeTable.setValueAt(deviation, row, 4);
+            Float truncated_deviation = BigDecimal.valueOf(deviation)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .floatValue();
+            if (truncated_deviation > 0) {
+                packingOeeTable.setValueAt(truncated_deviation, row, 4);
             } else {
                 float zero = 0;
                 packingOeeTable.setValueAt(zero, row, 4);
@@ -1261,24 +1274,24 @@ public class main extends javax.swing.JFrame {
             int t_available = (int) packingOeeTable.getValueAt(row, 6);
             int pd_time = (int) packingOeeTable.getValueAt(row, 7);
 
-            float o_time_double = o_time;
-            float t_available_double = t_available;
-            float pd_time_double = pd_time;
+            float o_time_float = o_time;
+            float t_available_float = t_available;
+            float pd_time_float = pd_time;
 
-            float a_rate = o_time_double / (t_available_double - pd_time_double);
+            float a_rate = o_time_float / (t_available_float - pd_time_float);
             float a_rate_percent = a_rate * 100;
             Float tobe_a_rate = a_rate_percent;
 
-            Float truncatedDouble = BigDecimal.valueOf(tobe_a_rate)
+            Float truncatedFloat = BigDecimal.valueOf(tobe_a_rate)
                     .setScale(2, RoundingMode.HALF_UP)
                     .floatValue();
 
-            packingOeeTable.setValueAt(truncatedDouble, row, 11);
+            packingOeeTable.setValueAt(truncatedFloat, row, 11);
 
             //calculate performance rate
             float t_output = (float) packingOeeTable.getValueAt(row, 5);
-            float t_output_double = t_output;
-            float c_rate = t_output_double / o_time_double;
+            float t_output_float = t_output;
+            float c_rate = t_output_float / o_time_float;
 
             if (ideal_run_rate <= c_rate) {
 
@@ -1299,9 +1312,9 @@ public class main extends javax.swing.JFrame {
 
             //calculate quality rate
             float t_reject = (float) packingOeeTable.getValueAt(row, 4);
-            float t_reject_double = t_reject;
+            float t_reject_float = t_reject;
 
-            float q_rate = (t_output_double - t_reject_double) / t_output_double;
+            float q_rate = (t_output_float - t_reject_float) / t_output_float;
             Float tobe_q_rate = q_rate * 100;
 
             Float truncated_q_rate = BigDecimal.valueOf(tobe_q_rate)
@@ -1371,28 +1384,28 @@ public class main extends javax.swing.JFrame {
             int t_available = (int) productionOeeTable.getValueAt(row, 6);
             int pd_time = (int) productionOeeTable.getValueAt(row, 7);
 
-            float o_time_double = o_time;
-            float t_available_double = t_available;
-            float pd_time_double = pd_time;
+            float o_time_float = o_time;
+            float t_available_float = t_available;
+            float pd_time_float = pd_time;
 
-            float a_rate = o_time_double / (t_available_double - pd_time_double);
+            float a_rate = o_time_float / (t_available_float - pd_time_float);
             float a_rate_percent = a_rate * 100;
             Float tobe_a_rate = a_rate_percent;
 
-            Float truncatedDouble = BigDecimal.valueOf(tobe_a_rate)
+            Float truncatedFloat = BigDecimal.valueOf(tobe_a_rate)
                     .setScale(2, RoundingMode.HALF_UP)
                     .floatValue();
 
-            productionOeeTable.setValueAt(truncatedDouble, row, 11);
+            productionOeeTable.setValueAt(truncatedFloat, row, 11);
 
             //calculate performance rate
             float t_output = (float) productionOeeTable.getValueAt(row, 5);
-            float t_output_double = t_output;
-            float c_rate = t_output_double / o_time_double;
+            float t_output_float = t_output;
+            float c_rate = t_output_float / o_time_float;
 
             if (ideal_run_rate <= c_rate) {
-
-                productionOeeTable.setValueAt(100.00, row, 12);
+                float hundred= 100;
+                productionOeeTable.setValueAt(hundred, row, 12);
 
             } else {
                 float p_rate = c_rate / ideal_run_rate;
@@ -1409,9 +1422,9 @@ public class main extends javax.swing.JFrame {
 
             //calculate quality rate
             float t_reject = (float) productionOeeTable.getValueAt(row, 4);
-            float t_reject_double = t_reject;
+            float t_reject_float = t_reject;
 
-            float q_rate = (t_output_double - t_reject_double) / t_output_double;
+            float q_rate = (t_output_float - t_reject_float) / t_output_float;
             Float tobe_q_rate = q_rate * 100;
 
             Float truncated_q_rate = BigDecimal.valueOf(tobe_q_rate)
@@ -1466,8 +1479,12 @@ public class main extends javax.swing.JFrame {
 
                 float wastage = columnSum(rejectAnalysisTable, row + 1);
                 //String pack_qty = (String) productionTable.getValueAt(row, 5);
+                Float truncated_wastage = BigDecimal.valueOf(wastage)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .floatValue();
+                
 
-                productionOeeTable.setValueAt(wastage, row, 4);
+                productionOeeTable.setValueAt(truncated_wastage, row, 4);
                 //pst.setString(1, partNumber);
                 ;
 
@@ -2713,12 +2730,14 @@ public class main extends javax.swing.JFrame {
             prodOEE();
             packOEE();
             productionDatabaseInsert();
+            setPackPackingTime();
 
         } else {
             productionTable.getCellEditor().stopCellEditing();
             prodOEE();
             packOEE();
             productionDatabaseInsert();
+            setPackPackingTime();
 
         }
     }//GEN-LAST:event_jButton3ActionPerformed
