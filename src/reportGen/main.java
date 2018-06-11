@@ -394,14 +394,14 @@ public class main extends javax.swing.JFrame {
             if ("Cutter wastage".equals(base)) {
                 //iterate through colums to get values
                 
-                for (int j = 0; j < fuCols; j++) {
+                for (int j = 1; j < fuCols; j++) {
                     //make sure no null and empty values taken to calculation
-                    if (productionTable.getValueAt(j, 5) != null) {
-                        String pack_qty = (String) productionTable.getValueAt(j, 5);
-                        String part_name = (String) productionTable.getValueAt(j, 3);
+                    if (productionTable.getValueAt(j-1, 5) != null) {
+                        String pack_qty = (String) productionTable.getValueAt(j-1, 5);
+                        String part_name = (String) productionTable.getValueAt(j-1, 3);
                         if (!pack_qty.isEmpty()) {
                             if (rejectAnalysisTable.getValueAt(i, j) != null) {
-                                String rej = (String) rejectAnalysisTable.getValueAt(i, j+1);
+                                String rej = (String) rejectAnalysisTable.getValueAt(i, j);
 
                                 //proceed if the cell is not empty
                                 if (!rej.isEmpty()) {
@@ -1170,7 +1170,7 @@ public class main extends javax.swing.JFrame {
         int emptyCols = 0;
         rowSearch:
         for (int col = 0; col < table.getColumnCount(); col++) { //Iterate through all the rows
-            for (int row = 0; col < table.getRowCount(); row++) { //Iterate through all the columns in the row
+            for (int row = 0; row < table.getRowCount(); row++) { //Iterate through all the columns in the row
                 if (table.getValueAt(row, col) != null) {
                     String demi = table.getValueAt(row, col).toString();
                     if (!demi.isEmpty()) {
@@ -1294,8 +1294,8 @@ public class main extends javax.swing.JFrame {
             float c_rate = t_output_float / o_time_float;
 
             if (ideal_run_rate <= c_rate) {
-
-                packingOeeTable.setValueAt(100.00, row, 12);
+                float hundred=100;
+                packingOeeTable.setValueAt(hundred, row, 12);
 
             } else {
                 float p_rate = c_rate / ideal_run_rate;
