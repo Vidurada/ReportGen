@@ -79,6 +79,29 @@ public class main extends javax.swing.JFrame {
          packageTimeTable.setValueAt(false,row, 7);
         }
     }
+    
+    public void productionPreDatabaseInsert(){
+        try {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            Date today = Calendar.getInstance().getTime();
+            String reportDate = df.format(today);
+            
+            
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
+            String queryco = "DELETE FROM production WHERE Date = ? ";
+            pst = connection.prepareStatement(queryco);
+            pst.setString(1, reportDate);
+            pst.execute();
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
+    
+    
+    }
+    
+    
     public void productionDatabaseInsert() {
         try {
 
@@ -116,10 +139,11 @@ public class main extends javax.swing.JFrame {
                         String shift = shiftCombo.getSelectedItem().toString();
 
                         float int_qty = 0;
+                        
                         if (productionTable.getValueAt(row, 4) == null) {
 
                             int_qty = 0;
-                        } else if (productionTable.getValueAt(row, 4) == "") {
+                        } else if (productionTable.getValueAt(row, 4).toString().isEmpty()) {
                             int_qty = 0;
 
                         } else {
@@ -131,7 +155,7 @@ public class main extends javax.swing.JFrame {
                         if (productionTable.getValueAt(row, 5) == null) {
 
                             int_pack_qty = 0;
-                        } else if (productionTable.getValueAt(row, 5) == "") {
+                        } else if (productionTable.getValueAt(row, 5).toString().isEmpty()) {
                             int_pack_qty = 0;
 
                         } else {
@@ -486,6 +510,7 @@ public class main extends javax.swing.JFrame {
 
                     //proceed if the cell is not empty
                     if (!pack_qty.isEmpty()) {
+                        if(!pack_qty.equals("0")){
                         bb = bb + 1;
                         //get values form the production table
 
@@ -535,7 +560,7 @@ public class main extends javax.swing.JFrame {
                         }
 
                     }
-
+                    }
                 }
 
             }
@@ -576,7 +601,8 @@ public class main extends javax.swing.JFrame {
                 if (productionTable.getValueAt(row, 4) != null) {
                     String qty = (String) productionTable.getValueAt(row, 4);
                     //proceed if the cell is not empty
-                    if (!qty.isEmpty()) {
+                    if (!qty.isEmpty() ) {
+                        if(!qty.equals("0")){
                         bb = bb + 1;
                         //get values form the production table
                         String SOnumber = (String) productionTable.getValueAt(row, 1);
@@ -624,7 +650,7 @@ public class main extends javax.swing.JFrame {
                         }
 
                     }
-
+                    }
                 }
 
             }
@@ -644,11 +670,17 @@ public class main extends javax.swing.JFrame {
     }
 
     public void oeeTotal(JTable table) {
+        
+        
 
-        addRowbottomOee(table);
-
+        
+        
         int rows = table.getRowCount();
-
+        
+        String total = table.getValueAt(rows-1, 1).toString();
+        
+        if (!total.equals("TOTAL")){
+               addRowbottomOee(table);
         float total_reject = columnSumOEE(table, 4);
         float total_output = columnSumOEE(table, 5);
         float total_a_time = columnSumOEE(table, 6);
@@ -657,43 +689,43 @@ public class main extends javax.swing.JFrame {
         float total_o_time = columnSumOEE(table, 9);
         float avg_ideal_run_rate = (columnSumOEE(table, 10) / (rows - 1));
 
-        table.setValueAt("TOTAL", rows - 1, 1);
-        table.setValueAt(total_reject, rows - 1, 4);
-        table.setValueAt(total_output, rows - 1, 5);
-        table.setValueAt(total_a_time, rows - 1, 6);
-        table.setValueAt(total_p_down, rows - 1, 7);
-        table.setValueAt(total_down, rows - 1, 8);
-        table.setValueAt(total_o_time, rows - 1, 9);
-        table.setValueAt(avg_ideal_run_rate, rows - 1, 10);
+        table.setValueAt("TOTAL", rows , 1);
+        table.setValueAt(total_reject, rows, 4);
+        table.setValueAt(total_output, rows, 5);
+        table.setValueAt(total_a_time, rows , 6);
+        table.setValueAt(total_p_down, rows, 7);
+        table.setValueAt(total_down, rows, 8);
+        table.setValueAt(total_o_time, rows, 9);
+        table.setValueAt(avg_ideal_run_rate, rows , 10);
 
         //calculate availability rate
         float avl_rate = (total_o_time / (total_a_time - total_p_down)) * 100;
         Float truncated_avl_rate = BigDecimal.valueOf(avl_rate)
                 .setScale(2, RoundingMode.HALF_UP)
                 .floatValue();
-        table.setValueAt(truncated_avl_rate, rows - 1, 11);
+        table.setValueAt(truncated_avl_rate, rows, 11);
 
         //calulate performance rate
-        float performance_rate = (columnSumOEE(table, 12) / (rows - 1));
+        float performance_rate = (columnSumOEE(table, 12) / (rows ));
         Float truncated_performance_rate = BigDecimal.valueOf(performance_rate)
                 .setScale(2, RoundingMode.HALF_UP)
                 .floatValue();
-        table.setValueAt(truncated_performance_rate, rows - 1, 12);
+        table.setValueAt(truncated_performance_rate, rows, 12);
 
         //calculate quality rate
         float quality_rate = ((total_output - (total_reject)) / total_output) * 100;
         Float truncated_quality_rate = BigDecimal.valueOf(quality_rate)
                 .setScale(2, RoundingMode.HALF_UP)
                 .floatValue();
-        table.setValueAt(truncated_quality_rate, rows - 1, 13);
+        table.setValueAt(truncated_quality_rate, rows, 13);
 
         //oee calculation
         float oee = avl_rate * performance_rate * quality_rate / 10000;
         Float truncated_oee = BigDecimal.valueOf(oee)
                 .setScale(2, RoundingMode.HALF_UP)
                 .floatValue();
-        table.setValueAt(truncated_oee, rows - 1, 14);
-
+        table.setValueAt(truncated_oee, rows , 14);
+        }
     }
 
     public void itemColumn(JTable table,
@@ -2729,6 +2761,7 @@ public class main extends javax.swing.JFrame {
         if (click == -1) {
             prodOEE();
             packOEE();
+            productionPreDatabaseInsert();
             productionDatabaseInsert();
             setPackPackingTime();
 
@@ -2736,6 +2769,7 @@ public class main extends javax.swing.JFrame {
             productionTable.getCellEditor().stopCellEditing();
             prodOEE();
             packOEE();
+            productionPreDatabaseInsert();
             productionDatabaseInsert();
             setPackPackingTime();
 

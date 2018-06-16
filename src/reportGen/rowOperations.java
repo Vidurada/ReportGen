@@ -126,7 +126,9 @@ public class rowOperations {
           if (table.getValueAt(i, n) != null){
               String val = table.getValueAt(i, n).toString();
               if (!val.isEmpty()){
+                  if(!val.equals("0")){
               count=count+1;
+              }
               }
           }
      }
