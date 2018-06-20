@@ -67,41 +67,37 @@ public class main extends javax.swing.JFrame {
         totalDownTable.setVisible(true);
         downTimeColumn(machineDowntimeTable, machineDowntimeTable.getColumnModel().getColumn(0));
         productionTable.setRowSelectionAllowed(true);
-        
+
     }
 
-    public final void setPackPackingTime(){
-    
-      int fullRows = filledRows(packageTimeTable);
+    public final void setPackPackingTime() {
+
+        int fullRows = filledRows(packageTimeTable);
         for (int row = 0; row < fullRows; row++) {
-         packageTimeTable.setValueAt(false,row, 5);
-         packageTimeTable.setValueAt(false,row, 6);
-         packageTimeTable.setValueAt(false,row, 7);
+            packageTimeTable.setValueAt(false, row, 5);
+            packageTimeTable.setValueAt(false, row, 6);
+            packageTimeTable.setValueAt(false, row, 7);
         }
     }
-    
-    public void productionPreDatabaseInsert(){
+
+    public void productionPreDatabaseInsert() {
         try {
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             Date today = Calendar.getInstance().getTime();
             String reportDate = df.format(today);
-            
-            
+
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
             String queryco = "DELETE FROM production WHERE Date = ? ";
             pst = connection.prepareStatement(queryco);
             pst.setString(1, reportDate);
             pst.execute();
-            
+
         } catch (SQLException ex) {
             Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
         }
-    
-    
-    
+
     }
-    
-    
+
     public void productionDatabaseInsert() {
         try {
 
@@ -139,7 +135,7 @@ public class main extends javax.swing.JFrame {
                         String shift = shiftCombo.getSelectedItem().toString();
 
                         float int_qty = 0;
-                        
+
                         if (productionTable.getValueAt(row, 4) == null) {
 
                             int_qty = 0;
@@ -225,7 +221,7 @@ public class main extends javax.swing.JFrame {
             int cols = rejectAnalysisTable.getColumnCount();
 
             for (int row = 0; row < fullRows; row++) {
-                for (int col = 1; col < cols; col++) {
+                for (int col = 1; col < cols-1; col++) {
 
                     if (rejectAnalysisTable.getValueAt(row, col) != null) {
                         //float value =  (float) rejectAnalysisTable.getValueAt(row,col);
@@ -263,6 +259,41 @@ public class main extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, e.getMessage());
         }
 
+    }
+    
+    private void rejectAnalysisTotal(){
+    
+        int fullRows = filledRows(rejectAnalysisTable);
+     
+        int last_row = rejectAnalysisTable.getColumnCount();
+        for(int i=0;i<fullRows;i++){
+            float tot = rowSum(rejectAnalysisTable,1,i);
+            rejectAnalysisTable.setValueAt(tot,i,last_row-1);
+        
+        
+        }
+    
+    
+    }
+    
+    private float rowSum(JTable table,int start, int n){
+    int colsCount = table.getColumnCount();
+
+        float sum = 0;
+        for (int i = start; i < colsCount-1; i++) {
+            Object value = table.getValueAt(n, i);
+            //float qty = (float) table.getValueAt(i, n);
+
+            //String st_qty = (String) table.getValueAt(n, i);
+
+            if (value != null) {
+               // if (!st_qty.isEmpty()) {
+                    sum = sum + Float.parseFloat(table.getValueAt(n, i).toString());
+               // }
+            }
+        }
+        return sum;
+    
     }
 
     private void machineRuntimeDatabaseInstert() {
@@ -417,12 +448,12 @@ public class main extends javax.swing.JFrame {
             //check whether the base is cutter wastage
             if ("Cutter wastage".equals(base)) {
                 //iterate through colums to get values
-                
+
                 for (int j = 1; j < fuCols; j++) {
                     //make sure no null and empty values taken to calculation
-                    if (productionTable.getValueAt(j-1, 5) != null) {
-                        String pack_qty = (String) productionTable.getValueAt(j-1, 5);
-                        String part_name = (String) productionTable.getValueAt(j-1, 3);
+                    if (productionTable.getValueAt(j - 1, 5) != null) {
+                        String pack_qty = (String) productionTable.getValueAt(j - 1, 5);
+                        String part_name = (String) productionTable.getValueAt(j - 1, 3);
                         if (!pack_qty.isEmpty()) {
                             if (rejectAnalysisTable.getValueAt(i, j) != null) {
                                 String rej = (String) rejectAnalysisTable.getValueAt(i, j);
@@ -510,56 +541,56 @@ public class main extends javax.swing.JFrame {
 
                     //proceed if the cell is not empty
                     if (!pack_qty.isEmpty()) {
-                        if(!pack_qty.equals("0")){
-                        bb = bb + 1;
-                        //get values form the production table
+                        if (!pack_qty.equals("0")) {
+                            bb = bb + 1;
+                            //get values form the production table
 
-                        String partNumber = (String) productionTable.getValueAt(row, 3);
+                            String partNumber = (String) productionTable.getValueAt(row, 3);
 
-                        setRowNumber(packageTimeTable, productionTable, fullRows, 5);
-                        setRowNumber(packinterimTable, productionTable, fullRows, 5);
-                        setRowNumber(packingOeeTable, productionTable, fullRows, 5);
+                            setRowNumber(packageTimeTable, productionTable, fullRows, 5);
+                            setRowNumber(packinterimTable, productionTable, fullRows, 5);
+                            setRowNumber(packingOeeTable, productionTable, fullRows, 5);
 
-                        packinterimTable.setValueAt(partNumber, bb, 0);
-                        float z = 0;
-                        packinterimTable.setValueAt(z, bb, 3);
+                            packinterimTable.setValueAt(partNumber, bb, 0);
+                            float z = 0;
+                            packinterimTable.setValueAt(z, bb, 3);
 
-                        float float_pack_qty = Float.parseFloat(pack_qty);
+                            float float_pack_qty = Float.parseFloat(pack_qty);
 
-                        packinterimTable.setValueAt(float_pack_qty, bb, 1);
-                        packingOeeTable.setValueAt(float_pack_qty, bb, 5);
-                        packageTimeTable.setValueAt(partNumber, bb, 1);
-                        packageTimeTable.setValueAt(bb + 1, bb, 0);
+                            packinterimTable.setValueAt(float_pack_qty, bb, 1);
+                            packingOeeTable.setValueAt(float_pack_qty, bb, 5);
+                            packageTimeTable.setValueAt(partNumber, bb, 1);
+                            packageTimeTable.setValueAt(bb + 1, bb, 0);
 
-                        packinterimTable.setValueAt(partNumber, bb, 0);
-                        //itemFill(packinterimTable, 2);
+                            packinterimTable.setValueAt(partNumber, bb, 0);
+                            //itemFill(packinterimTable, 2);
 
-                        totalDownTable.setValueAt(partNumber, row, 0);
+                            totalDownTable.setValueAt(partNumber, row, 0);
 
-                        //add the values to the productionOEEExcel table
-                        packingOeeTable.setValueAt(bb + 1, bb, 0);
-                        packingOeeTable.setValueAt(partNumber, bb, 1);
+                            //add the values to the productionOEEExcel table
+                            packingOeeTable.setValueAt(bb + 1, bb, 0);
+                            packingOeeTable.setValueAt(partNumber, bb, 1);
 
-                        String[] parts = partNumber.split("-");
-                        String cut_length = parts[2];
-                        packingOeeTable.setValueAt(cut_length, bb, 2);
+                            String[] parts = partNumber.split("-");
+                            String cut_length = parts[2];
+                            packingOeeTable.setValueAt(cut_length, bb, 2);
 
-                        //get the swo value from the database for each part
-                        java.sql.PreparedStatement preparedStatement = null;
-                        String query = "select swo from parts where PartNumber=?";
-                        preparedStatement = conn.prepareStatement(query);
-                        preparedStatement.setString(1, partNumber);
-                        ResultSet rs = preparedStatement.executeQuery();
-                        String season = null;
+                            //get the swo value from the database for each part
+                            java.sql.PreparedStatement preparedStatement = null;
+                            String query = "select swo from parts where PartNumber=?";
+                            preparedStatement = conn.prepareStatement(query);
+                            preparedStatement.setString(1, partNumber);
+                            ResultSet rs = preparedStatement.executeQuery();
+                            String season = null;
 
-                        if (rs.next()) {
-                            season = rs.getString("swo");
-                            System.out.println(season);
-                            packingOeeTable.setValueAt(season, bb, 3);
+                            if (rs.next()) {
+                                season = rs.getString("swo");
+                                System.out.println(season);
+                                packingOeeTable.setValueAt(season, bb, 3);
+
+                            }
 
                         }
-
-                    }
                     }
                 }
 
@@ -601,55 +632,55 @@ public class main extends javax.swing.JFrame {
                 if (productionTable.getValueAt(row, 4) != null) {
                     String qty = (String) productionTable.getValueAt(row, 4);
                     //proceed if the cell is not empty
-                    if (!qty.isEmpty() ) {
-                        if(!qty.equals("0")){
-                        bb = bb + 1;
-                        //get values form the production table
-                        String SOnumber = (String) productionTable.getValueAt(row, 1);
-                        String customer = (String) productionTable.getValueAt(row, 2);
-                        String shift = shiftCombo.getSelectedItem().toString();
-                        String partNumber = (String) productionTable.getValueAt(row, 3);
-                        String second_qty = (String) productionTable.getValueAt(row, 4);
-                        float float_qty = Float.parseFloat(second_qty);
-                        // String pack_qty = (String) productionTable.getValueAt(row, 5);
-                        // float int_pack_qty = Float.parseFloat(pack_qty);
+                    if (!qty.isEmpty()) {
+                        if (!qty.equals("0")) {
+                            bb = bb + 1;
+                            //get values form the production table
+                            String SOnumber = (String) productionTable.getValueAt(row, 1);
+                            String customer = (String) productionTable.getValueAt(row, 2);
+                            String shift = shiftCombo.getSelectedItem().toString();
+                            String partNumber = (String) productionTable.getValueAt(row, 3);
+                            String second_qty = (String) productionTable.getValueAt(row, 4);
+                            float float_qty = Float.parseFloat(second_qty);
+                            // String pack_qty = (String) productionTable.getValueAt(row, 5);
+                            // float int_pack_qty = Float.parseFloat(pack_qty);
 
-                        intermTable.setValueAt(partNumber, bb, 0);
-                        itemFill(intermTable, 2);
+                            intermTable.setValueAt(partNumber, bb, 0);
+                            itemFill(intermTable, 2);
 
-                        //set index and partnumber in machine worked table
-                        setRowNumber(machineWorkedTable, productionTable, fullRows, 4);
-                        machineWorkedTable.setValueAt(bb + 1, bb, 0);
-                        machineWorkedTable.setValueAt(partNumber, bb, 1);
+                            //set index and partnumber in machine worked table
+                            setRowNumber(machineWorkedTable, productionTable, fullRows, 4);
+                            machineWorkedTable.setValueAt(bb + 1, bb, 0);
+                            machineWorkedTable.setValueAt(partNumber, bb, 1);
 
-                        //add the partnumber record in 'hidden' totaDownTable
-                        setRowNumber2(productionTable);
-                        setRowNumber(plannedDownTable, productionTable, fullRows, 4);
-                        setRowNumber(intermTable, productionTable, fullRows, 4);
-                        totalDownTable.setValueAt(partNumber, row, 0);
+                            //add the partnumber record in 'hidden' totaDownTable
+                            setRowNumber2(productionTable);
+                            setRowNumber(plannedDownTable, productionTable, fullRows, 4);
+                            setRowNumber(intermTable, productionTable, fullRows, 4);
+                            totalDownTable.setValueAt(partNumber, row, 0);
 
-                        //add the values to the oee table
-                        setRowNumber(productionOeeTable, productionTable, fullRows, 4);
-                        productionOeeTable.setValueAt(bb + 1, bb, 0);
-                        productionOeeTable.setValueAt(partNumber, bb, 1);
-                        productionOeeTable.setValueAt(SOnumber, bb, 2);
-                        productionOeeTable.setValueAt(float_qty, bb, 5);
+                            //add the values to the oee table
+                            setRowNumber(productionOeeTable, productionTable, fullRows, 4);
+                            productionOeeTable.setValueAt(bb + 1, bb, 0);
+                            productionOeeTable.setValueAt(partNumber, bb, 1);
+                            productionOeeTable.setValueAt(SOnumber, bb, 2);
+                            productionOeeTable.setValueAt(float_qty, bb, 5);
 
-                        //get the swo value from the database for each part
-                        java.sql.PreparedStatement preparedStatement = null;
-                        String query = "select swo from parts where PartNumber=?";
-                        preparedStatement = conn.prepareStatement(query);
-                        preparedStatement.setString(1, partNumber);
-                        ResultSet rs = preparedStatement.executeQuery();
-                        String season = null;
+                            //get the swo value from the database for each part
+                            java.sql.PreparedStatement preparedStatement = null;
+                            String query = "select swo from parts where PartNumber=?";
+                            preparedStatement = conn.prepareStatement(query);
+                            preparedStatement.setString(1, partNumber);
+                            ResultSet rs = preparedStatement.executeQuery();
+                            String season = null;
 
-                        if (rs.next()) {
-                            season = rs.getString("swo");
-                            System.out.println(season);
-                            productionOeeTable.setValueAt(season, bb, 3);
+                            if (rs.next()) {
+                                season = rs.getString("swo");
+                                System.out.println(season);
+                                productionOeeTable.setValueAt(season, bb, 3);
+                            }
+
                         }
-
-                    }
                     }
                 }
 
@@ -668,63 +699,61 @@ public class main extends javax.swing.JFrame {
         }
 
     }
+    
+   
 
     public void oeeTotal(JTable table) {
-        
-        
 
-        
-        
         int rows = table.getRowCount();
-        
-        String total = table.getValueAt(rows-1, 1).toString();
-        
-        if (!total.equals("TOTAL")){
-               addRowbottomOee(table);
-        float total_reject = columnSumOEE(table, 4);
-        float total_output = columnSumOEE(table, 5);
-        float total_a_time = columnSumOEE(table, 6);
-        float total_p_down = columnSumOEE(table, 7);
-        float total_down = columnSumOEE(table, 8);
-        float total_o_time = columnSumOEE(table, 9);
-        float avg_ideal_run_rate = (columnSumOEE(table, 10) / (rows - 1));
 
-        table.setValueAt("TOTAL", rows , 1);
-        table.setValueAt(total_reject, rows, 4);
-        table.setValueAt(total_output, rows, 5);
-        table.setValueAt(total_a_time, rows , 6);
-        table.setValueAt(total_p_down, rows, 7);
-        table.setValueAt(total_down, rows, 8);
-        table.setValueAt(total_o_time, rows, 9);
-        table.setValueAt(avg_ideal_run_rate, rows , 10);
+        String total = table.getValueAt(rows - 1, 1).toString();
 
-        //calculate availability rate
-        float avl_rate = (total_o_time / (total_a_time - total_p_down)) * 100;
-        Float truncated_avl_rate = BigDecimal.valueOf(avl_rate)
-                .setScale(2, RoundingMode.HALF_UP)
-                .floatValue();
-        table.setValueAt(truncated_avl_rate, rows, 11);
+        if (!total.equals("TOTAL")) {
+            addRowbottomOee(table);
+            float total_reject = columnSumOEE(table, 4);
+            float total_output = columnSumOEE(table, 5);
+            float total_a_time = columnSumOEE(table, 6);
+            float total_p_down = columnSumOEE(table, 7);
+            float total_down = columnSumOEE(table, 8);
+            float total_o_time = columnSumOEE(table, 9);
+            float avg_ideal_run_rate = (columnSumOEE(table, 10) / (rows - 1));
 
-        //calulate performance rate
-        float performance_rate = (columnSumOEE(table, 12) / (rows ));
-        Float truncated_performance_rate = BigDecimal.valueOf(performance_rate)
-                .setScale(2, RoundingMode.HALF_UP)
-                .floatValue();
-        table.setValueAt(truncated_performance_rate, rows, 12);
+            table.setValueAt("TOTAL", rows, 1);
+            table.setValueAt(total_reject, rows, 4);
+            table.setValueAt(total_output, rows, 5);
+            table.setValueAt(total_a_time, rows, 6);
+            table.setValueAt(total_p_down, rows, 7);
+            table.setValueAt(total_down, rows, 8);
+            table.setValueAt(total_o_time, rows, 9);
+            table.setValueAt(avg_ideal_run_rate, rows, 10);
 
-        //calculate quality rate
-        float quality_rate = ((total_output - (total_reject)) / total_output) * 100;
-        Float truncated_quality_rate = BigDecimal.valueOf(quality_rate)
-                .setScale(2, RoundingMode.HALF_UP)
-                .floatValue();
-        table.setValueAt(truncated_quality_rate, rows, 13);
+            //calculate availability rate
+            float avl_rate = (total_o_time / (total_a_time - total_p_down)) * 100;
+            Float truncated_avl_rate = BigDecimal.valueOf(avl_rate)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .floatValue();
+            table.setValueAt(truncated_avl_rate, rows, 11);
 
-        //oee calculation
-        float oee = avl_rate * performance_rate * quality_rate / 10000;
-        Float truncated_oee = BigDecimal.valueOf(oee)
-                .setScale(2, RoundingMode.HALF_UP)
-                .floatValue();
-        table.setValueAt(truncated_oee, rows , 14);
+            //calulate performance rate
+            float performance_rate = (columnSumOEE(table, 12) / (rows));
+            Float truncated_performance_rate = BigDecimal.valueOf(performance_rate)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .floatValue();
+            table.setValueAt(truncated_performance_rate, rows, 12);
+
+            //calculate quality rate
+            float quality_rate = ((total_output - (total_reject)) / total_output) * 100;
+            Float truncated_quality_rate = BigDecimal.valueOf(quality_rate)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .floatValue();
+            table.setValueAt(truncated_quality_rate, rows, 13);
+
+            //oee calculation
+            float oee = avl_rate * performance_rate * quality_rate / 10000;
+            Float truncated_oee = BigDecimal.valueOf(oee)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .floatValue();
+            table.setValueAt(truncated_oee, rows, 14);
         }
     }
 
@@ -1197,7 +1226,7 @@ public class main extends javax.swing.JFrame {
         return table.getRowCount() - emptyRows;
 
     }
-    
+
     public int filledCols(JTable table) {
         int emptyCols = 0;
         rowSearch:
@@ -1216,11 +1245,9 @@ public class main extends javax.swing.JFrame {
         return table.getColumnCount() - emptyCols;
 
     }
-    
-    
 
     public void packagingOeeCalculation() throws SQLException {
-        
+
         int fullRows = filledRows(packageTimeTable);
         for (int row = 0; row < fullRows; row++) {
 
@@ -1326,7 +1353,7 @@ public class main extends javax.swing.JFrame {
             float c_rate = t_output_float / o_time_float;
 
             if (ideal_run_rate <= c_rate) {
-                float hundred=100;
+                float hundred = 100;
                 packingOeeTable.setValueAt(hundred, row, 12);
 
             } else {
@@ -1436,7 +1463,7 @@ public class main extends javax.swing.JFrame {
             float c_rate = t_output_float / o_time_float;
 
             if (ideal_run_rate <= c_rate) {
-                float hundred= 100;
+                float hundred = 100;
                 productionOeeTable.setValueAt(hundred, row, 12);
 
             } else {
@@ -1512,9 +1539,8 @@ public class main extends javax.swing.JFrame {
                 float wastage = columnSum(rejectAnalysisTable, row + 1);
                 //String pack_qty = (String) productionTable.getValueAt(row, 5);
                 Float truncated_wastage = BigDecimal.valueOf(wastage)
-                    .setScale(2, RoundingMode.HALF_UP)
-                    .floatValue();
-                
+                        .setScale(2, RoundingMode.HALF_UP)
+                        .floatValue();
 
                 productionOeeTable.setValueAt(truncated_wastage, row, 4);
                 //pst.setString(1, partNumber);
@@ -1535,23 +1561,26 @@ public class main extends javax.swing.JFrame {
     public float columnSum(JTable table, int n) {
 
         int rowsCount = table.getRowCount();
+        
+        
 
         float sum = 0;
         for (int i = 0; i < rowsCount; i++) {
             Object value = table.getValueAt(i, n);
             //float qty = (float) table.getValueAt(i, n);
-
-            String st_qty = (String) table.getValueAt(i, n);
-
-            if (value != null) {
-                if (!st_qty.isEmpty()) {
+            
+           // String st_qty = (String)table.getValueAt(i, n);
+            //String st_qty = String.valueOf(qty);
+            if (value != null ) {
+               if (!value.toString().isEmpty()) {
                     sum = sum + Float.parseFloat(table.getValueAt(i, n).toString());
-                }
+               }
             }
         }
         return sum;
 
     }
+    
 
     public float columnSumOEE(JTable table, int n) {
 
@@ -2020,16 +2049,40 @@ public class main extends javax.swing.JFrame {
 
         rejectAnalysisTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null}
+                {"Line Setup", null, null, null, null, null, null, null},
+                {"Metal Detector", null, null, null, null, null, null, null},
+                {"Back Flush", null, null, null, null, null, null, null},
+                {"Winder Wastage", null, null, null, null, null, null, null},
+                {"Wrapper Wastage", null, null, null, null, null, null, null},
+                {"Diameter Variation", null, null, null, null, null, null, null},
+                {"Colour Variation", null, null, null, null, null, null, null},
+                {"Crimp Variation", null, null, null, null, null, null, null},
+                {"Material Quality", null, null, null, null, null, null, null},
+                {"Process Issue", null, null, null, null, null, null, null},
+                {"Technical Fault", null, null, null, null, null, null, null},
+                {"Workers Fault", null, null, null, null, null, null, null},
+                {"Technicians Fault", null, null, null, null, null, null, null},
+                {"Supervisory Fault", null, null, null, null, null, null, null},
+                {"Planning Fault", null, null, null, null, null, null, null},
+                {"Cutter wastage", null, null, null, null, null, null, null},
+                {"Rewrape", null, null, null, null, null, null, null},
+                {"Colour variation", null, null, null, null, null, null, null},
+                {"Diameter variation", null, null, null, null, null, null, null},
+                {"Other", null, null, null, null, null, null, null}
             },
             new String [] {
                 "Base", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Total"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        rejectAnalysisTable.setColumnSelectionAllowed(true);
         rejectAnalysisTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 rejectAnalysisTableMouseReleased(evt);
@@ -2043,7 +2096,7 @@ public class main extends javax.swing.JFrame {
         jScrollPane2.setViewportView(rejectAnalysisTable);
         rejectAnalysisTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 
-        jPanel5.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 274, 1182, 130));
+        jPanel5.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 274, 1182, 160));
 
         jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/icon.png"))); // NOI18N
         jButton5.setText("Insert Data");
@@ -2052,7 +2105,7 @@ public class main extends javax.swing.JFrame {
                 jButton5ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 420, -1, -1));
+        jPanel5.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 440, -1, -1));
 
         machineWorkedTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -2072,7 +2125,7 @@ public class main extends javax.swing.JFrame {
         });
         jScrollPane6.setViewportView(machineWorkedTable);
 
-        jPanel5.add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 476, 1180, 163));
+        jPanel5.add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 510, 1180, 163));
 
         intermTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -2219,7 +2272,7 @@ public class main extends javax.swing.JFrame {
                         .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jScrollPane12, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(198, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         hidPanelLayout.setVerticalGroup(
             hidPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2231,7 +2284,7 @@ public class main extends javax.swing.JFrame {
                     .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(27, 27, 27)
                 .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(61, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel5.add(hidPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(1210, 280, 390, 170));
@@ -2272,7 +2325,7 @@ public class main extends javax.swing.JFrame {
             machineDowntimeTable.getColumnModel().getColumn(5).setMaxWidth(300);
         }
 
-        jPanel5.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 728, 1180, 150));
+        jPanel5.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 760, 1180, 150));
 
         jButton8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/plus-and-minus.png"))); // NOI18N
         jButton8.setText("Insert Data");
@@ -2281,7 +2334,7 @@ public class main extends javax.swing.JFrame {
                 jButton8ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 890, -1, 30));
+        jPanel5.add(jButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 920, -1, 30));
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel1.setText("Production");
@@ -2302,11 +2355,11 @@ public class main extends javax.swing.JFrame {
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel4.setText("Machine Run Time");
-        jPanel5.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 448, -1, -1));
+        jPanel5.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 480, -1, -1));
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel5.setText("Packing Time");
-        jPanel5.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 920, -1, -1));
+        jPanel5.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 960, -1, -1));
 
         jButton6.setText("Prod OEE");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
@@ -2314,7 +2367,7 @@ public class main extends javax.swing.JFrame {
                 jButton6ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 1210, -1, -1));
+        jPanel5.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 1240, -1, -1));
 
         jButton7.setText("Prod OEE Excel");
         jButton7.addActionListener(new java.awt.event.ActionListener() {
@@ -2322,7 +2375,7 @@ public class main extends javax.swing.JFrame {
                 jButton7ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 1210, -1, -1));
+        jPanel5.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 1240, -1, -1));
 
         packageTimeTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -2350,7 +2403,7 @@ public class main extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(packageTimeTable);
 
-        jPanel5.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 960, 1190, 200));
+        jPanel5.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 1000, 1190, 200));
 
         jButton2.setText("Pack OEE");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -2358,7 +2411,7 @@ public class main extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 1210, 80, -1));
+        jPanel5.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 1240, 80, -1));
 
         jButton1.setText("Pack OEE Excel");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -2366,7 +2419,7 @@ public class main extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 1210, -1, -1));
+        jPanel5.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 1240, -1, -1));
 
         jButton12.setText("Shift Excel");
         jButton12.addActionListener(new java.awt.event.ActionListener() {
@@ -2374,11 +2427,11 @@ public class main extends javax.swing.JFrame {
                 jButton12ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton12, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 1210, -1, -1));
+        jPanel5.add(jButton12, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 1240, -1, -1));
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel8.setText("Machine Down Time");
-        jPanel5.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 695, -1, -1));
+        jPanel5.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 730, -1, -1));
 
         jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/plus-and-minus.png"))); // NOI18N
         jButton4.setText("Insert Data");
@@ -2387,7 +2440,7 @@ public class main extends javax.swing.JFrame {
                 jButton4ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 660, -1, -1));
+        jPanel5.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 700, -1, -1));
 
         jTabbedPane1.addTab("Production", jPanel5);
 
@@ -2631,27 +2684,27 @@ public class main extends javax.swing.JFrame {
 
     private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
         // TODO add your handling code here:
-        int click = productionTable.getEditingRow();
-
-        if (click == -1) {
-            JFileChooser fileChooser = new JFileChooser();
-        // apply filter
-        FileNameExtensionFilter sdfFilter = new FileNameExtensionFilter(
-                "excel files (*.xlsx)", "xlsx");
-        fileChooser.setFileFilter(sdfFilter);
-
-        if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            //add .xls extention
-            file = new File(file.toString() + ".xlsx");
-            excelCreator shift = new excelCreator();
-            shift.shiftReport(productionTable,rejectAnalysisTable, file);
-
-        }
-
-        } else {
+        int click_1 = productionTable.getEditingRow();
+        if (click_1 != -1) {
             productionTable.getCellEditor().stopCellEditing();
-            JFileChooser fileChooser = new JFileChooser();
+        }
+
+        int click_2 = rejectAnalysisTable.getEditingRow();
+        if (click_2 != -1) {
+            rejectAnalysisTable.getCellEditor().stopCellEditing();
+        }
+
+        int click_3 = machineDowntimeTable.getEditingRow();
+        if (click_3 != -1) {
+            machineDowntimeTable.getCellEditor().stopCellEditing();
+        }
+        
+        int click_4 = packageTimeTable.getEditingRow();
+        if (click_4 != -1) {
+            packageTimeTable.getCellEditor().stopCellEditing();
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
         // apply filter
         FileNameExtensionFilter sdfFilter = new FileNameExtensionFilter(
                 "excel files (*.xlsx)", "xlsx");
@@ -2662,11 +2715,11 @@ public class main extends javax.swing.JFrame {
             //add .xls extention
             file = new File(file.toString() + ".xlsx");
             excelCreator shift = new excelCreator();
-            shift.shiftReport(productionTable,rejectAnalysisTable, file);
+            shift.shiftReport(productionTable, rejectAnalysisTable,machineDowntimeTable,packageTimeTable, file);
 
         }
 
-        }     
+
     }//GEN-LAST:event_jButton12ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -2759,6 +2812,7 @@ public class main extends javax.swing.JFrame {
         int click = productionTable.getEditingRow();
 
         if (click == -1) {
+           
             prodOEE();
             packOEE();
             productionPreDatabaseInsert();
@@ -2766,6 +2820,7 @@ public class main extends javax.swing.JFrame {
             setPackPackingTime();
 
         } else {
+            
             productionTable.getCellEditor().stopCellEditing();
             prodOEE();
             packOEE();
@@ -2861,14 +2916,18 @@ public class main extends javax.swing.JFrame {
         int click = rejectAnalysisTable.getEditingRow();
 
         if (click == -1) {
+            
             oeeReject();
             packOEEReject();
+            rejectAnalysisTotal();
             rejectAnalysisDatabaseInsert();
 
         } else {
+            
             rejectAnalysisTable.getCellEditor().stopCellEditing();
             oeeReject();
             packOEEReject();
+            rejectAnalysisTotal();
             rejectAnalysisDatabaseInsert();
         }
     }//GEN-LAST:event_jButton5ActionPerformed
@@ -2916,14 +2975,14 @@ public class main extends javax.swing.JFrame {
 
     private void rejectAnalysisTableMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rejectAnalysisTableMouseReleased
         // TODO add your handling code here:
-        if (evt.isPopupTrigger()) {
-            int row = rejectAnalysisTable.getSelectedRow();
+        //if (evt.isPopupTrigger()) {
+           // int row = rejectAnalysisTable.getSelectedRow();
 
-            if (row >= 0) {
-                rejectAnalysis.show(this, evt.getX() + 50, evt.getY() + 400);
-            }
+          //  if (row >= 0) {
+         //       rejectAnalysis.show(this, evt.getX() + 50, evt.getY() + 400);
+        //    }
 
-        }
+     //   }
     }//GEN-LAST:event_rejectAnalysisTableMouseReleased
 
     private void jScrollPane9KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jScrollPane9KeyPressed
