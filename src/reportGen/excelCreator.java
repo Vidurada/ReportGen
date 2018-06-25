@@ -1401,18 +1401,18 @@ public class excelCreator {
                 if (name1.equals(name2)) {
                     
                     if (packageTimeTable.getValueAt(i, 5).equals(true)) {
-                        tea1 = " Tea = 10.00 am to 10.15 am";
+                        tea1 = " Tea = 10.00 am to 10.15 am,";
                     }
                     if (packageTimeTable.getValueAt(i, 6).equals(true)) {
-                        tea2 = " Tea = 3.00 pm to 3.15 pm";
+                        tea2 = " Tea = 3.00 pm to 3.15 pm,";
                     }
                     if (packageTimeTable.getValueAt(i, 7).equals(true)) {
                         
                         float result = Float.parseFloat(pack_from);
                         if (result < 19) {
-                            meal = " Lunch = 12.00 pm to 1.00 pm";
+                            meal = " Lunch = 12.00 pm to 1.00 pm,";
                         } else {
-                            meal = " Dinner = 7.00 pm to 8.00 pm";
+                            meal = " Dinner = 7.00 pm to 8.00 pm,";
                         }
 
                     }

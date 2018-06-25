@@ -475,22 +475,22 @@
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                           <Table columnCount="8" rowCount="20">
                             <Column editable="true" title="Base" type="java.lang.Object">
-                              <Data value="Line Setup"/>
                               <Data value="Metal Detector"/>
                               <Data value="Back Flush"/>
+                              <Data value="Line Setup"/>
+                              <Data value="Process Issue"/>
+                              <Data value="Cutter wastage"/>
                               <Data value="Winder Wastage"/>
                               <Data value="Wrapper Wastage"/>
                               <Data value="Diameter Variation"/>
                               <Data value="Colour Variation"/>
                               <Data value="Crimp Variation"/>
                               <Data value="Material Quality"/>
-                              <Data value="Process Issue"/>
                               <Data value="Technical Fault"/>
                               <Data value="Workers Fault"/>
                               <Data value="Technicians Fault"/>
                               <Data value="Supervisory Fault"/>
                               <Data value="Planning Fault"/>
-                              <Data value="Cutter wastage"/>
                               <Data value="Rewrape"/>
                               <Data value="Colour variation"/>
                               <Data value="Diameter variation"/>

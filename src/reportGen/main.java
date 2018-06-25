@@ -1962,10 +1962,10 @@ public class main extends javax.swing.JFrame {
             //System.out.println(rows);
 
             int fullRows = rows - emptyRows;
-
+            
             for (int row = 0; row < fullRows; row++) {
 
-                float wastage = columnSum(rejectAnalysisTable, row + 1);
+                float wastage = columnSumProdOEE(rejectAnalysisTable, row + 1);
                 //String pack_qty = (String) productionTable.getValueAt(row, 5);
                 Float truncated_wastage = BigDecimal.valueOf(wastage)
                         .setScale(2, RoundingMode.HALF_UP)
@@ -2005,6 +2005,35 @@ public class main extends javax.swing.JFrame {
             }
         }
         return sum;
+
+    }
+    
+    public float columnSumProdOEE(JTable table, int n) {
+
+        int rowsCount = table.getRowCount();
+
+        float sum = 0;
+        for (int i = 0; i < rowsCount; i++) {
+            Object value = table.getValueAt(i, n);
+            //float qty = (float) table.getValueAt(i, n);
+
+            // String st_qty = (String)table.getValueAt(i, n);
+            //String st_qty = String.valueOf(qty);
+            if (value != null) {
+                if (!value.toString().isEmpty()) {
+                    sum = sum + Float.parseFloat(table.getValueAt(i, n).toString());
+                }
+            }
+            
+            String base = table.getValueAt(i, 0).toString();
+            if ("Metal Detector".equals(base)){
+                sum = sum - Float.parseFloat(table.getValueAt(i, n).toString());
+            }
+        }
+        return sum;
+        
+       
+        
 
     }
 
@@ -2463,22 +2492,22 @@ public class main extends javax.swing.JFrame {
 
         rejectAnalysisTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"Line Setup", null, null, null, null, null, null, null},
                 {"Metal Detector", null, null, null, null, null, null, null},
                 {"Back Flush", null, null, null, null, null, null, null},
+                {"Line Setup", null, null, null, null, null, null, null},
+                {"Process Issue", null, null, null, null, null, null, null},
+                {"Cutter wastage", null, null, null, null, null, null, null},
                 {"Winder Wastage", null, null, null, null, null, null, null},
                 {"Wrapper Wastage", null, null, null, null, null, null, null},
                 {"Diameter Variation", null, null, null, null, null, null, null},
                 {"Colour Variation", null, null, null, null, null, null, null},
                 {"Crimp Variation", null, null, null, null, null, null, null},
                 {"Material Quality", null, null, null, null, null, null, null},
-                {"Process Issue", null, null, null, null, null, null, null},
                 {"Technical Fault", null, null, null, null, null, null, null},
                 {"Workers Fault", null, null, null, null, null, null, null},
                 {"Technicians Fault", null, null, null, null, null, null, null},
                 {"Supervisory Fault", null, null, null, null, null, null, null},
                 {"Planning Fault", null, null, null, null, null, null, null},
-                {"Cutter wastage", null, null, null, null, null, null, null},
                 {"Rewrape", null, null, null, null, null, null, null},
                 {"Colour variation", null, null, null, null, null, null, null},
                 {"Diameter variation", null, null, null, null, null, null, null},
