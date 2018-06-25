@@ -161,7 +161,7 @@ public class databaseOperations {
         try {
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
             Statement st = connection.createStatement();
-            String query = "SELECT DISTINCT(PartNumber) FROM parts";
+            String query = "SELECT DISTINCT(Item) FROM part2";
             ResultSet rs = st.executeQuery(query);
             String[] myStringArray = {};
             String season = null;
@@ -169,7 +169,7 @@ public class databaseOperations {
             while (rs.next()) {
                 //season = rs.getString("PartNumber");
                 //itemNumberComboBox.addItem(rs.getString("PartNumber"));
-                item_list.add(rs.getString("PartNumber"));
+                item_list.add(rs.getString("Item"));
             }
             itemNumberComboBox.setModel(new DefaultComboBoxModel(item_list.toArray()));
 

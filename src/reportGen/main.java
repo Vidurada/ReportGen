@@ -46,6 +46,7 @@ import static reportGen.rowOperations.removeThisRow;
 import static reportGen.rowOperations.setRowNumber;
 import static reportGen.rowOperations.setRowNumber2;
 import static reportGen.rowOperations.setRowNumberMachineRunTime;
+import static reportGen.rowOperations.tableEmpty;
 
 public class main extends javax.swing.JFrame {
 
@@ -67,6 +68,7 @@ public class main extends javax.swing.JFrame {
         totalDownTable.setVisible(true);
         downTimeColumn(machineDowntimeTable, machineDowntimeTable.getColumnModel().getColumn(0));
         productionTable.setRowSelectionAllowed(true);
+        jDateChooser1.setDateFormatString("yyyy-MM-dd");
 
     }
 
@@ -85,11 +87,109 @@ public class main extends javax.swing.JFrame {
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             Date today = Calendar.getInstance().getTime();
             String reportDate = df.format(today);
-
+            String shift = shiftCombo.getSelectedItem().toString();
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
-            String queryco = "DELETE FROM production WHERE Date = ? ";
+            String queryco = "DELETE FROM production WHERE InsertDate = ? AND Shift = ?";
             pst = connection.prepareStatement(queryco);
             pst.setString(1, reportDate);
+            pst.setString(2, shift);
+            pst.execute();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+    
+    public void prodOEEPreDatabaseInsert() {
+        try {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            Date today = Calendar.getInstance().getTime();
+            String reportDate = df.format(today);
+            String shift = shiftCombo.getSelectedItem().toString();
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
+            String queryco = "DELETE FROM prodOEE WHERE InsertDate = ? AND Shift = ?";
+            pst = connection.prepareStatement(queryco);
+            pst.setString(1, reportDate);
+            pst.setString(2, shift);
+            pst.execute();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+    
+    public void packOEEPreDatabaseInsert() {
+        try {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            Date today = Calendar.getInstance().getTime();
+            String reportDate = df.format(today);
+            String shift = shiftCombo.getSelectedItem().toString();
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
+            String queryco = "DELETE FROM packOEE WHERE InsertDate = ? AND Shift = ?";
+            pst = connection.prepareStatement(queryco);
+            pst.setString(1, reportDate);
+            pst.setString(2, shift);
+            pst.execute();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+    
+    
+
+    public void machineDownPreDatabaseInsert() {
+        try {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            Date today = Calendar.getInstance().getTime();
+            String reportDate = df.format(today);
+            String shift = shiftCombo.getSelectedItem().toString();
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
+            String queryco = "DELETE FROM productiondowntime WHERE InsertDate = ? AND Shift = ?";
+            pst = connection.prepareStatement(queryco);
+            pst.setString(1, reportDate);
+            pst.setString(2, shift);
+            pst.execute();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    public void rejectPreDatabaseInsert() {
+        try {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            Date today = Calendar.getInstance().getTime();
+            String reportDate = df.format(today);
+            String shift = shiftCombo.getSelectedItem().toString();
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
+            String queryco = "DELETE FROM reject WHERE InsertDate = ?  AND Shift = ? ";
+            pst = connection.prepareStatement(queryco);
+            pst.setString(1, reportDate);
+            pst.setString(2, shift);
+            pst.execute();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    public void machineTimePreDatabaseInsert() {
+        try {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            Date today = Calendar.getInstance().getTime();
+            String reportDate = df.format(today);
+            String shift = shiftCombo.getSelectedItem().toString();
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
+            String queryco = "DELETE FROM productionmachinetime WHERE InsertDate = ?  AND Shift = ? ";
+            pst = connection.prepareStatement(queryco);
+            pst.setString(1, reportDate);
+            pst.setString(2, shift);
             pst.execute();
 
         } catch (SQLException ex) {
@@ -103,7 +203,7 @@ public class main extends javax.swing.JFrame {
 
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             Date today = Calendar.getInstance().getTime();
-            String reportDate = df.format(today);
+            String dataInsertedDay = df.format(today);
 
             int emptyRows = 0;
             rowSearch:
@@ -117,7 +217,7 @@ public class main extends javax.swing.JFrame {
             }
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
             int rows = productionTable.getRowCount();
-            String queryco = "Insert IGNORE into production(Prodid,SO_Num,Customer,Date,Shift,PartNumber,prod_qty,pack_qty,CartNew,CartUsed,Bags) values (?,?,?,?,?,?,?,?,?,?,?);";
+            String queryco = "Insert IGNORE into production(Prodid,SO_Num,Customer,InsertDate,ReportDate,Shift,PartNumber,prod_qty,pack_qty,CartNew,CartUsed,Bags,Supervisor,Technician) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
             pst = connection.prepareStatement(queryco);
 
             int fullRows = rows - emptyRows;
@@ -158,7 +258,12 @@ public class main extends javax.swing.JFrame {
                             String pack_qty = (String) productionTable.getValueAt(row, 5);
                             int_pack_qty = Float.parseFloat(pack_qty);
                         }
-                        String id = partNumber + "-" + reportDate + "-" + shift;
+
+                        Date reportDate = jDateChooser1.getDate();
+                        String reportDateString = df.format(reportDate);
+                        String sup = supervisor.getText();
+                        String tech = technician.getText();
+                        String id = partNumber + "-" + reportDateString + "-" + shift;
 
                         String new_car = (String) productionTable.getValueAt(row, 6);
                         String used_car = (String) productionTable.getValueAt(row, 7);
@@ -167,14 +272,17 @@ public class main extends javax.swing.JFrame {
                         pst.setString(1, id);
                         pst.setString(2, SOnumber);
                         pst.setString(3, customer);
-                        pst.setString(4, reportDate);
-                        pst.setString(5, shift);
-                        pst.setString(6, partNumber);
-                        pst.setFloat(7, int_qty);
-                        pst.setFloat(8, int_pack_qty);
-                        pst.setString(9, new_car);
-                        pst.setString(10, used_car);
-                        pst.setString(11, bags);
+                        pst.setString(4, dataInsertedDay);
+                        pst.setString(5, reportDateString);
+                        pst.setString(6, shift);
+                        pst.setString(7, partNumber);
+                        pst.setFloat(8, int_qty);
+                        pst.setFloat(9, int_pack_qty);
+                        pst.setString(10, new_car);
+                        pst.setString(11, used_car);
+                        pst.setString(12, bags);
+                        pst.setString(13, sup);
+                        pst.setString(14, tech);
 
                         pst.addBatch();
 
@@ -200,7 +308,7 @@ public class main extends javax.swing.JFrame {
 
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             Date today = Calendar.getInstance().getTime();
-            String reportDate = df.format(today);
+            String InsertDate = df.format(today);
 
             int emptyRows = 0;
             rowSearch:
@@ -214,14 +322,14 @@ public class main extends javax.swing.JFrame {
             }
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
             int rows = rejectAnalysisTable.getRowCount();
-            String queryco = "Insert IGNORE into reject(Id,Date,Shift,Base,PartNumber,value) values (?,?,?,?,?,?);";
+            String queryco = "Insert IGNORE into reject(Id,InsertDate,ReportDate,Shift,Base,PartNumber,value,Supervisor,Technician) values (?,?,?,?,?,?,?,?,?);";
             pst = connection.prepareStatement(queryco);
 
             int fullRows = rows - emptyRows;
             int cols = rejectAnalysisTable.getColumnCount();
 
             for (int row = 0; row < fullRows; row++) {
-                for (int col = 1; col < cols-1; col++) {
+                for (int col = 1; col < cols - 1; col++) {
 
                     if (rejectAnalysisTable.getValueAt(row, col) != null) {
                         //float value =  (float) rejectAnalysisTable.getValueAt(row,col);
@@ -232,14 +340,21 @@ public class main extends javax.swing.JFrame {
                             String partNumber = (String) productionTable.getValueAt(col - 1, 3);
                             String amount = rejectAnalysisTable.getValueAt(row, col).toString();
                             String shift = shiftCombo.getSelectedItem().toString();
+                            Date reportDate = jDateChooser1.getDate();
+                            String reportDateString = df.format(reportDate);
+                            String sup = supervisor.getText();
+                            String tech = technician.getText();
                             String id = partNumber + "-" + base + "-" + shift;
 
                             pst.setString(1, id);
-                            pst.setString(2, reportDate);
-                            pst.setString(3, shift);
-                            pst.setString(4, base);
-                            pst.setString(5, partNumber);
-                            pst.setString(6, amount);
+                            pst.setString(2, InsertDate);
+                            pst.setString(3, reportDateString);
+                            pst.setString(4, shift);
+                            pst.setString(5, base);
+                            pst.setString(6, partNumber);
+                            pst.setString(7, amount);
+                            pst.setString(8, sup);
+                            pst.setString(9, tech);
 
                             pst.addBatch();
                         }
@@ -261,39 +376,220 @@ public class main extends javax.swing.JFrame {
 
     }
     
-    private void rejectAnalysisTotal(){
-    
-        int fullRows = filledRows(rejectAnalysisTable);
-     
-        int last_row = rejectAnalysisTable.getColumnCount();
-        for(int i=0;i<fullRows;i++){
-            float tot = rowSum(rejectAnalysisTable,1,i);
-            rejectAnalysisTable.setValueAt(tot,i,last_row-1);
-        
-        
+     private void prodOEEDatabaseInsert() {
+        try {
+
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            Date today = Calendar.getInstance().getTime();
+            String InsertDate = df.format(today);
+
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
+            int rows = productionOeeTable.getRowCount();
+            String queryco = "INSERT IGNORE into prodoee (Id,SOnumber,SWO,Reject,Output,aTime,pdTime,dTime,oTime,irRate,aRate,pRate,qRate,Oee,reportDate,insertDate,Shift,Supervisor,Technician) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+            pst = connection.prepareStatement(queryco);
+
+            
+            int cols = productionOeeTable.getColumnCount();
+
+            for (int row = 0; row < rows-1; row++) {
+                for (int col = 1; col < cols; col++) {
+
+                    if (productionOeeTable.getValueAt(row, col) != null) {
+                        //float value =  (float) rejectAnalysisTable.getValueAt(row,col);
+                        String val = productionOeeTable.getValueAt(row, col).toString();
+                        if (!val.isEmpty()) {
+
+                            String Item = (String) productionOeeTable.getValueAt(row, 1).toString();
+                            String SONumber = (String) productionOeeTable.getValueAt(row, 2).toString();
+                            String SWO = productionOeeTable.getValueAt(row, 3).toString();
+                            String reject = (String) productionOeeTable.getValueAt(row, 4).toString();
+                            String output = (String) productionOeeTable.getValueAt(row, 5).toString();
+                            String a_time = productionOeeTable.getValueAt(row, 6).toString();
+                            String pd_time = (String) productionOeeTable.getValueAt(row, 7).toString();
+                            String d_time = (String) productionOeeTable.getValueAt(row, 8).toString();
+                            String o_time = productionOeeTable.getValueAt(row, 9).toString();
+                            String ir_rate = (String) productionOeeTable.getValueAt(row, 10).toString();
+                            String a_rate = (String) productionOeeTable.getValueAt(row, 11).toString();
+                            String p_rate = productionOeeTable.getValueAt(row, 12).toString();
+                            String q_rate = (String) productionOeeTable.getValueAt(row, 13).toString();
+                            String oee = (String) productionOeeTable.getValueAt(row, 14).toString();
+                            
+                            
+                            
+                            String shift = shiftCombo.getSelectedItem().toString();
+                            Date reportDate = jDateChooser1.getDate();
+                            String reportDateString = df.format(reportDate);
+                            String sup = supervisor.getText();
+                            String tech = technician.getText();
+                            
+                            String id = Item + "-" + reportDateString + "-" + shift;
+
+                            pst.setString(1, id);
+                            pst.setString(2, SONumber);
+                            pst.setString(3, SWO);
+                            pst.setString(4, reject);
+                            pst.setString(5, output);
+                            pst.setString(6, a_time);
+                            pst.setString(7, pd_time);
+                            pst.setString(8, d_time);
+                            pst.setString(9, o_time);
+                            pst.setString(10, ir_rate);
+                            pst.setString(11, a_rate);
+                            pst.setString(12, p_rate);
+                            pst.setString(13, q_rate);
+                            pst.setString(14, oee);
+                            pst.setString(15, reportDateString);
+                            pst.setString(16, InsertDate);
+                            pst.setString(17, shift);
+                            pst.setString(18, sup);
+                            pst.setString(19, tech);
+                            
+
+                            pst.addBatch();
+                        }
+                    }
+                }
+
+            }
+            //productionTable.getSelectionModel().clearSelection();
+
+            pst.executeBatch();
+            //productionTable.setEnabled(false);
+            //prodTableInsert.setEnabled(false);
+            //prodTableUpdate.setEnabled(rootPaneCheckingEnabled);
+            JOptionPane.showMessageDialog(null, "Saved Entries in the Database", "Successful!", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
         }
-    
-    
+
+    }
+     
+     private void packOEEDatabaseInsert() {
+        try {
+
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            Date today = Calendar.getInstance().getTime();
+            String InsertDate = df.format(today);
+
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
+            int rows = packingOeeTable.getRowCount();
+            String queryco = "INSERT IGNORE into packoee (Id,CutLength,SPO,Reject,Output,aTime,pdTime,dTime,oTime,irRate,aRate,pRate,qRate,Oee,reportDate,insertDate,Shift,Supervisor,Technician) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+            pst = connection.prepareStatement(queryco);
+
+            
+            int cols = packingOeeTable.getColumnCount();
+
+            for (int row = 0; row < rows-1; row++) {
+                for (int col = 1; col < cols; col++) {
+
+                    if (packingOeeTable.getValueAt(row, col) != null) {
+                        //float value =  (float) rejectAnalysisTable.getValueAt(row,col);
+                        String val = packingOeeTable.getValueAt(row, col).toString();
+                        if (!val.isEmpty()) {
+
+                            String Item = (String) packingOeeTable.getValueAt(row, 1).toString();
+                            String cutLength = (String) packingOeeTable.getValueAt(row, 2).toString();
+                            String SPO = packingOeeTable.getValueAt(row, 3).toString();
+                            String reject = (String) packingOeeTable.getValueAt(row, 4).toString();
+                            String output = (String) packingOeeTable.getValueAt(row, 5).toString();
+                            String a_time = packingOeeTable.getValueAt(row, 6).toString();
+                            String pd_time = (String) packingOeeTable.getValueAt(row, 7).toString();
+                            String d_time = (String)packingOeeTable.getValueAt(row, 8).toString();
+                            String o_time = packingOeeTable.getValueAt(row, 9).toString();
+                            String ir_rate = (String) packingOeeTable.getValueAt(row, 10).toString();
+                            String a_rate = (String) packingOeeTable.getValueAt(row, 11).toString();
+                            String p_rate = packingOeeTable.getValueAt(row, 12).toString();
+                            String q_rate = (String) packingOeeTable.getValueAt(row, 13).toString();
+                            String oee = (String) packingOeeTable.getValueAt(row, 14).toString();
+                            
+                            
+                            
+                            String shift = shiftCombo.getSelectedItem().toString();
+                            Date reportDate = jDateChooser1.getDate();
+                            String reportDateString = df.format(reportDate);
+                            String sup = supervisor.getText();
+                            String tech = technician.getText();
+                            
+                            String id = Item + "-" + reportDateString + "-" + shift;
+
+                            pst.setString(1, id);
+                            pst.setString(2, cutLength);
+                            pst.setString(3, SPO);
+                            pst.setString(4, reject);
+                            pst.setString(5, output);
+                            pst.setString(6, a_time);
+                            pst.setString(7, pd_time);
+                            pst.setString(8, d_time);
+                            pst.setString(9, o_time);
+                            pst.setString(10, ir_rate);
+                            pst.setString(11, a_rate);
+                            pst.setString(12, p_rate);
+                            pst.setString(13, q_rate);
+                            pst.setString(14, oee);
+                            pst.setString(15, reportDateString);
+                            pst.setString(16, InsertDate);
+                            pst.setString(17, shift);
+                            pst.setString(18, sup);
+                            pst.setString(19, tech);
+                            
+
+                            pst.addBatch();
+                        }
+                    }
+                }
+
+            }
+            //productionTable.getSelectionModel().clearSelection();
+
+            pst.executeBatch();
+            //productionTable.setEnabled(false);
+            //prodTableInsert.setEnabled(false);
+            //prodTableUpdate.setEnabled(rootPaneCheckingEnabled);
+            JOptionPane.showMessageDialog(null, "Saved Entries in the Database", "Successful!", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+
     }
     
-    private float rowSum(JTable table,int start, int n){
-    int colsCount = table.getColumnCount();
+    
+    
+    
+    
+    
+
+    private void rejectAnalysisTotal() {
+
+        int fullRows = filledRows(rejectAnalysisTable);
+
+        int last_row = rejectAnalysisTable.getColumnCount();
+        for (int i = 0; i < fullRows; i++) {
+            float tot = rowSum(rejectAnalysisTable, 1, i);
+            rejectAnalysisTable.setValueAt(tot, i, last_row - 1);
+
+        }
+
+    }
+
+    private float rowSum(JTable table, int start, int n) {
+        int colsCount = table.getColumnCount();
 
         float sum = 0;
-        for (int i = start; i < colsCount-1; i++) {
+        for (int i = start; i < colsCount - 1; i++) {
             Object value = table.getValueAt(n, i);
             //float qty = (float) table.getValueAt(i, n);
 
             //String st_qty = (String) table.getValueAt(n, i);
-
             if (value != null) {
-               // if (!st_qty.isEmpty()) {
-                    sum = sum + Float.parseFloat(table.getValueAt(n, i).toString());
-               // }
+                // if (!st_qty.isEmpty()) {
+                sum = sum + Float.parseFloat(table.getValueAt(n, i).toString());
+                // }
             }
         }
         return sum;
-    
+
     }
 
     private void machineRuntimeDatabaseInstert() {
@@ -302,7 +598,7 @@ public class main extends javax.swing.JFrame {
 
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             Date today = Calendar.getInstance().getTime();
-            String reportDate = df.format(today);
+            String InsertDate = df.format(today);
 
             int emptyRows = 0;
             rowSearch:
@@ -316,7 +612,7 @@ public class main extends javax.swing.JFrame {
             }
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
             int rows = machineWorkedTable.getRowCount();
-            String queryco = "Insert IGNORE into productionmachinetime(Id,PartNumber,TimeFrom,TimeTo,TotalTime) values (?,?,?,?,?);";
+            String queryco = "Insert IGNORE into productionmachinetime(Id,PartNumber,Shift,InsertDate,ReportDate,TimeFrom,TimeTo,TotalTime,Supervisor,Technician) values (?,?,?,?,?,?,?,?,?,?);";
             pst = connection.prepareStatement(queryco);
 
             int fullRows = rows - emptyRows;
@@ -333,13 +629,22 @@ public class main extends javax.swing.JFrame {
                         String to = machineWorkedTable.getValueAt(row, 3).toString();
                         String total = machineWorkedTable.getValueAt(row, 4).toString();
                         String shift = shiftCombo.getSelectedItem().toString();
-                        String id = partNumber + "-" + reportDate + "-" + shift;
+                        Date reportDate = jDateChooser1.getDate();
+                        String reportDateString = df.format(reportDate);
+                        String sup = supervisor.getText();
+                        String tech = technician.getText();
+                        String id = partNumber + "-" + reportDateString + "-" + shift;
 
                         pst.setString(1, id);
                         pst.setString(2, partNumber);
-                        pst.setString(3, from);
-                        pst.setString(4, to);
-                        pst.setString(5, total);
+                        pst.setString(3, shift);
+                        pst.setString(4, InsertDate);
+                        pst.setString(5, reportDateString);
+                        pst.setString(6, from);
+                        pst.setString(7, to);
+                        pst.setString(8, total);
+                        pst.setString(9, sup);
+                        pst.setString(10, tech);
 
                         pst.addBatch();
                     }
@@ -366,7 +671,7 @@ public class main extends javax.swing.JFrame {
 
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             Date today = Calendar.getInstance().getTime();
-            String reportDate = df.format(today);
+            String InsertDate = df.format(today);
 
             int emptyRows = 0;
             rowSearch:
@@ -380,7 +685,7 @@ public class main extends javax.swing.JFrame {
             }
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
             int rows = machineDowntimeTable.getRowCount();
-            String queryco = "Insert IGNORE into productiondowntime(Status,Attribute,TimeFrom,TimeTo,TotalTime,Reason,Comment,Date,Shift) values (?,?,?,?,?,?,?,?,?);";
+            String queryco = "Insert IGNORE into productiondowntime(Status,Attribute,TimeFrom,TimeTo,TotalTime,Reason,Comment,InsertDate,ReportDate,Shift,Supervisor,Technician) values (?,?,?,?,?,?,?,?,?,?,?,?);";
             pst = connection.prepareStatement(queryco);
 
             int fullRows = rows - emptyRows;
@@ -403,7 +708,17 @@ public class main extends javax.swing.JFrame {
                         String to = machineDowntimeTable.getValueAt(row, 3).toString();
                         int total = (int) machineDowntimeTable.getValueAt(row, 4);
                         String reason = machineDowntimeTable.getValueAt(row, 5).toString();
-                        String comment = machineDowntimeTable.getValueAt(row, 6).toString();
+                        Object value = machineDowntimeTable.getValueAt(row, 6);
+                        String comment = null;
+                        if (value == null) {
+                            comment = "";
+                        } else {
+                            comment = machineDowntimeTable.getValueAt(row, 6).toString();
+                        }
+                        Date reportDate = jDateChooser1.getDate();
+                        String reportDateString = df.format(reportDate);
+                        String sup = supervisor.getText();
+                        String tech = technician.getText();
 
                         String shift = shiftCombo.getSelectedItem().toString();
 
@@ -414,8 +729,94 @@ public class main extends javax.swing.JFrame {
                         pst.setInt(5, total);
                         pst.setString(6, reason);
                         pst.setString(7, comment);
-                        pst.setString(8, reportDate);
-                        pst.setString(9, shift);
+                        pst.setString(8, InsertDate);
+                        pst.setString(9, reportDateString);
+                        pst.setString(10, shift);
+                        pst.setString(11, sup);
+                        pst.setString(12, tech);
+
+                        pst.addBatch();
+                    }
+                }
+
+            }
+            //productionTable.getSelectionModel().clearSelection();
+
+            pst.executeBatch();
+            //productionTable.setEnabled(false);
+            //prodTableInsert.setEnabled(false);
+            //prodTableUpdate.setEnabled(rootPaneCheckingEnabled);
+            JOptionPane.showMessageDialog(null, "Saved Entries in the Database", "Successful!", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+
+    }
+
+    private void packtimeDatabaseInstert() {
+
+        try {
+
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            Date today = Calendar.getInstance().getTime();
+            String InsertDate = df.format(today);
+
+            int emptyRows = 0;
+            rowSearch:
+            for (int row = 0; row < packageTimeTable.getRowCount(); row++) { //Iterate through all the rows
+                for (int col = 0; col < packageTimeTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+                    if (packageTimeTable.getValueAt(row, col) != null) { //Check if the box is empty
+                        continue rowSearch; //If the value is not null, the row contains stuff so go onto the next row
+                    }
+                }
+                emptyRows++; //Conditional never evaluated to true so none of the columns in the row contained anything
+            }
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reportgen?useSSL=true", "vidura", "vidura");
+            int rows = packageTimeTable.getRowCount();
+            String queryco = "Insert IGNORE into productiondowntime(Status,Attribute,TimeFrom,TimeTo,TotalTime,Reason,Comment,InsertDate,ReportDate,Shift,Supervisor,Technician) values (?,?,?,?,?,?,?,?,?,?,?,?);";
+            pst = connection.prepareStatement(queryco);
+
+            int fullRows = rows - emptyRows;
+
+            for (int row = 0; row < fullRows; row++) {
+
+                if (packageTimeTable.getValueAt(row, 1) != null) {
+                    //float value =  (float) rejectAnalysisTable.getValueAt(row,col);
+                    String val = packageTimeTable.getValueAt(row, 1).toString();
+                    if (!val.isEmpty()) {
+
+                        String status = (String) machineDowntimeTable.getValueAt(row, 0);
+                        String attribute2 = (String) machineDowntimeTable.getValueAt(row, 1);
+                        String[] splitStr = attribute2.split("\\s+");
+                        String pno = splitStr[1];
+                        int p_no = Integer.parseInt(pno);
+                        String partNumber = productionTable.getValueAt(p_no - 1, 3).toString();
+
+                        String from = machineDowntimeTable.getValueAt(row, 2).toString();
+                        String to = machineDowntimeTable.getValueAt(row, 3).toString();
+                        int total = (int) machineDowntimeTable.getValueAt(row, 4);
+                        String reason = machineDowntimeTable.getValueAt(row, 5).toString();
+                        String comment = machineDowntimeTable.getValueAt(row, 6).toString();
+                        Date reportDate = jDateChooser1.getDate();
+                        String reportDateString = df.format(reportDate);
+                        String sup = supervisor.getText();
+                        String tech = technician.getText();
+
+                        String shift = shiftCombo.getSelectedItem().toString();
+
+                        pst.setString(1, status);
+                        pst.setString(2, partNumber);
+                        pst.setString(3, from);
+                        pst.setString(4, to);
+                        pst.setInt(5, total);
+                        pst.setString(6, reason);
+                        pst.setString(7, comment);
+                        pst.setString(8, InsertDate);
+                        pst.setString(9, reportDateString);
+                        pst.setString(10, shift);
+                        pst.setString(11, sup);
+                        pst.setString(12, tech);
 
                         pst.addBatch();
                     }
@@ -456,7 +857,7 @@ public class main extends javax.swing.JFrame {
                         String part_name = (String) productionTable.getValueAt(j - 1, 3);
                         if (!pack_qty.isEmpty()) {
                             if (rejectAnalysisTable.getValueAt(i, j) != null) {
-                                String rej = (String) rejectAnalysisTable.getValueAt(i, j);
+                                String rej = (String) rejectAnalysisTable.getValueAt(i, j).toString();
 
                                 //proceed if the cell is not empty
                                 if (!rej.isEmpty()) {
@@ -511,6 +912,7 @@ public class main extends javax.swing.JFrame {
     public void packOEE() {
 
         try {
+            tableEmpty(packageTimeTable);
 
             int emptyRows = 0;
             rowSearch:
@@ -575,19 +977,28 @@ public class main extends javax.swing.JFrame {
                             String cut_length = parts[2];
                             packingOeeTable.setValueAt(cut_length, bb, 2);
 
+                            String database_column = null;
+                            boolean ifSingle = (boolean) productionTable.getValueAt(row, 9);
+
+                            if (ifSingle) {
+                                database_column = "SPOSingle";
+                            } else {
+                                database_column = "SPOBoth";
+                            }
+
                             //get the swo value from the database for each part
                             java.sql.PreparedStatement preparedStatement = null;
-                            String query = "select swo from parts where PartNumber=?";
+                            String query = "select " + database_column + " from part2 where Item=?";
                             preparedStatement = conn.prepareStatement(query);
                             preparedStatement.setString(1, partNumber);
                             ResultSet rs = preparedStatement.executeQuery();
                             String season = null;
 
                             if (rs.next()) {
-                                season = rs.getString("swo");
-                                System.out.println(season);
-                                packingOeeTable.setValueAt(season, bb, 3);
-
+                                season = rs.getString(database_column);
+                                if (season != null) {
+                                    packingOeeTable.setValueAt(season, bb, 3);
+                                }
                             }
 
                         }
@@ -604,7 +1015,9 @@ public class main extends javax.swing.JFrame {
     public void prodOEE() {
 
         try {
-
+            
+            tableEmpty(machineWorkedTable);
+            
             int emptyRows = 0;
             rowSearch:
             for (int row = 0; row < productionTable.getRowCount(); row++) { //Iterate through all the rows
@@ -666,18 +1079,32 @@ public class main extends javax.swing.JFrame {
                             productionOeeTable.setValueAt(SOnumber, bb, 2);
                             productionOeeTable.setValueAt(float_qty, bb, 5);
 
+                            //check if product in single die
+                            String database_column = null;
+                            boolean ifSingle = (boolean) productionTable.getValueAt(row, 9);
+
+                            if (ifSingle) {
+                                database_column = "SWOSingle";
+                            } else {
+                                database_column = "SWOBoth";
+                            }
+
                             //get the swo value from the database for each part
                             java.sql.PreparedStatement preparedStatement = null;
-                            String query = "select swo from parts where PartNumber=?";
+
+                            String query = "select " + database_column + " from part2 where Item=?";
                             preparedStatement = conn.prepareStatement(query);
                             preparedStatement.setString(1, partNumber);
                             ResultSet rs = preparedStatement.executeQuery();
                             String season = null;
 
                             if (rs.next()) {
-                                season = rs.getString("swo");
-                                System.out.println(season);
-                                productionOeeTable.setValueAt(season, bb, 3);
+                                season = rs.getString(database_column);
+                                //System.out.println(season);
+                                if (season != null) {
+                                    productionOeeTable.setValueAt(season, bb, 3);
+                                }
+
                             }
 
                         }
@@ -699,8 +1126,6 @@ public class main extends javax.swing.JFrame {
         }
 
     }
-    
-   
 
     public void oeeTotal(JTable table) {
 
@@ -716,7 +1141,7 @@ public class main extends javax.swing.JFrame {
             float total_p_down = columnSumOEE(table, 7);
             float total_down = columnSumOEE(table, 8);
             float total_o_time = columnSumOEE(table, 9);
-            float avg_ideal_run_rate = (columnSumOEE(table, 10) / (rows - 1));
+            float avg_ideal_run_rate = (columnSumOEE(table, 10) / (rows));
 
             table.setValueAt("TOTAL", rows, 1);
             table.setValueAt(total_reject, rows, 4);
@@ -1159,6 +1584,7 @@ public class main extends javax.swing.JFrame {
 
         }
 
+        //machineWorkedTable
         for (int row = 0; row < fullRows; row++) {
             int addy = (int) plannedDownTable.getValueAt(row, 1);
             //int add = Integer.parseInt(addy);
@@ -1247,6 +1673,8 @@ public class main extends javax.swing.JFrame {
     }
 
     public void packagingOeeCalculation() throws SQLException {
+        
+        
 
         int fullRows = filledRows(packageTimeTable);
         for (int row = 0; row < fullRows; row++) {
@@ -1284,22 +1712,22 @@ public class main extends javax.swing.JFrame {
             float downtime = 0;
             packingOeeTable.setValueAt(downtime, row, 8);
 
-            String cutlength = (String) packingOeeTable.getValueAt(row, 2);
+            String Item = (String) packingOeeTable.getValueAt(row, 1);
 
             java.sql.PreparedStatement preparedStatement = null;
-            String query = "select Wastage from standardwastages where CutLength=?";
+            String query = "select CWPre from part2 where Item=?";
             preparedStatement = conn.prepareStatement(query);
-            preparedStatement.setString(1, cutlength);
+            preparedStatement.setString(1, Item);
             ResultSet rs = preparedStatement.executeQuery();
             String standard_wastages = null;
 
             if (rs.next()) {
-                standard_wastages = rs.getString("Wastage");
+                standard_wastages = rs.getString("CWPre");
 
             }
 
             float cutter_wastage_float = (float) packinterimTable.getValueAt(row, 3);
-            float standard_wastages_float = Float.parseFloat(standard_wastages) / 100;
+            float standard_wastages_float = Float.parseFloat(standard_wastages);
 
             float packed_Qty_float = (float) packingOeeTable.getValueAt(row, 5);
 
@@ -1406,6 +1834,7 @@ public class main extends javax.swing.JFrame {
     public void productionOeeCalculation() {
 
         //rejectAnalysisTable.getCellEditor().stopCellEditing();
+       
         int emptyRows = 0;
         rowSearch:
         for (int row = 0; row < productionOeeTable.getRowCount(); row++) { //Iterate through all the rows
@@ -1561,26 +1990,23 @@ public class main extends javax.swing.JFrame {
     public float columnSum(JTable table, int n) {
 
         int rowsCount = table.getRowCount();
-        
-        
 
         float sum = 0;
         for (int i = 0; i < rowsCount; i++) {
             Object value = table.getValueAt(i, n);
             //float qty = (float) table.getValueAt(i, n);
-            
-           // String st_qty = (String)table.getValueAt(i, n);
+
+            // String st_qty = (String)table.getValueAt(i, n);
             //String st_qty = String.valueOf(qty);
-            if (value != null ) {
-               if (!value.toString().isEmpty()) {
+            if (value != null) {
+                if (!value.toString().isEmpty()) {
                     sum = sum + Float.parseFloat(table.getValueAt(i, n).toString());
-               }
+                }
             }
         }
         return sum;
 
     }
-    
 
     public float columnSumOEE(JTable table, int n) {
 
@@ -1674,27 +2100,16 @@ public class main extends javax.swing.JFrame {
         addBelowMD = new javax.swing.JMenuItem();
         removeAboveMD = new javax.swing.JMenuItem();
         removeBelowMD = new javax.swing.JMenuItem();
+        jDialog1 = new javax.swing.JDialog();
         shiftCombo = new javax.swing.JComboBox<>();
-        jLabel6 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
-        jLabel10 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
+        supervisor = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
-        jTextField6 = new javax.swing.JTextField();
-        jLabel12 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
-        jTextField7 = new javax.swing.JTextField();
         jLabel14 = new javax.swing.JLabel();
-        jLabel15 = new javax.swing.JLabel();
-        jTextField8 = new javax.swing.JTextField();
-        jTextField9 = new javax.swing.JTextField();
+        technician = new javax.swing.JTextField();
         jLabel16 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
-        jTextField10 = new javax.swing.JTextField();
+        now = new javax.swing.JTextField();
         jScrollPane10 = new javax.swing.JScrollPane();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel5 = new javax.swing.JPanel();
@@ -1796,6 +2211,7 @@ public class main extends javax.swing.JFrame {
                 productionOeeTable.transferFocus();
             }
         };
+        jDateChooser1 = new com.toedter.calendar.JDateChooser();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
@@ -1926,6 +2342,17 @@ public class main extends javax.swing.JFrame {
         });
         machineDowntime.add(removeBelowMD);
 
+        javax.swing.GroupLayout jDialog1Layout = new javax.swing.GroupLayout(jDialog1.getContentPane());
+        jDialog1.getContentPane().setLayout(jDialog1Layout);
+        jDialog1Layout.setHorizontalGroup(
+            jDialog1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 400, Short.MAX_VALUE)
+        );
+        jDialog1Layout.setVerticalGroup(
+            jDialog1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 300, Short.MAX_VALUE)
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(102, 102, 102));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -1936,59 +2363,37 @@ public class main extends javax.swing.JFrame {
                 shiftComboActionPerformed(evt);
             }
         });
-        getContentPane().add(shiftCombo, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 50, 60, -1));
-
-        jLabel6.setText("Issue Number");
-        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, -1, -1));
-
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
-            }
-        });
-        getContentPane().add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 50, 60, -1));
+        getContentPane().add(shiftCombo, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 20, 60, -1));
 
         jLabel7.setText("Shift");
-        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 40, 80, 40));
-        getContentPane().add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 20, 60, -1));
-        getContentPane().add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 50, 110, -1));
-        getContentPane().add(jTextField4, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 20, 70, -1));
-
-        jLabel10.setText("Date of Revison ");
-        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 20, -1, -1));
-        getContentPane().add(jTextField5, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 20, 60, -1));
+        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 10, 80, 40));
+        getContentPane().add(supervisor, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 20, 140, -1));
 
         jLabel11.setText("Date");
-        getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 50, 40, 20));
-
-        jTextField6.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField6ActionPerformed(evt);
-            }
-        });
-        getContentPane().add(jTextField6, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 20, 60, -1));
-
-        jLabel12.setText("Revision Number");
-        getContentPane().add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 20, -1, -1));
-
-        jLabel13.setText("Document Number");
-        getContentPane().add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 20, -1, -1));
-        getContentPane().add(jTextField7, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 20, 60, -1));
+        getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, 40, 20));
 
         jLabel14.setText("Supervisor");
-        getContentPane().add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 50, -1, 20));
+        getContentPane().add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 20, -1, 20));
 
-        jLabel15.setText("Date of Issue");
-        getContentPane().add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 20, -1, -1));
-        getContentPane().add(jTextField8, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 20, 70, -1));
-        getContentPane().add(jTextField9, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 50, 110, -1));
+        technician.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                technicianActionPerformed(evt);
+            }
+        });
+        getContentPane().add(technician, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 20, 160, -1));
 
-        jLabel16.setText("Techncian");
-        getContentPane().add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 50, -1, -1));
+        jLabel16.setText("Technician");
+        getContentPane().add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 10, 110, 50));
 
         jLabel17.setText("No. of Workers");
-        getContentPane().add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 50, -1, -1));
-        getContentPane().add(jTextField10, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 50, 60, -1));
+        getContentPane().add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 10, 80, 50));
+
+        now.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nowActionPerformed(evt);
+            }
+        });
+        getContentPane().add(now, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 20, 60, -1));
 
         jTabbedPane1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jTabbedPane1.setMaximumSize(new java.awt.Dimension(1277, 997));
@@ -2011,16 +2416,24 @@ public class main extends javax.swing.JFrame {
 
         productionTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null,  new Boolean(false)},
+                {null, null, null, null, null, null, null, null, null,  new Boolean(false)},
+                {null, null, null, null, null, null, null, null, null,  new Boolean(false)},
+                {null, null, null, null, null, null, null, null, null,  new Boolean(false)},
+                {null, null, null, null, null, null, null, null, null,  new Boolean(false)}
             },
             new String [] {
-                "No", "SO Number", "Customer", "Part Number", "Produced Qty", "Packed Qty", "No of Cart. New", "No of Cart. Used", "PP/PE Bags"
+                "No", "SO Number", "Customer", "Part Number", "Produced Qty", "Packed Qty", "No of Cart. New", "No of Cart. Used", "PP/PE Bags", "Single Die"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
         productionTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 productionTableMouseClicked(evt);
@@ -2043,6 +2456,7 @@ public class main extends javax.swing.JFrame {
             productionTable.getColumnModel().getColumn(6).setMaxWidth(100);
             productionTable.getColumnModel().getColumn(7).setMaxWidth(100);
             productionTable.getColumnModel().getColumn(8).setMaxWidth(100);
+            productionTable.getColumnModel().getColumn(9).setMaxWidth(60);
         }
 
         jPanel5.add(jScrollPane9, new org.netbeans.lib.awtextra.AbsoluteConstraints(33, 52, 1182, 149));
@@ -2367,7 +2781,7 @@ public class main extends javax.swing.JFrame {
                 jButton6ActionPerformed(evt);
             }
         });
-        jPanel5.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 1240, -1, -1));
+        jPanel5.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 1240, -1, 20));
 
         jButton7.setText("Prod OEE Excel");
         jButton7.addActionListener(new java.awt.event.ActionListener() {
@@ -2560,6 +2974,7 @@ public class main extends javax.swing.JFrame {
         jScrollPane10.getVerticalScrollBar().setUnitIncrement(16);
 
         getContentPane().add(jScrollPane10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 1335, 560));
+        getContentPane().add(jDateChooser1, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 20, 130, -1));
 
         jMenu1.setText("File");
         jMenuBar1.add(jMenu1);
@@ -2651,14 +3066,6 @@ public class main extends javax.swing.JFrame {
         rowOperations.addRowAboveMD(machineDowntimeTable);
     }//GEN-LAST:event_addAboveMDActionPerformed
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
-
-    private void jTextField6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField6ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField6ActionPerformed
-
     private void shiftComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shiftComboActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_shiftComboActionPerformed
@@ -2673,11 +3080,13 @@ public class main extends javax.swing.JFrame {
 
         if (click == -1) {
             timeCalculate();
+            machineTimePreDatabaseInsert();
             machineRuntimeDatabaseInstert();
 
         } else {
             machineWorkedTable.getCellEditor().stopCellEditing();
             timeCalculate();
+            machineTimePreDatabaseInsert();
             machineRuntimeDatabaseInstert();
         }
     }//GEN-LAST:event_jButton4ActionPerformed
@@ -2698,11 +3107,19 @@ public class main extends javax.swing.JFrame {
         if (click_3 != -1) {
             machineDowntimeTable.getCellEditor().stopCellEditing();
         }
-        
+
         int click_4 = packageTimeTable.getEditingRow();
         if (click_4 != -1) {
             packageTimeTable.getCellEditor().stopCellEditing();
         }
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+        Date reportDate = jDateChooser1.getDate();
+        String reportDateString = df.format(reportDate);
+        String sup = supervisor.getText();
+        String tech = technician.getText();
+        String reportShift = shiftCombo.getSelectedItem().toString();
+        String now_string = now.getText();
 
         JFileChooser fileChooser = new JFileChooser();
         // apply filter
@@ -2715,7 +3132,8 @@ public class main extends javax.swing.JFrame {
             //add .xls extention
             file = new File(file.toString() + ".xlsx");
             excelCreator shift = new excelCreator();
-            shift.shiftReport(productionTable, rejectAnalysisTable,machineDowntimeTable,packageTimeTable, file);
+            //JTable prodTable, JTable rejectTable, JTable downtimeTable, JTable packageTimeTable,String reportDate,String reportShift, String Supervior, String Technician, String NoW, File file
+            shift.shiftReport(productionTable, rejectAnalysisTable, machineDowntimeTable, packageTimeTable, reportDateString, reportShift, sup, tech, now_string, file);
 
         }
 
@@ -2754,6 +3172,8 @@ public class main extends javax.swing.JFrame {
             Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
         }
         oeeTotal(packingOeeTable);
+        packOEEPreDatabaseInsert();
+        packOEEDatabaseInsert();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void packageTimeTableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_packageTimeTableKeyPressed
@@ -2800,6 +3220,8 @@ public class main extends javax.swing.JFrame {
         prodOEE();
         productionOeeCalculation();
         oeeTotal(productionOeeTable);
+        prodOEEPreDatabaseInsert();
+        prodOEEDatabaseInsert();
 
         //oeeTotal(productionOeeTable);
         //excal.production(productionTable);
@@ -2812,7 +3234,7 @@ public class main extends javax.swing.JFrame {
         int click = productionTable.getEditingRow();
 
         if (click == -1) {
-           
+
             prodOEE();
             packOEE();
             productionPreDatabaseInsert();
@@ -2820,7 +3242,7 @@ public class main extends javax.swing.JFrame {
             setPackPackingTime();
 
         } else {
-            
+
             productionTable.getCellEditor().stopCellEditing();
             prodOEE();
             packOEE();
@@ -2838,12 +3260,14 @@ public class main extends javax.swing.JFrame {
         if (click == -1) {
             timeCalculateDown();
             hiddenTable();
+            machineDownPreDatabaseInsert();
             machineDowntimeDatabaseInstert();
 
         } else {
             machineDowntimeTable.getCellEditor().stopCellEditing();
             timeCalculateDown();
             hiddenTable();
+            machineDownPreDatabaseInsert();
             machineDowntimeDatabaseInstert();
         }
     }//GEN-LAST:event_jButton8ActionPerformed
@@ -2916,18 +3340,20 @@ public class main extends javax.swing.JFrame {
         int click = rejectAnalysisTable.getEditingRow();
 
         if (click == -1) {
-            
+
             oeeReject();
             packOEEReject();
             rejectAnalysisTotal();
+            rejectPreDatabaseInsert();
             rejectAnalysisDatabaseInsert();
 
         } else {
-            
+
             rejectAnalysisTable.getCellEditor().stopCellEditing();
             oeeReject();
             packOEEReject();
             rejectAnalysisTotal();
+            rejectPreDatabaseInsert();
             rejectAnalysisDatabaseInsert();
         }
     }//GEN-LAST:event_jButton5ActionPerformed
@@ -2976,13 +3402,12 @@ public class main extends javax.swing.JFrame {
     private void rejectAnalysisTableMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rejectAnalysisTableMouseReleased
         // TODO add your handling code here:
         //if (evt.isPopupTrigger()) {
-           // int row = rejectAnalysisTable.getSelectedRow();
+        // int row = rejectAnalysisTable.getSelectedRow();
 
-          //  if (row >= 0) {
-         //       rejectAnalysis.show(this, evt.getX() + 50, evt.getY() + 400);
+        //  if (row >= 0) {
+        //       rejectAnalysis.show(this, evt.getX() + 50, evt.getY() + 400);
         //    }
-
-     //   }
+        //   }
     }//GEN-LAST:event_rejectAnalysisTableMouseReleased
 
     private void jScrollPane9KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jScrollPane9KeyPressed
@@ -3040,6 +3465,14 @@ public class main extends javax.swing.JFrame {
     private void productionTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_productionTableMouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_productionTableMouseClicked
+
+    private void technicianActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_technicianActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_technicianActionPerformed
+
+    private void nowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nowActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_nowActionPerformed
     private void itemNumberComboBoxPopupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent e) {
         databaseOperations dops = new databaseOperations();
 
@@ -3102,19 +3535,16 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
+    private com.toedter.calendar.JDateChooser jDateChooser1;
+    private javax.swing.JDialog jDialog1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JMenu jMenu1;
@@ -3135,19 +3565,10 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane8;
     private javax.swing.JScrollPane jScrollPane9;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField10;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
-    private javax.swing.JTextField jTextField8;
-    private javax.swing.JTextField jTextField9;
     private javax.swing.JPopupMenu machineDowntime;
     private javax.swing.JTable machineDowntimeTable;
     private javax.swing.JTable machineWorkedTable;
+    private javax.swing.JTextField now;
     private javax.swing.JTable packageTimeTable;
     private javax.swing.JTable packingOeeTable;
     private javax.swing.JTable packinterimTable;
@@ -3167,6 +3588,8 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JMenuItem removeThisRowReject;
     private javax.swing.JPopupMenu rowAdderDeleter;
     private javax.swing.JComboBox<String> shiftCombo;
+    private javax.swing.JTextField supervisor;
+    private javax.swing.JTextField technician;
     private javax.swing.JTable totalDownTable;
     // End of variables declaration//GEN-END:variables
 

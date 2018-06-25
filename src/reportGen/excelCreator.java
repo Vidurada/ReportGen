@@ -572,7 +572,7 @@ public class excelCreator {
 
     }
 
-    public void shiftReport(JTable prodTable, JTable rejectTable, JTable downtimeTable, JTable packageTimeTable, File file) {
+    public void shiftReport(JTable prodTable, JTable rejectTable, JTable downtimeTable, JTable packageTimeTable,String reportDate,String reportShift, String Supervisor, String Technician, String NoW, File file) {
 
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet1 = workbook.createSheet("OEE");
@@ -681,7 +681,7 @@ public class excelCreator {
         //issue number cell
         Cell issueNumber = fourthrow.createCell(0);
         issueNumber.setCellStyle(normal_style_left);
-        issueNumber.setCellValue("Issue Number");
+        issueNumber.setCellValue("Issue Number: 01");
         sheet1.addMergedRegion(new CellRangeAddress(
                 3, //first row (0-based)
                 3, //last row  (0-based)
@@ -691,7 +691,7 @@ public class excelCreator {
         //revision Number cell
         Cell revisionNumber = fourthrow.createCell(5);
         revisionNumber.setCellStyle(normal_style_left);
-        revisionNumber.setCellValue("Revision Number");
+        revisionNumber.setCellValue("Revision Number: 01");
         sheet1.addMergedRegion(new CellRangeAddress(
                 3, //first row (0-based)
                 3, //last row  (0-based)
@@ -701,7 +701,7 @@ public class excelCreator {
         //document Number cell
         Cell documentNumber = fourthrow.createCell(10);
         documentNumber.setCellStyle(normal_style_left);
-        documentNumber.setCellValue("Document Number");
+        documentNumber.setCellValue("Document Number: BES-PRD-03");
 
         Row fifthrow = sheet1.createRow(4);
         //firstrow.setHeightInPoints(10);
@@ -714,7 +714,7 @@ public class excelCreator {
         //issue number cell
         Cell date_of_issue = fifthrow.createCell(0);
         date_of_issue.setCellStyle(normal_style_left);
-        date_of_issue.setCellValue("Date of Issue");
+        date_of_issue.setCellValue("Date of Issue: 15.05.2013");
         sheet1.addMergedRegion(new CellRangeAddress(
                 4, //first row (0-based)
                 4, //last row  (0-based)
@@ -724,7 +724,7 @@ public class excelCreator {
         //revision Number cell
         Cell date_of_revision = fifthrow.createCell(5);
         date_of_revision.setCellStyle(normal_style_left);
-        date_of_revision.setCellValue("Date of Revision");
+        date_of_revision.setCellValue("Date of Revision:03-13-2018");
         sheet1.addMergedRegion(new CellRangeAddress(
                 4, //first row (0-based)
                 4, //last row  (0-based)
@@ -743,10 +743,10 @@ public class excelCreator {
                 0, //first column (0-based)
                 1 //last column  (0-based)
         ));
-
+        //reportDate,String reportShift, String Supervior, String Technician, String NoW
         Cell date = sixthrow.createCell(0);
         date.setCellStyle(normal_style_left);
-        date.setCellValue("Date");
+        date.setCellValue("Date:");
 
         sheet1.addMergedRegion(new CellRangeAddress(
                 5, //first row (0-based)
@@ -757,7 +757,7 @@ public class excelCreator {
 
         Cell date_input = sixthrow.createCell(2);
         date_input.setCellStyle(normal_style_b_border);
-        date_input.setCellValue("");
+        date_input.setCellValue(reportDate);
 
         Cell date_input2 = sixthrow.createCell(3);
         date_input2.setCellStyle(normal_style_b_border);
@@ -772,7 +772,7 @@ public class excelCreator {
 
         Cell tech = sixthrow.createCell(10);
         tech.setCellStyle(normal_style_left);
-        tech.setCellValue("Technician");
+        tech.setCellValue("Technician:");
 
         sheet1.addMergedRegion(new CellRangeAddress(
                 5, //first row (0-based)
@@ -783,7 +783,7 @@ public class excelCreator {
 
         Cell tech_input = sixthrow.createCell(12);
         tech_input.setCellStyle(normal_style_b_border);
-        tech_input.setCellValue("");
+        tech_input.setCellValue(Technician);
 
         Cell tech_input2 = sixthrow.createCell(13);
         tech_input2.setCellStyle(normal_style_b_border);
@@ -799,7 +799,7 @@ public class excelCreator {
 
         Cell shift = seventhrow.createCell(0);
         shift.setCellStyle(normal_style_left);
-        shift.setCellValue("Shift");
+        shift.setCellValue("Shift: ");
 
         sheet1.addMergedRegion(new CellRangeAddress(
                 6, //first row (0-based)
@@ -810,7 +810,7 @@ public class excelCreator {
 
         Cell shift_input = seventhrow.createCell(2);
         shift_input.setCellStyle(normal_style_b_border);
-        shift_input.setCellValue("");
+        shift_input.setCellValue(reportShift);
 
         Cell shift_input2 = seventhrow.createCell(3);
         shift_input2.setCellStyle(normal_style_b_border);
@@ -825,7 +825,7 @@ public class excelCreator {
 
         Cell no_workers = seventhrow.createCell(10);
         no_workers.setCellStyle(normal_style_left);
-        no_workers.setCellValue("No. of Workers");
+        no_workers.setCellValue("No. of Workers ");
 
         sheet1.addMergedRegion(new CellRangeAddress(
                 6, //first row (0-based)
@@ -836,7 +836,7 @@ public class excelCreator {
 
         Cell no_workers_input = seventhrow.createCell(12);
         no_workers_input.setCellStyle(normal_style_b_border);
-        no_workers_input.setCellValue("");
+        no_workers_input.setCellValue(NoW);
 
         Cell no_workers_input2 = seventhrow.createCell(13);
         no_workers_input2.setCellStyle(normal_style_b_border);
@@ -853,6 +853,7 @@ public class excelCreator {
         Cell supervisor = eighthrow.createCell(0);
         supervisor.setCellStyle(normal_style_left);
         supervisor.setCellValue("Supervisor");
+        
 
         sheet1.addMergedRegion(new CellRangeAddress(
                 7, //first row (0-based)
@@ -863,7 +864,7 @@ public class excelCreator {
 
         Cell supervisor_input = eighthrow.createCell(2);
         supervisor_input.setCellStyle(normal_style_b_border);
-        supervisor_input.setCellValue("");
+        supervisor_input.setCellValue(Supervisor);
 
         Cell supervisor_input2 = eighthrow.createCell(3);
         supervisor_input2.setCellStyle(normal_style_b_border);
@@ -977,7 +978,7 @@ public class excelCreator {
         int emptyRows = 0;
         rowSearch:
         for (int row = 0; row < prodTable.getRowCount(); row++) { //Iterate through all the rows
-            for (int col = 0; col < prodTable.getColumnCount(); col++) { //Iterate through all the columns in the row
+            for (int col = 0; col < prodTable.getColumnCount()-1; col++) { //Iterate through all the columns in the row
                 if (prodTable.getValueAt(row, col) != null) { //Check if the box is empty
                     String qty = prodTable.getValueAt(row, col).toString();
                     if (!qty.isEmpty()) {
@@ -1071,7 +1072,9 @@ public class excelCreator {
         Float truncated_prod_total = BigDecimal.valueOf(prod_total)
                 .setScale(2, RoundingMode.HALF_UP)
                 .floatValue();
-
+        
+        System.out.println(truncated_prod_total);
+        
         float pack_total = mn.columnSum(prodTable, 5);
         Float truncated_pack_total = BigDecimal.valueOf(pack_total)
                 .setScale(2, RoundingMode.HALF_UP)
@@ -1123,14 +1126,18 @@ public class excelCreator {
         Cell pack_total_label = prod_total_row.createCell(10);
         pack_total_label.setCellValue(truncated_pack_total);
 
-        Cell new_total_label = prod_total_row.createCell(11);
+        Cell new_total_label = prod_total_row.createCell(12);
         new_total_label.setCellValue(truncated_prod_new);
 
-        Cell used_total_label = prod_total_row.createCell(12);
+        Cell used_total_label = prod_total_row.createCell(13);
         used_total_label.setCellValue(truncated_prod_used);
 
-        Cell bags_total_label = prod_total_row.createCell(13);
+        Cell bags_total_label = prod_total_row.createCell(14);
         bags_total_label.setCellValue(truncated_prod_bags);
+        
+        
+        
+        
 
         int ra_label = total_row + 1;
         Row ra_label_row = sheet1.createRow(ra_label);
@@ -1306,7 +1313,14 @@ public class excelCreator {
             String downtime_to = downtimeTable.getValueAt(i, 3).toString();
             String downtime_mins = downtimeTable.getValueAt(i, 4).toString();
             String downtime_reason = downtimeTable.getValueAt(i, 5).toString();
-            String downtime_comment = downtimeTable.getValueAt(i, 6).toString();
+            Object val = downtimeTable.getValueAt(i, 6);
+            String downtime_comment = null;
+            if (val == null){
+            downtime_comment = "";
+            }
+            else{
+            downtime_comment = downtimeTable.getValueAt(i, 6).toString();
+            }
 
             Row row_input = sheet1.createRow(downtime_table_starts_here + 3 + i);
             Cell input_from = row_input.createCell(0);
@@ -1353,7 +1367,24 @@ public class excelCreator {
         ));
 
         //packageTimeTable
-        for (int i = 0; i < (prodTable.getRowCount() - emptyRows); i++) {
+        int emptyRows4 = 0;
+        rowSearch4:
+        for (int rowss = 0; rowss < packageTimeTable.getRowCount(); rowss++) { //Iterate through all the rows
+            for (int colss = 0; colss < packageTimeTable.getColumnCount(); colss++) { //Iterate through all the columns in the row
+                if (packageTimeTable.getValueAt(rowss, colss) != null) { //Check if the box is empty
+                    String qty = packageTimeTable.getValueAt(rowss, colss).toString();
+                    if (!qty.isEmpty()) {
+
+                        continue rowSearch4; //If the value is not null, the row contains stuff so go onto the next row
+                    }
+                }
+            }
+            emptyRows4++; //Conditional never evaluated to true so none of the columns in the row contained anything
+        }
+        
+        
+        
+        for (int i = 0; i < (packageTimeTable.getRowCount() - emptyRows4); i++) {
             System.out.println(i+"run");
              String name2 = packageTimeTable.getValueAt(i, 1).toString();
                 String state = "Packing(Item " + (i+1) + ") =";
@@ -1373,15 +1404,15 @@ public class excelCreator {
                         tea1 = " Tea = 10.00 am to 10.15 am";
                     }
                     if (packageTimeTable.getValueAt(i, 6).equals(true)) {
-                        tea2 = " & Tea = 3.00 pm to 3.15 pm";
+                        tea2 = " Tea = 3.00 pm to 3.15 pm";
                     }
                     if (packageTimeTable.getValueAt(i, 7).equals(true)) {
                         
-                        float result = Float.parseFloat(pack_to);
-                        if (result < 13) {
-                            tea1 = " & Lunch = 12.00 pm to 1.00 pm";
+                        float result = Float.parseFloat(pack_from);
+                        if (result < 19) {
+                            meal = " Lunch = 12.00 pm to 1.00 pm";
                         } else {
-                            meal = " & Dinner = 7.00 pm to 8.00 pm";
+                            meal = " Dinner = 7.00 pm to 8.00 pm";
                         }
 
                     }
